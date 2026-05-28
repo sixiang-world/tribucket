@@ -109,8 +109,9 @@ main() {
   [ -z "$VERSION" ] && err "Failed to parse version from GitHub API."
   info "Latest: ${BOLD}v${VERSION}${Z}"
 
-  # Find matching asset URL
-  DOWNLOAD_URL=$(printf '%s' "$RELEASE_JSON" | grep '"browser_download_url"' | grep -i "$ASSET_PATTERN" | head -1 | sed 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+  # Find matching asset URL (convert glob * to regex .*)
+  _regex_pattern=$(printf '%s' "$ASSET_PATTERN" | sed 's/\./\\./g; s/\*/.*/g')
+  DOWNLOAD_URL=$(printf '%s' "$RELEASE_JSON" | grep '"browser_download_url"' | grep -i "$_regex_pattern" | head -1 | sed 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
   [ -z "$DOWNLOAD_URL" ] && err "No asset matching '${ASSET_PATTERN}' in release v${VERSION}"
 
   # Install directory

@@ -1,0 +1,16 @@
+{
+  "name": "fzf",
+  "repo": "junegunn/fzf",
+  "description": "Command-line fuzzy finder",
+  "binary": "fzf",
+  "license": "MIT",
+  "homepage": "https://github.com/junegunn/fzf",
+  "asset_pattern": {
+    "linux_amd64": "fzf-*-linux_amd64.tar.gz",
+    "linux_arm64": "fzf-*-linux_arm64.tar.gz",
+    "darwin_amd64": "fzf-*-darwin_amd64.tar.gz",
+    "darwin_arm64": "fzf-*-darwin_arm64.tar.gz",
+    "windows_amd64": "fzf-*-windows_amd64.zip",
+    "windows_arm64": "fzf-*-windows_arm64.zip"
+  }
+}

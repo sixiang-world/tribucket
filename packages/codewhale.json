@@ -1,0 +1,16 @@
+{
+  "name": "codewhale",
+  "repo": "Hmbown/CodeWhale",
+  "description": "DeepSeek + MiMo coding agent in terminal",
+  "binary": "codewhale",
+  "license": "MIT",
+  "homepage": "https://github.com/Hmbown/CodeWhale",
+  "asset_pattern": {
+    "linux_amd64": "codewhale-linux-x64",
+    "linux_arm64": "codewhale-linux-arm64",
+    "darwin_amd64": "codewhale-macos-x64",
+    "darwin_arm64": "codewhale-macos-arm64",
+    "windows_amd64": "codewhale-windows-x64.exe",
+    "windows_arm64": "codewhale-windows-arm64.exe"
+  }
+}

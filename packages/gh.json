@@ -1,0 +1,16 @@
+{
+  "name": "gh",
+  "repo": "cli/cli",
+  "description": "GitHub CLI \u2014 GitHub from the command line",
+  "binary": "gh",
+  "license": "MIT",
+  "homepage": "https://github.com/cli/cli",
+  "asset_pattern": {
+    "linux_amd64": "gh_*_linux_amd64.tar.gz",
+    "linux_arm64": "gh_*_linux_arm64.tar.gz",
+    "darwin_amd64": "gh_*_macOS_amd64.tar.gz",
+    "darwin_arm64": "gh_*_macOS_arm64.tar.gz",
+    "windows_amd64": "gh_*_windows_amd64.zip",
+    "windows_arm64": "gh_*_windows_arm64.zip"
+  }
+}
