@@ -1,0 +1,16 @@
+{
+  "name": "ccx",
+  "repo": "BenedictKing/ccx",
+  "description": "Claude / Codex / Gemini API Proxy and Gateway",
+  "binary": "ccx",
+  "license": "MIT",
+  "homepage": "https://github.com/BenedictKing/ccx",
+  "asset_pattern": {
+    "linux_amd64": "ccx-linux-amd64",
+    "linux_arm64": "ccx-linux-arm64",
+    "darwin_amd64": "ccx-darwin-amd64",
+    "darwin_arm64": "ccx-darwin-arm64",
+    "windows_amd64": "ccx-windows-amd64.exe",
+    "windows_arm64": "ccx-windows-arm64.exe"
+  }
+}
