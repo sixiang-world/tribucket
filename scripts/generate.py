@@ -10,6 +10,28 @@ import os
 import sys
 
 
+def load_packages(packages_dir, only=None):
+    """Load package definitions from packages/*.json."""
+    pkgs = []
+    for f in sorted(os.listdir(packages_dir)):
+        if not f.endswith(".json"):
+            continue
+        path = os.path.join(packages_dir, f)
+        with open(path, encoding="utf-8") as fh:
+            pkg = json.load(fh)
+        pkgs.append(pkg)
+
+    if only:
+        only_set = set(only)
+        found = {p["name"] for p in pkgs}
+        missing = only_set - found
+        for m in missing:
+            print(f"[warn] Package '{m}' not found in {packages_dir}")
+        pkgs = [p for p in pkgs if p["name"] in only_set]
+
+    return pkgs
+
+
 def parse_args(argv=None):
     """Parse CLI arguments. Accepts list for testing; defaults to sys.argv[1:]."""
     parser = argparse.ArgumentParser(

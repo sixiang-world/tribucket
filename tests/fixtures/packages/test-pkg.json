@@ -1,0 +1,16 @@
+{
+  "name": "test-pkg",
+  "repo": "owner/test-pkg",
+  "description": "A test package",
+  "binary": "tp",
+  "license": "MIT",
+  "homepage": "https://github.com/owner/test-pkg",
+  "asset_pattern": {
+    "linux_amd64": "test-pkg-linux-amd64.tar.gz",
+    "linux_arm64": "test-pkg-linux-arm64.tar.gz",
+    "darwin_amd64": "test-pkg-darwin-amd64.tar.gz",
+    "darwin_arm64": "test-pkg-darwin-arm64.tar.gz",
+    "windows_amd64": "test-pkg-windows-amd64.exe",
+    "windows_arm64": "test-pkg-windows-arm64.exe"
+  }
+}
