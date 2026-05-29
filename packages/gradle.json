@@ -1,0 +1,24 @@
+{
+  "name": "gradle",
+  "repo": "gradle/gradle",
+  "description": "Build automation tool for JVM projects",
+  "binary": "gradle",
+  "license": "Apache-2.0",
+  "homepage": "https://gradle.org/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip",
+    "linux_arm64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip",
+    "darwin_amd64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip",
+    "darwin_arm64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip",
+    "windows_amd64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip",
+    "windows_arm64": "https://services.gradle.org/distributions/gradle-8.14-bin.zip"
+  }
+}

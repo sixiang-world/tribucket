@@ -1,0 +1,24 @@
+{
+  "name": "vagrant",
+  "repo": "hashicorp/vagrant",
+  "description": "Development environment management tool by HashiCorp",
+  "binary": "vagrant",
+  "license": "BSL-1.1",
+  "homepage": "https://www.vagrantup.com/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_linux_amd64.zip",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_darwin_amd64.dmg",
+    "darwin_arm64": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_darwin_arm64.dmg",
+    "windows_amd64": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_windows_amd64.msi",
+    "windows_arm64": "NO_MATCH"
+  }
+}

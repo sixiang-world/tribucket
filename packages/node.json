@@ -1,0 +1,24 @@
+{
+  "name": "node",
+  "repo": "nodejs/node",
+  "description": "JavaScript runtime built on Chrome's V8 engine",
+  "binary": "node",
+  "license": "MIT",
+  "homepage": "https://nodejs.org/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-linux-x64.tar.gz",
+    "linux_arm64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-linux-arm64.tar.gz",
+    "darwin_amd64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-darwin-x64.tar.gz",
+    "darwin_arm64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-darwin-arm64.tar.gz",
+    "windows_amd64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-win-x64.zip",
+    "windows_arm64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-win-arm64.zip"
+  }
+}
