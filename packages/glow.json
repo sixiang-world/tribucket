@@ -1,0 +1,16 @@
+{
+  "name": "glow",
+  "repo": "charmbracelet/glow",
+  "description": "Render markdown on the CLI",
+  "binary": "glow",
+  "license": "MIT",
+  "homepage": "https://github.com/charmbracelet/glow",
+  "asset_pattern": {
+    "linux_amd64": "glow_2.1.2_Linux_x86_64.tar.gz",
+    "linux_arm64": "glow_2.1.2_Linux_arm64.tar.gz",
+    "darwin_amd64": "glow_2.1.2_Darwin_x86_64.tar.gz",
+    "darwin_arm64": "glow_2.1.2_Darwin_arm64.tar.gz",
+    "windows_amd64": "glow_2.1.2_Windows_x86_64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

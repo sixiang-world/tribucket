@@ -1,0 +1,16 @@
+{
+  "name": "procs",
+  "repo": "dalance/procs",
+  "description": "Modern replacement for ps (process viewer)",
+  "binary": "procs",
+  "license": "MIT",
+  "homepage": "https://github.com/dalance/procs",
+  "asset_pattern": {
+    "linux_amd64": "procs-v0.14.11-x86_64-linux.zip",
+    "linux_arm64": "procs-v0.14.11-aarch64-linux.zip",
+    "darwin_amd64": "procs-v0.14.11-x86_64-mac.zip",
+    "darwin_arm64": "procs-v0.14.11-aarch64-mac.zip",
+    "windows_amd64": "procs-v0.14.11-x86_64-windows.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

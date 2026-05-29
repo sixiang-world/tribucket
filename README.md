@@ -11,22 +11,50 @@
 
 | 软件 | 描述 | GitHub |
 |------|------|--------|
+| ast-grep | Structural search/replace using AST patterns | [ast-grep/ast-grep](https://github.com/ast-grep/ast-grep) |
 | axonhub | Open-source AI Gateway — call 100+ LLMs with failover and load balancing | [looplj/axonhub](https://github.com/looplj/axonhub) |
 | bat | A cat(1) clone with syntax highlighting and Git integration | [sharkdp/bat](https://github.com/sharkdp/bat) |
+| bottom | Cross-platform graphical system monitor | [ClementTsang/bottom](https://github.com/ClementTsang/bottom) |
 | ccx | Claude / Codex / Gemini API Proxy and Gateway | [BenedictKing/ccx](https://github.com/BenedictKing/ccx) |
 | claude-code | Claude Code — agentic coding tool by Anthropic | [anthropics/claude-code](https://github.com/anthropics/claude-code) |
 | codewhale | DeepSeek + MiMo coding agent in terminal | [Hmbown/CodeWhale](https://github.com/Hmbown/CodeWhale) |
+| cosign | Container signing, verification, and storage | [sigstore/cosign](https://github.com/sigstore/cosign) |
 | delta | A syntax-highlighting pager for git, diff, and grep output | [dandavison/delta](https://github.com/dandavison/delta) |
+| deno | Modern runtime for JavaScript and TypeScript | [denoland/deno](https://github.com/denoland/deno) |
+| duf | Better df alternative - disk usage/free utility | [muesli/duf](https://github.com/muesli/duf) |
+| dust | More intuitive version of du (disk usage) | [bootandy/dust](https://github.com/bootandy/dust) |
+| erdtree | Modern filesystem and disk usage visualizer | [solidiquis/erdtree](https://github.com/solidiquis/erdtree) |
 | eza | A modern replacement for ls | [eza-community/eza](https://github.com/eza-community/eza) |
 | fd | A simple, fast and user-friendly alternative to find | [sharkdp/fd](https://github.com/sharkdp/fd) |
 | fzf | Command-line fuzzy finder | [junegunn/fzf](https://github.com/junegunn/fzf) |
 | gh | GitHub CLI — GitHub from the command line | [cli/cli](https://github.com/cli/cli) |
+| glow | Render markdown on the CLI | [charmbracelet/glow](https://github.com/charmbracelet/glow) |
 | goose | Open-source AI agent by Block — extensible, runs in terminal | [block/goose](https://github.com/block/goose) |
+| gping | Ping with a graph | [orf/gping](https://github.com/orf/gping) |
+| helix | Post-modern modal text editor | [helix-editor/helix](https://github.com/helix-editor/helix) |
+| hyperfine | Command-line benchmarking tool | [sharkdp/hyperfine](https://github.com/sharkdp/hyperfine) |
+| jq | Lightweight command-line JSON processor | [jqlang/jq](https://github.com/jqlang/jq) |
+| k9s | Terminal UI for managing Kubernetes clusters | [derailed/k9s](https://github.com/derailed/k9s) |
+| lazygit | Simple terminal UI for git commands | [jesseduffield/lazygit](https://github.com/jesseduffield/lazygit) |
 | lsd | The next gen ls command (LSDeluxe) | [Peltoche/lsd](https://github.com/Peltoche/lsd) |
+| mise | Polyglot runtime manager (asdf replacement) | [jdx/mise](https://github.com/jdx/mise) |
+| neovim | Hyperextensible Vim-based text editor | [neovim/neovim](https://github.com/neovim/neovim) |
 | ollama | Get up and running with Llama 3, Mistral, Gemma 2, and other LLMs | [ollama/ollama](https://github.com/ollama/ollama) |
+| opentofu | Open-source infrastructure as code tool (Terraform fork) | [opentofu/opentofu](https://github.com/opentofu/opentofu) |
+| procs | Modern replacement for ps (process viewer) | [dalance/procs](https://github.com/dalance/procs) |
 | ripgrep | Recursively search directories for a regex pattern (rg) | [BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep) |
 | ruff | An extremely fast Python linter and formatter | [astral-sh/ruff](https://github.com/astral-sh/ruff) |
+| sd | Intuitive find & replace CLI (sed alternative) | [chmln/sd](https://github.com/chmln/sd) |
+| shellcheck | Static analysis tool for shell scripts | [koalaman/shellcheck](https://github.com/koalaman/shellcheck) |
+| shfmt | Shell parser, formatter, and interpreter | [mvdan/sh](https://github.com/mvdan/sh) |
+| starship | Cross-shell prompt customization | [starship/starship](https://github.com/starship/starship) |
+| surrealdb | Scalable, distributed document-graph database | [surrealdb/surrealdb](https://github.com/surrealdb/surrealdb) |
+| tree-sitter | Parser generator tool and incremental parsing library | [tree-sitter/tree-sitter](https://github.com/tree-sitter/tree-sitter) |
 | uv | An extremely fast Python package installer and resolver | [astral-sh/uv](https://github.com/astral-sh/uv) |
+| watchexec | Execute commands in response to file modifications | [watchexec/watchexec](https://github.com/watchexec/watchexec) |
+| xh | Friendly and fast HTTP requests tool (HTTPie alternative) | [ducaale/xh](https://github.com/ducaale/xh) |
+| yazi | Blazing fast terminal file manager | [sxyazi/yazi](https://github.com/sxyazi/yazi) |
+| zellij | Terminal multiplexer with batteries included | [zellij-org/zellij](https://github.com/zellij-org/zellij) |
 | zoxide | A smarter cd command — tracks your most used directories | [ajeetdsouza/zoxide](https://github.com/ajeetdsouza/zoxide) |
 
 ## 安装方式

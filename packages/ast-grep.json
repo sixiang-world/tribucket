@@ -1,0 +1,16 @@
+{
+  "name": "ast-grep",
+  "repo": "ast-grep/ast-grep",
+  "description": "Structural search/replace using AST patterns",
+  "binary": "sg",
+  "license": "MIT",
+  "homepage": "https://github.com/ast-grep/ast-grep",
+  "asset_pattern": {
+    "linux_amd64": "app-x86_64-unknown-linux-gnu.zip",
+    "linux_arm64": "app-aarch64-unknown-linux-gnu.zip",
+    "darwin_amd64": "app-x86_64-apple-darwin.zip",
+    "darwin_arm64": "app-aarch64-apple-darwin.zip",
+    "windows_amd64": "app-x86_64-pc-windows-msvc.zip",
+    "windows_arm64": "app-aarch64-pc-windows-msvc.zip"
+  }
+}

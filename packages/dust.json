@@ -1,0 +1,16 @@
+{
+  "name": "dust",
+  "repo": "bootandy/dust",
+  "description": "More intuitive version of du (disk usage)",
+  "binary": "dust",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/bootandy/dust",
+  "asset_pattern": {
+    "linux_amd64": "dust-v1.2.4-x86_64-unknown-linux-gnu.tar.gz",
+    "linux_arm64": "dust-v1.2.4-aarch64-unknown-linux-gnu.tar.gz",
+    "darwin_amd64": "dust-v1.2.4-x86_64-apple-darwin.tar.gz",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "dust-v1.2.4-x86_64-pc-windows-gnu.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

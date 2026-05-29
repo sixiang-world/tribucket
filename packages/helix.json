@@ -1,0 +1,16 @@
+{
+  "name": "helix",
+  "repo": "helix-editor/helix",
+  "description": "Post-modern modal text editor",
+  "binary": "hx",
+  "license": "MPL-2.0",
+  "homepage": "https://github.com/helix-editor/helix",
+  "asset_pattern": {
+    "linux_amd64": "helix-25.07.1-x86_64-linux.tar.xz",
+    "linux_arm64": "helix-25.07.1-aarch64-linux.tar.xz",
+    "darwin_amd64": "helix-25.07.1-x86_64-macos.tar.xz",
+    "darwin_arm64": "helix-25.07.1-aarch64-macos.tar.xz",
+    "windows_amd64": "helix-25.07.1-x86_64-windows.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

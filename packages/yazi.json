@@ -1,0 +1,16 @@
+{
+  "name": "yazi",
+  "repo": "sxyazi/yazi",
+  "description": "Blazing fast terminal file manager",
+  "binary": "yazi",
+  "license": "MIT",
+  "homepage": "https://github.com/sxyazi/yazi",
+  "asset_pattern": {
+    "linux_amd64": "yazi-x86_64-unknown-linux-gnu.zip",
+    "linux_arm64": "yazi-aarch64-unknown-linux-gnu.zip",
+    "darwin_amd64": "yazi-x86_64-apple-darwin.zip",
+    "darwin_arm64": "yazi-aarch64-apple-darwin.zip",
+    "windows_amd64": "yazi-x86_64-pc-windows-msvc.zip",
+    "windows_arm64": "yazi-aarch64-pc-windows-msvc.zip"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "k9s",
+  "repo": "derailed/k9s",
+  "description": "Terminal UI for managing Kubernetes clusters",
+  "binary": "k9s",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/derailed/k9s",
+  "asset_pattern": {
+    "linux_amd64": "k9s_Linux_amd64.tar.gz",
+    "linux_arm64": "k9s_Linux_arm64.tar.gz",
+    "darwin_amd64": "k9s_Darwin_amd64.tar.gz",
+    "darwin_arm64": "k9s_Darwin_arm64.tar.gz",
+    "windows_amd64": "k9s_Windows_amd64.zip",
+    "windows_arm64": "k9s_Windows_arm64.zip"
+  }
+}

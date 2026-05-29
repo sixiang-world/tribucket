@@ -1,0 +1,16 @@
+{
+  "name": "gping",
+  "repo": "orf/gping",
+  "description": "Ping with a graph",
+  "binary": "gping",
+  "license": "MIT",
+  "homepage": "https://github.com/orf/gping",
+  "asset_pattern": {
+    "linux_amd64": "gping-Linux-gnu-x86_64.tar.gz",
+    "linux_arm64": "gping-Linux-gnu-arm64.tar.gz",
+    "darwin_amd64": "gping-macOS-x86_64.tar.gz",
+    "darwin_arm64": "gping-macOS-arm64.tar.gz",
+    "windows_amd64": "gping-Windows-msvc-x86_64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

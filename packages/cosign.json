@@ -1,0 +1,16 @@
+{
+  "name": "cosign",
+  "repo": "sigstore/cosign",
+  "description": "Container signing, verification, and storage",
+  "binary": "cosign",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/sigstore/cosign",
+  "asset_pattern": {
+    "linux_amd64": "cosign-linux-amd64",
+    "linux_arm64": "cosign-linux-arm64",
+    "darwin_amd64": "cosign-darwin-amd64",
+    "darwin_arm64": "cosign-darwin-arm64",
+    "windows_amd64": "cosign-windows-amd64.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}

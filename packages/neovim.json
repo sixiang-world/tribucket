@@ -1,0 +1,16 @@
+{
+  "name": "neovim",
+  "repo": "neovim/neovim",
+  "description": "Hyperextensible Vim-based text editor",
+  "binary": "nvim",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/neovim/neovim",
+  "asset_pattern": {
+    "linux_amd64": "nvim-linux-x86_64.tar.gz",
+    "linux_arm64": "nvim-linux-arm64.tar.gz",
+    "darwin_amd64": "nvim-macos-x86_64.tar.gz",
+    "darwin_arm64": "nvim-macos-arm64.tar.gz",
+    "windows_amd64": "nvim-win64.zip",
+    "windows_arm64": "nvim-win-arm64.zip"
+  }
+}

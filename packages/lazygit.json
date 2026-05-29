@@ -1,0 +1,16 @@
+{
+  "name": "lazygit",
+  "repo": "jesseduffield/lazygit",
+  "description": "Simple terminal UI for git commands",
+  "binary": "lazygit",
+  "license": "MIT",
+  "homepage": "https://github.com/jesseduffield/lazygit",
+  "asset_pattern": {
+    "linux_amd64": "lazygit_0.62.1_linux_x86_64.tar.gz",
+    "linux_arm64": "lazygit_0.62.1_linux_arm64.tar.gz",
+    "darwin_amd64": "lazygit_0.62.1_darwin_x86_64.tar.gz",
+    "darwin_arm64": "lazygit_0.62.1_darwin_arm64.tar.gz",
+    "windows_amd64": "lazygit_0.62.1_windows_x86_64.zip",
+    "windows_arm64": "lazygit_0.62.1_windows_arm64.zip"
+  }
+}

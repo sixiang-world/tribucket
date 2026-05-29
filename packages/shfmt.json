@@ -1,0 +1,16 @@
+{
+  "name": "shfmt",
+  "repo": "mvdan/sh",
+  "description": "Shell parser, formatter, and interpreter",
+  "binary": "shfmt",
+  "license": "BSD-3-Clause",
+  "homepage": "https://github.com/mvdan/sh",
+  "asset_pattern": {
+    "linux_amd64": "shfmt_v3.13.1_linux_amd64",
+    "linux_arm64": "shfmt_v3.13.1_linux_arm64",
+    "darwin_amd64": "shfmt_v3.13.1_darwin_amd64",
+    "darwin_arm64": "shfmt_v3.13.1_darwin_arm64",
+    "windows_amd64": "shfmt_v3.13.1_windows_amd64.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}

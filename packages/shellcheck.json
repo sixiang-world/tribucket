@@ -1,0 +1,16 @@
+{
+  "name": "shellcheck",
+  "repo": "koalaman/shellcheck",
+  "description": "Static analysis tool for shell scripts",
+  "binary": "shellcheck",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/koalaman/shellcheck",
+  "asset_pattern": {
+    "linux_amd64": "shellcheck-v0.11.0.linux.x86_64.tar.gz",
+    "linux_arm64": "shellcheck-v0.11.0.linux.aarch64.tar.gz",
+    "darwin_amd64": "shellcheck-v0.11.0.darwin.x86_64.tar.gz",
+    "darwin_arm64": "shellcheck-v0.11.0.darwin.aarch64.tar.gz",
+    "windows_amd64": "shellcheck-v0.11.0.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

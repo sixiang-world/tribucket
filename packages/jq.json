@@ -1,0 +1,16 @@
+{
+  "name": "jq",
+  "repo": "jqlang/jq",
+  "description": "Lightweight command-line JSON processor",
+  "binary": "jq",
+  "license": "MIT",
+  "homepage": "https://github.com/jqlang/jq",
+  "asset_pattern": {
+    "linux_amd64": "jq-linux64",
+    "linux_arm64": "jq-linux-arm64",
+    "darwin_amd64": "jq-macos-amd64",
+    "darwin_arm64": "jq-macos-arm64",
+    "windows_amd64": "jq-win64.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}
