@@ -1,0 +1,16 @@
+{
+  "name": "wgcf",
+  "repo": "ViRb3/wgcf",
+  "description": "Cross-platform unofficial CLI for Cloudflare Warp",
+  "binary": "wgcf",
+  "license": "MIT",
+  "homepage": "https://github.com/ViRb3/wgcf",
+  "asset_pattern": {
+    "linux_amd64": "wgcf_2.2.31_linux_amd64",
+    "linux_arm64": "wgcf_2.2.31_linux_arm64",
+    "darwin_amd64": "wgcf_2.2.31_darwin_amd64",
+    "darwin_arm64": "wgcf_2.2.31_darwin_arm64",
+    "windows_amd64": "wgcf_2.2.31_windows_amd64.exe",
+    "windows_arm64": "wgcf_2.2.31_windows_arm64.exe"
+  }
+}

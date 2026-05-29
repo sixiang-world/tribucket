@@ -1,0 +1,16 @@
+{
+  "name": "CloudflareSpeedTest",
+  "repo": "XIU2/CloudflareSpeedTest",
+  "description": "Test Cloudflare CDN latency and speed, find the fastest IP",
+  "binary": "cfst",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/XIU2/CloudflareSpeedTest",
+  "asset_pattern": {
+    "linux_amd64": "cfst_linux_amd64.tar.gz",
+    "linux_arm64": "cfst_linux_arm64.tar.gz",
+    "darwin_amd64": "cfst_darwin_amd64.zip",
+    "darwin_arm64": "cfst_darwin_arm64.zip",
+    "windows_amd64": "cfst_windows_amd64.zip",
+    "windows_arm64": "cfst_windows_arm64.zip"
+  }
+}

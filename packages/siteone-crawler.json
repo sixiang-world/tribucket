@@ -1,0 +1,16 @@
+{
+  "name": "siteone-crawler",
+  "repo": "janreges/siteone-crawler",
+  "description": "Cross-platform website crawler and analyzer for SEO, security, and performance",
+  "binary": "siteone-crawler",
+  "license": "MIT",
+  "homepage": "https://github.com/janreges/siteone-crawler",
+  "asset_pattern": {
+    "linux_amd64": "siteone-crawler-v2.3.0-linux-x64.tar.gz",
+    "linux_arm64": "siteone-crawler-v2.3.0-linux-arm64.tar.gz",
+    "darwin_amd64": "siteone-crawler-v2.3.0-macos-x64.tar.gz",
+    "darwin_arm64": "siteone-crawler-v2.3.0-macos-arm64.tar.gz",
+    "windows_amd64": "siteone-crawler-v2.3.0-win-x64.zip",
+    "windows_arm64": "siteone-crawler-v2.3.0-win-arm64.zip"
+  }
+}
