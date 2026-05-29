@@ -4,8 +4,28 @@
 
 1. Fork 本仓库
 2. 在 `packages/` 下新建 `<name>.json`，格式参考已有文件
-3. （可选）在 `Formula/` 下新建 `<name>.rb`，在 `bucket/` 下新建 `<name>.json`
+3. 运行 `python scripts/generate.py --only <name>` 自动生成 Formula 和 Bucket
 4. 提交 PR
+
+### 自动生成 Formula 和 Bucket
+
+运行生成脚本以从 `packages/*.json` 自动创建 Homebrew Formula 和 Scoop manifest：
+
+```bash
+# 生成全部
+python scripts/generate.py
+
+# 只生成某个包
+python scripts/generate.py --only <name>
+
+# 预览（不写文件）
+python scripts/generate.py --dry-run
+
+# 跳过 SHA256 计算（快速迭代模板）
+python scripts/generate.py --skip-hash
+```
+
+设置 `GITHUB_TOKEN` 环境变量可提升 API 速率限制。
 
 ### packages/\<name\>.json 字段说明
 

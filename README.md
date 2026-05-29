@@ -29,13 +29,11 @@
 | uv | An extremely fast Python package installer and resolver | [astral-sh/uv](https://github.com/astral-sh/uv) |
 | zoxide | A smarter cd command — tracks your most used directories | [ajeetdsouza/zoxide](https://github.com/ajeetdsouza/zoxide) |
 
-> **注意**: Homebrew Formula 和 Scoop Bucket 目前仅覆盖 **ccx**，其余包请使用 Shell 脚本安装。后续会逐步补充。
-
 ## 安装方式
 
 ### Homebrew (macOS / Linux)
 
-仅支持 ccx，其余包请使用 Shell 脚本安装。
+所有收录的软件包均有对应的 Homebrew Formula。
 
 ```bash
 brew tap sixiang-world/tribucket
@@ -44,7 +42,7 @@ brew install ccx
 
 ### Scoop (Windows)
 
-仅支持 ccx，其余包请使用 Shell 脚本安装。
+所有收录的软件包均有对应的 Scoop manifest。
 
 ```powershell
 scoop bucket add tribucket https://github.com/sixiang-world/tribucket
@@ -110,9 +108,8 @@ tribucket/
 ## 添加新软件
 
 1. 在 `packages/` 下新建 `<name>.json`，填入 GitHub 仓库和 asset 匹配规则
-2. （可选）在 `Formula/` 下新建 `<name>.rb` (Homebrew formula)
-3. （可选）在 `bucket/` 下新建 `<name>.json` (Scoop manifest)
-4. 提交 PR
+2. 运行 `python scripts/generate.py --only <name>` 自动生成 Formula 和 Bucket
+3. 提交 PR
 
 `packages/<name>.json` 格式：
 ```json
