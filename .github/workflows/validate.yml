@@ -3,10 +3,11 @@ name: Validate packages
 on:
   push:
     branches: [main]
-    paths: ['packages/**', 'Formula/**', 'bucket/**']
+    paths: ['packages/**', 'Formula/**', 'bucket/**', '.github/workflows/**']
   pull_request:
     branches: [main]
-    paths: ['packages/**', 'Formula/**', 'bucket/**']
+    paths: ['packages/**', 'Formula/**', 'bucket/**', '.github/workflows/**']
+  workflow_dispatch:
 
 jobs:
   validate:
