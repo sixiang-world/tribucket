@@ -277,6 +277,135 @@ def render_bucket(info):
     return json.dumps(bucket, indent=2, ensure_ascii=False) + "\n"
 
 
+def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, pkg_name, version, verbose):
+    """Get SHA256 for an asset, trying checksum files first, then downloading."""
+    # Try to find hash from checksum files in the release
+    for cksum_asset in checksum_assets:
+        cksum_url = cksum_asset["browser_download_url"]
+        if verbose:
+            print(f"  Trying checksum file: {cksum_asset['name']}")
+        try:
+            body = http_get(cksum_url)
+            content = body.decode("utf-8", errors="replace")
+            sha = parse_checksum_file(content, filename)
+            if sha:
+                if verbose:
+                    print(f"  [checksum hit] {filename} = {sha}")
+                write_cache(cache_dir, pkg_name, version, filename, sha)
+                return sha
+        except Exception:
+            continue
+
+    # Fallback: download and compute
+    if verbose:
+        print(f"  Downloading {filename} to compute SHA256...")
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{filename}") as tmp:
+        tmp_path = tmp.name
+        body = http_get(url)
+        tmp.write(body)
+    try:
+        sha = compute_sha256(tmp_path)
+        write_cache(cache_dir, pkg_name, version, filename, sha)
+        return sha
+    finally:
+        os.unlink(tmp_path)
+
+
+def process_package(pkg, cache_dir, verbose=False):
+    """Process a single package: fetch release, compute hashes, render templates.
+
+    Returns:
+        Tuple of (formula_content, bucket_content).
+        Either may be None if the package lacks assets for that format.
+    """
+    name = pkg["name"]
+    repo = pkg["repo"]
+    token = os.environ.get("GITHUB_TOKEN")
+
+    if verbose:
+        print(f"  Fetching latest release for {repo}...")
+
+    version, all_assets, checksum_assets = fetch_latest_release(repo, token)
+    if verbose:
+        print(f"  Latest: v{version} ({len(all_assets)} assets)")
+
+    # Match assets per platform
+    platforms = {}  # platform_key -> {url, sha256}
+    windows = {}    # arch_key -> {url, hash, filename}
+
+    PLATFORM_KEYS = [
+        "linux_amd64", "linux_arm64",
+        "darwin_amd64", "darwin_arm64",
+        "windows_amd64", "windows_arm64",
+    ]
+
+    for plat_key in PLATFORM_KEYS:
+        pattern = pkg.get("asset_pattern", {}).get(plat_key)
+        if not pattern:
+            continue
+        asset = match_asset(all_assets, pattern)
+        if not asset:
+            print(f"  [warn] {name}: no asset matching '{pattern}' for {plat_key}")
+            continue
+
+        url = asset["browser_download_url"]
+        filename = asset["name"]
+
+        # Get SHA256
+        sha = get_cached_hash(cache_dir, name, version, filename)
+        if sha:
+            if verbose:
+                print(f"  [cache hit] {filename}")
+        else:
+            sha = get_sha256_for_asset(
+                url, filename, all_assets, checksum_assets, cache_dir, name, version, verbose
+            )
+
+        platforms[plat_key] = {"url": url, "sha256": sha}
+
+        # Collect Windows assets for bucket
+        if plat_key.startswith("windows_"):
+            arch_key = "64bit" if "amd64" in plat_key else "arm64"
+            windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
+
+    # Render Formula (needs at least one macOS or Linux platform)
+    darwin_linux = {k: v for k, v in platforms.items() if not k.startswith("windows_")}
+    formula = None
+    if darwin_linux:
+        formula_info = {
+            "name": name,
+            "description": pkg["description"],
+            "homepage": pkg["homepage"],
+            "license": pkg["license"],
+            "binary": pkg["binary"],
+            "version": version,
+            "platforms": darwin_linux,
+        }
+        formula = render_formula(formula_info)
+    else:
+        print(f"  [warn] {name}: no macOS/Linux assets, skipping Formula")
+
+    # Render Bucket (needs at least one Windows platform)
+    bucket = None
+    if windows:
+        bucket_info = {
+            "name": name,
+            "repo": repo,
+            "description": pkg["description"],
+            "homepage": pkg["homepage"],
+            "license": pkg["license"],
+            "binary": pkg["binary"],
+            "version": version,
+            "windows": windows,
+        }
+        bucket = render_bucket(bucket_info)
+    else:
+        print(f"  [warn] {name}: no Windows assets, skipping Bucket")
+
+    return formula, bucket
+
+
 def parse_args(argv=None):
     """Parse CLI arguments. Accepts list for testing; defaults to sys.argv[1:]."""
     parser = argparse.ArgumentParser(
@@ -303,7 +432,66 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    print("generate.py scaffold OK")
+
+    # Resolve paths relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_dir = os.path.dirname(script_dir)
+    packages_dir = os.path.join(repo_dir, "packages")
+    formula_dir = os.path.join(repo_dir, "Formula")
+    bucket_dir = os.path.join(repo_dir, "bucket")
+    cache_dir = os.path.join(repo_dir, ".cache")
+
+    # Load packages
+    pkgs = load_packages(packages_dir, only=args.only or None)
+    if not pkgs:
+        print("[error] No packages found.")
+        sys.exit(1)
+
+    print(f"Processing {len(pkgs)} package(s)...")
+
+    has_warnings = False
+
+    for pkg in pkgs:
+        name = pkg["name"]
+        print(f"\n[{name}]")
+
+        try:
+            formula, bucket = process_package(pkg, cache_dir, verbose=args.verbose)
+        except Exception as e:
+            print(f"  [error] {name}: {e}")
+            has_warnings = True
+            continue
+
+        if formula is None and bucket is None:
+            has_warnings = True
+            continue
+
+        if args.dry_run:
+            if formula:
+                print(f"\n--- Formula/{name}.rb ---")
+                print(formula)
+            if bucket:
+                print(f"\n--- bucket/{name}.json ---")
+                print(bucket)
+        else:
+            if formula:
+                os.makedirs(formula_dir, exist_ok=True)
+                path = os.path.join(formula_dir, f"{name}.rb")
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(formula)
+                print(f"  -> Formula/{name}.rb")
+
+            if bucket:
+                os.makedirs(bucket_dir, exist_ok=True)
+                path = os.path.join(bucket_dir, f"{name}.json")
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(bucket)
+                print(f"  -> bucket/{name}.json")
+
+    print(f"\nDone. Processed {len(pkgs)} package(s).")
+    if has_warnings:
+        print("Some packages had warnings (see above).")
+        sys.exit(2)
 
 
 if __name__ == "__main__":

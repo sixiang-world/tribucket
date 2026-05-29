@@ -342,3 +342,63 @@ class TestBucketRendering:
         url = "https://github.com/o/r/releases/download/1.2.3/file.zip"
         au_url = generate.autoupdate_url(url, "1.2.3")
         assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
+
+
+class TestFullPipeline:
+    def test_process_package_basic(self, tmp_path, monkeypatch):
+        """Test the full process_package flow with mocked GitHub API."""
+        fake_release = {
+            "tag_name": "v1.0.0",
+            "assets": [
+                {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-linux-amd64.tar.gz"},
+                {"name": "tool-linux-arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-linux-arm64.tar.gz"},
+                {"name": "tool-darwin-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-darwin-amd64.tar.gz"},
+                {"name": "tool-darwin-arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-darwin-arm64.tar.gz"},
+                {"name": "tool-windows-amd64.exe", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-windows-amd64.exe"},
+                {"name": "tool-windows-arm64.exe", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/tool-windows-arm64.exe"},
+                {"name": "SHA256SUMS", "browser_download_url": "https://github.com/o/r/releases/download/v1.0.0/SHA256SUMS"},
+            ]
+        }
+        checksum_content = (
+            "aaa111  tool-linux-amd64.tar.gz\n"
+            "bbb222  tool-linux-arm64.tar.gz\n"
+            "ccc333  tool-darwin-amd64.tar.gz\n"
+            "ddd444  tool-darwin-arm64.tar.gz\n"
+            "eee555  tool-windows-amd64.exe\n"
+            "fff666  tool-windows-arm64.exe\n"
+        )
+
+        def mock_http_get(url, token=None, retries=3):
+            if "SHA256SUMS" in url:
+                return checksum_content.encode()
+            return json.dumps(fake_release).encode()
+
+        monkeypatch.setattr(generate, "http_get", mock_http_get)
+
+        pkg = {
+            "name": "tool",
+            "repo": "o/r",
+            "description": "A test tool",
+            "binary": "tool",
+            "license": "MIT",
+            "homepage": "https://github.com/o/r",
+            "asset_pattern": {
+                "linux_amd64": "tool-linux-amd64.tar.gz",
+                "linux_arm64": "tool-linux-arm64.tar.gz",
+                "darwin_amd64": "tool-darwin-amd64.tar.gz",
+                "darwin_arm64": "tool-darwin-arm64.tar.gz",
+                "windows_amd64": "tool-windows-amd64.exe",
+                "windows_arm64": "tool-windows-arm64.exe",
+            },
+        }
+
+        cache_dir = str(tmp_path / ".cache")
+        formula, bucket = generate.process_package(pkg, cache_dir, verbose=False)
+
+        assert "class Tool < Formula" in formula
+        assert 'version "1.0.0"' in formula
+        assert 'sha256 "aaa111"' in formula
+
+        bucket_parsed = json.loads(bucket)
+        assert bucket_parsed["version"] == "1.0.0"
+        assert bucket_parsed["architecture"]["64bit"]["hash"] == "eee555"
