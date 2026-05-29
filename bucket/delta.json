@@ -1,0 +1,28 @@
+{
+  "version": "0.19.2",
+  "description": "A syntax-highlighting pager for git, diff, and grep output",
+  "homepage": "https://github.com/dandavison/delta",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-x86_64-pc-windows-msvc.zip",
+      "hash": "ac8ebb4a9f1cbee8b9ea897ba119808a244181adae6f3bed1f3b6b923c50b557"
+    }
+  },
+  "bin": [
+    [
+      "delta-0.19.2-x86_64-pc-windows-msvc.zip",
+      "delta"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/dandavison/delta"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/dandavison/delta/releases/download/v$version/delta-0.19.2-x86_64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

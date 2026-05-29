@@ -1,0 +1,28 @@
+{
+  "version": "1.12.1",
+  "description": "Open-source infrastructure as code tool (Terraform fork)",
+  "homepage": "https://github.com/opentofu/opentofu",
+  "license": "MPL-2.0",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_windows_amd64.zip",
+      "hash": "a6d8fd924753ab6d3d4f0143d29214a31679a5fca8bfb59f5edde263b3a1c3fc"
+    }
+  },
+  "bin": [
+    [
+      "tofu_1.12.1_windows_amd64.zip",
+      "tofu"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/opentofu/opentofu"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/opentofu/opentofu/releases/download/v$version/tofu_1.12.1_windows_amd64.zip"
+      }
+    }
+  }
+}

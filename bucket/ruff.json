@@ -1,0 +1,35 @@
+{
+  "version": "0.15.15",
+  "description": "An extremely fast Python linter and formatter",
+  "homepage": "https://github.com/astral-sh/ruff",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/astral-sh/ruff/releases/download/0.15.15/ruff-x86_64-pc-windows-msvc.zip",
+      "hash": "c336db29a9e9234310212bc0d0bec1f722ec44f8a62c77b3f96a300282c6ff6d"
+    },
+    "arm64": {
+      "url": "https://github.com/astral-sh/ruff/releases/download/0.15.15/ruff-aarch64-pc-windows-msvc.zip",
+      "hash": "801067abc7c499bda61ff7308a271f7b5258c1a9f90abb081d9ac099cee20720"
+    }
+  },
+  "bin": [
+    [
+      "ruff-x86_64-pc-windows-msvc.zip",
+      "ruff"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/astral-sh/ruff"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/astral-sh/ruff/releases/download/v$version/ruff-x86_64-pc-windows-msvc.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/astral-sh/ruff/releases/download/v$version/ruff-aarch64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

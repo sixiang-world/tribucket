@@ -1,0 +1,35 @@
+{
+  "version": "1.25.1",
+  "description": "Cross-shell prompt customization",
+  "homepage": "https://github.com/starship/starship",
+  "license": "ISC",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-pc-windows-msvc.zip",
+      "hash": "a07cf3e428afab09324e510fb786041ebcc491a68b1ca6fba044c5a461f9b017"
+    },
+    "arm64": {
+      "url": "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-pc-windows-msvc.zip",
+      "hash": "d5b3598cb1392be74508b5e5fe3583cbcad307e7788dad804c7bf2e9ab84b663"
+    }
+  },
+  "bin": [
+    [
+      "starship-x86_64-pc-windows-msvc.zip",
+      "starship"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/starship/starship"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/starship/starship/releases/download/v$version/starship-x86_64-pc-windows-msvc.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/starship/starship/releases/download/v$version/starship-aarch64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

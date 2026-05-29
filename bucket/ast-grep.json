@@ -1,0 +1,35 @@
+{
+  "version": "0.43.0",
+  "description": "Structural search/replace using AST patterns",
+  "homepage": "https://github.com/ast-grep/ast-grep",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/ast-grep/ast-grep/releases/download/0.43.0/app-x86_64-pc-windows-msvc.zip",
+      "hash": "a4febbc8c48671e5729d85e29e4ebe5a051b7250d19545bca18e725ccf40ef61"
+    },
+    "arm64": {
+      "url": "https://github.com/ast-grep/ast-grep/releases/download/0.43.0/app-aarch64-pc-windows-msvc.zip",
+      "hash": "a519fdd90324bf6858fde2d3feb2b862d67b834dc11af8f5b6c2c8143ab6a6c5"
+    }
+  },
+  "bin": [
+    [
+      "app-x86_64-pc-windows-msvc.zip",
+      "sg"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/ast-grep/ast-grep"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/ast-grep/ast-grep/releases/download/v$version/app-x86_64-pc-windows-msvc.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/ast-grep/ast-grep/releases/download/v$version/app-aarch64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}
