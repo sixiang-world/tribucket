@@ -1,0 +1,16 @@
+{
+  "name": "czkawka",
+  "repo": "qarmin/czkawka",
+  "description": "Multi functional app to find duplicates, empty folders, similar images etc.",
+  "binary": "czkawka_cli",
+  "license": "MIT",
+  "homepage": "https://github.com/qarmin/czkawka",
+  "asset_pattern": {
+    "linux_amd64": "linux_czkawka_cli_x86_64",
+    "linux_arm64": "linux_czkawka_cli_arm64",
+    "darwin_amd64": "mac_czkawka_cli_x86_64",
+    "darwin_arm64": "mac_czkawka_cli_arm64",
+    "windows_amd64": "windows_czkawka_cli.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "hugo",
+  "repo": "gohugoio/hugo",
+  "description": "The world's fastest framework for building websites",
+  "binary": "hugo",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/gohugoio/hugo",
+  "asset_pattern": {
+    "linux_amd64": "hugo_extended_0.162.1_linux-amd64.tar.gz",
+    "linux_arm64": "hugo_extended_0.162.1_linux-arm64.tar.gz",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "hugo_extended_0.162.1_windows-amd64.zip",
+    "windows_arm64": "hugo_extended_0.162.1_windows-arm64.zip"
+  }
+}

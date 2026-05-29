@@ -1,0 +1,16 @@
+{
+  "name": "chsrc",
+  "repo": "RubyMetric/chsrc",
+  "description": "Full-platform universal source changing tool and framework",
+  "binary": "chsrc",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/RubyMetric/chsrc",
+  "asset_pattern": {
+    "linux_amd64": "chsrc-x64-linux",
+    "linux_arm64": "chsrc-aarch64-linux",
+    "darwin_amd64": "chsrc-x64-macos",
+    "darwin_arm64": "chsrc-aarch64-macos",
+    "windows_amd64": "chsrc-x64-windows.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}

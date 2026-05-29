@@ -1,0 +1,16 @@
+{
+  "name": "listmonk",
+  "repo": "knadh/listmonk",
+  "description": "High performance, self-hosted newsletter and mailing list manager",
+  "binary": "listmonk",
+  "license": "AGPL-3.0",
+  "homepage": "https://github.com/knadh/listmonk",
+  "asset_pattern": {
+    "linux_amd64": "listmonk_6.1.0_linux_amd64.tar.gz",
+    "linux_arm64": "listmonk_6.1.0_linux_arm64.tar.gz",
+    "darwin_amd64": "listmonk_6.1.0_darwin_amd64.tar.gz",
+    "darwin_arm64": "listmonk_6.1.0_darwin_arm64.tar.gz",
+    "windows_amd64": "listmonk_6.1.0_windows_amd64.tar.gz",
+    "windows_arm64": "listmonk_6.1.0_windows_arm64.tar.gz"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "oblivion-desktop",
+  "repo": "bepass-org/oblivion-desktop",
+  "description": "Unofficial Warp Client for Windows/Mac/Linux",
+  "binary": "oblivion-desktop",
+  "license": "MIT",
+  "homepage": "https://github.com/bepass-org/oblivion-desktop",
+  "asset_pattern": {
+    "linux_amd64": "oblivion-desktop-linux-x64.tar.xz",
+    "linux_arm64": "oblivion-desktop-linux-arm64.tar.xz",
+    "darwin_amd64": "oblivion-desktop-mac-x64.zip",
+    "darwin_arm64": "oblivion-desktop-mac-arm64.zip",
+    "windows_amd64": "oblivion-desktop-win-x64.zip",
+    "windows_arm64": "oblivion-desktop-win-arm64.zip"
+  }
+}

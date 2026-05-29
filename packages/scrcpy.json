@@ -1,0 +1,16 @@
+{
+  "name": "scrcpy",
+  "repo": "Genymobile/scrcpy",
+  "description": "Display and control your Android device",
+  "binary": "scrcpy",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Genymobile/scrcpy",
+  "asset_pattern": {
+    "linux_amd64": "scrcpy-linux-x86_64-v4.0.tar.gz",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "scrcpy-macos-x86_64-v4.0.tar.gz",
+    "darwin_arm64": "scrcpy-macos-aarch64-v4.0.tar.gz",
+    "windows_amd64": "scrcpy-win64-v4.0.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

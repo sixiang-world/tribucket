@@ -1,0 +1,16 @@
+{
+  "name": "memos",
+  "repo": "usememos/memos",
+  "description": "Open-source, self-hosted note-taking tool built for quick capture",
+  "binary": "memos",
+  "license": "MIT",
+  "homepage": "https://github.com/usememos/memos",
+  "asset_pattern": {
+    "linux_amd64": "memos_0.29.0_linux_amd64.tar.gz",
+    "linux_arm64": "memos_0.29.0_linux_arm64.tar.gz",
+    "darwin_amd64": "memos_0.29.0_darwin_amd64.tar.gz",
+    "darwin_arm64": "memos_0.29.0_darwin_arm64.tar.gz",
+    "windows_amd64": "memos_0.29.0_windows_amd64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

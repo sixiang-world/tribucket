@@ -1,0 +1,16 @@
+{
+  "name": "navidrome",
+  "repo": "navidrome/navidrome",
+  "description": "Your Personal Streaming Service",
+  "binary": "navidrome",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/navidrome/navidrome",
+  "asset_pattern": {
+    "linux_amd64": "navidrome_0.61.2_linux_amd64.tar.gz",
+    "linux_arm64": "navidrome_0.61.2_linux_arm64.tar.gz",
+    "darwin_amd64": "navidrome_0.61.2_darwin_amd64.tar.gz",
+    "darwin_arm64": "navidrome_0.61.2_darwin_arm64.tar.gz",
+    "windows_amd64": "navidrome_0.61.2_windows_amd64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}
