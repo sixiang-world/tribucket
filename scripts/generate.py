@@ -8,7 +8,13 @@ import argparse
 import json
 import os
 import sys
+import time
+import urllib.request
+import urllib.error
 from fnmatch import fnmatch
+
+
+CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
 
 
 def load_packages(packages_dir, only=None):
@@ -44,6 +50,58 @@ def match_asset(assets, pattern):
         if fnmatch(asset["name"], f"*{pattern}*"):
             return asset
     return None
+
+
+def is_checksum_asset(name):
+    """Check if an asset name looks like a checksum file."""
+    lower = name.lower()
+    return any(p.lower() in lower for p in CHECKSUM_PATTERNS)
+
+
+def parse_release(release_json):
+    """Extract version, assets, and checksum assets from a GitHub release JSON."""
+    tag = release_json["tag_name"]
+    version = tag.lstrip("v")
+    all_assets = release_json.get("assets", [])
+    checksum_assets = [a for a in all_assets if is_checksum_asset(a["name"])]
+    return version, all_assets, checksum_assets
+
+
+def http_get(url, token=None, retries=3):
+    """Fetch a URL with optional GitHub token and retry logic."""
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if token:
+        headers["Authorization"] = f"token {token}"
+
+    req = urllib.request.Request(url, headers=headers)
+    last_err = None
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 403:
+                raise
+            if e.code >= 500 and attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            raise
+        except urllib.error.URLError as e:
+            last_err = e
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            raise
+    raise last_err
+
+
+def fetch_latest_release(repo, token=None):
+    """Fetch the latest release from GitHub."""
+    url = f"https://api.github.com/repos/{repo}/releases/latest"
+    body = http_get(url, token=token)
+    release_json = json.loads(body)
+    return parse_release(release_json)
 
 
 def parse_args(argv=None):

@@ -118,3 +118,46 @@ class TestMatchAsset:
         result = generate.match_asset(assets, "ccx-windows-amd64.exe")
         assert result is not None
         assert result["name"] == "ccx-windows-amd64.exe"
+
+
+class TestGitHubAPI:
+    def test_parse_release(self):
+        release_json = {
+            "tag_name": "v1.2.3",
+            "assets": [
+                {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.2.3/tool-linux-amd64.tar.gz"},
+                {"name": "tool-windows-amd64.exe", "browser_download_url": "https://github.com/o/r/releases/download/v1.2.3/tool-windows-amd64.exe"},
+                {"name": "SHA256SUMS", "browser_download_url": "https://github.com/o/r/releases/download/v1.2.3/SHA256SUMS"},
+            ]
+        }
+        version, assets, checksum_assets = generate.parse_release(release_json)
+        assert version == "1.2.3"
+        assert len(assets) == 3
+        assert len(checksum_assets) == 1
+        assert checksum_assets[0]["name"] == "SHA256SUMS"
+
+    def test_parse_release_strips_v_prefix(self):
+        release_json = {"tag_name": "v2.0.0", "assets": []}
+        version, _, _ = generate.parse_release(release_json)
+        assert version == "2.0.0"
+
+    def test_parse_release_no_v_prefix(self):
+        release_json = {"tag_name": "2.0.0", "assets": []}
+        version, _, _ = generate.parse_release(release_json)
+        assert version == "2.0.0"
+
+    def test_checksum_asset_names(self):
+        release_json = {
+            "tag_name": "v1.0",
+            "assets": [
+                {"name": "tool.tar.gz", "browser_download_url": "https://x"},
+                {"name": "tool.tar.gz.sha256", "browser_download_url": "https://x"},
+                {"name": "sha256sums.txt", "browser_download_url": "https://x"},
+                {"name": "checksums.txt", "browser_download_url": "https://x"},
+            ]
+        }
+        _, _, checksum_assets = generate.parse_release(release_json)
+        names = {a["name"] for a in checksum_assets}
+        assert "tool.tar.gz.sha256" in names
+        assert "sha256sums.txt" in names
+        assert "checksums.txt" in names
