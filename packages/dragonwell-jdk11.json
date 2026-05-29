@@ -1,0 +1,16 @@
+{
+  "name": "dragonwell-jdk11",
+  "repo": "dragonwell-project/dragonwell11",
+  "description": "Alibaba Dragonwell JDK 11 - downstream distribution of OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://www.aliyun.com/product/dragonwell",
+  "asset_pattern": {
+    "linux_amd64": "Alibaba_Dragonwell_Extended_11",
+    "linux_arm64": "Alibaba_Dragonwell_Extended_11",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "Alibaba_Dragonwell_Extended_11",
+    "windows_arm64": "NO_MATCH"
+  }
+}

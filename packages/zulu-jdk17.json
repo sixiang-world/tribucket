@@ -1,0 +1,24 @@
+{
+  "name": "zulu-jdk17",
+  "repo": "azul/zulu-builds",
+  "description": "Azul Zulu JDK 17 - certified build of OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://www.azul.com/products/zulu-community/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-linux_x64.tar.gz",
+    "linux_arm64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-linux_aarch64.tar.gz",
+    "darwin_amd64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-macosx_x64.tar.gz",
+    "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-macosx_aarch64.tar.gz",
+    "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-win_x64.zip",
+    "windows_arm64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-win_aarch64.zip"
+  }
+}

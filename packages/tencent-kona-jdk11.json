@@ -1,0 +1,16 @@
+{
+  "name": "tencent-kona-jdk11",
+  "repo": "Tencent/TencentKona-11",
+  "description": "Tencent Kona JDK 11 - Tencent's distribution of OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://cloud.tencent.com/product/tkjdk",
+  "asset_pattern": {
+    "linux_amd64": "TencentKona-11",
+    "linux_arm64": "TencentKona-11",
+    "darwin_amd64": "TencentKona-11",
+    "darwin_arm64": "TencentKona-11",
+    "windows_amd64": "TencentKona-11",
+    "windows_arm64": "NO_MATCH"
+  }
+}

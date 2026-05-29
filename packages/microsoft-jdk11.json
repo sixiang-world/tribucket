@@ -1,0 +1,24 @@
+{
+  "name": "microsoft-jdk11",
+  "repo": "microsoft/openjdk-jdk",
+  "description": "Microsoft Build of OpenJDK 11",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://learn.microsoft.com/java/openjdk/overview",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://aka.ms/download-jdk/microsoft-jdk-11-linux-x64.tar.gz",
+    "linux_arm64": "https://aka.ms/download-jdk/microsoft-jdk-11-linux-aarch64.tar.gz",
+    "darwin_amd64": "https://aka.ms/download-jdk/microsoft-jdk-11-macos-x64.tar.gz",
+    "darwin_arm64": "https://aka.ms/download-jdk/microsoft-jdk-11-macos-aarch64.tar.gz",
+    "windows_amd64": "https://aka.ms/download-jdk/microsoft-jdk-11-windows-x64.zip",
+    "windows_arm64": "https://aka.ms/download-jdk/microsoft-jdk-11-windows-aarch64.zip"
+  }
+}

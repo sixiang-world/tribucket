@@ -1,0 +1,16 @@
+{
+  "name": "temurin-jdk8",
+  "repo": "adoptium/temurin8-binaries",
+  "description": "Eclipse Temurin JDK 8 - OpenJDK binaries by Adoptium",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://adoptium.net",
+  "asset_pattern": {
+    "linux_amd64": "OpenJDK8U-jdk_x64_linux_hotspot",
+    "linux_arm64": "OpenJDK8U-jdk_aarch64_linux_hotspot",
+    "darwin_amd64": "OpenJDK8U-jdk_x64_mac_hotspot",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "OpenJDK8U-jdk_x64_windows_hotspot",
+    "windows_arm64": "NO_MATCH"
+  }
+}

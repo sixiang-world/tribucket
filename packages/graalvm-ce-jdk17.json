@@ -1,0 +1,16 @@
+{
+  "name": "graalvm-ce-jdk17",
+  "repo": "graalvm/graalvm-ce-builds",
+  "description": "GraalVM Community Edition JDK 17 - high-performance JDK with AOT compilation",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://github.com/graalvm/graalvm-ce-builds",
+  "asset_pattern": {
+    "linux_amd64": "graalvm-community-jdk-17",
+    "linux_arm64": "graalvm-community-jdk-17",
+    "darwin_amd64": "graalvm-community-jdk-17",
+    "darwin_arm64": "graalvm-community-jdk-17",
+    "windows_amd64": "graalvm-community-jdk-17",
+    "windows_arm64": "NO_MATCH"
+  }
+}

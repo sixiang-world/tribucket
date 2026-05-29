@@ -1,0 +1,24 @@
+{
+  "name": "corretto-jdk11",
+  "repo": "corretto/corretto-11",
+  "description": "Amazon Corretto JDK 11 - no-cost, production-ready OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://aws.amazon.com/corretto/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://corretto.aws/downloads/resources/11.0.31.11.1/amazon-corretto-11.0.31.11.1-linux-x64.tar.gz",
+    "linux_arm64": "https://corretto.aws/downloads/resources/11.0.31.11.1/amazon-corretto-11.0.31.11.1-linux-aarch64.tar.gz",
+    "darwin_amd64": "https://corretto.aws/downloads/resources/11.0.31.11.1/amazon-corretto-11.0.31.11.1-macosx-x64.tar.gz",
+    "darwin_arm64": "https://corretto.aws/downloads/resources/11.0.31.11.1/amazon-corretto-11.0.31.11.1-macosx-aarch64.tar.gz",
+    "windows_amd64": "https://corretto.aws/downloads/resources/11.0.31.11.1/amazon-corretto-11.0.31.11.1-windows-x64-jdk.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}
