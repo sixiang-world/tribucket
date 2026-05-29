@@ -208,3 +208,73 @@ class TestSHA256:
         content = "abc123  other-file.tar.gz\n"
         result = generate.parse_checksum_file(content, "tool-linux-amd64.tar.gz")
         assert result is None
+
+
+class TestFormulaRendering:
+    def test_class_name_simple(self):
+        assert generate.class_name_from("ccx") == "Ccx"
+
+    def test_class_name_hyphenated(self):
+        assert generate.class_name_from("claude-code") == "ClaudeCode"
+
+    def test_class_name_single(self):
+        assert generate.class_name_from("bat") == "Bat"
+
+    def test_class_name_multi_hyphen(self):
+        assert generate.class_name_from("my-cool-tool") == "MyCoolTool"
+
+    def test_render_formula_basic(self):
+        info = {
+            "name": "ccx",
+            "description": "Claude / Codex / Gemini API Proxy",
+            "homepage": "https://github.com/BenedictKing/ccx",
+            "license": "MIT",
+            "binary": "ccx",
+            "version": "2.8.12",
+            "platforms": {
+                "darwin_amd64": {"url": "https://x/ccx-darwin-amd64", "sha256": "aaa"},
+                "darwin_arm64": {"url": "https://x/ccx-darwin-arm64", "sha256": "bbb"},
+                "linux_amd64": {"url": "https://x/ccx-linux-amd64", "sha256": "ccc"},
+                "linux_arm64": {"url": "https://x/ccx-linux-arm64", "sha256": "ddd"},
+            }
+        }
+        result = generate.render_formula(info)
+        assert "class Ccx < Formula" in result
+        assert 'version "2.8.12"' in result
+        assert 'sha256 "aaa"' in result
+        assert "on_macos do" in result
+        assert "on_linux do" in result
+
+    def test_render_formula_missing_linux(self):
+        info = {
+            "name": "tool",
+            "description": "A tool",
+            "homepage": "https://x",
+            "license": "MIT",
+            "binary": "tool",
+            "version": "1.0",
+            "platforms": {
+                "darwin_amd64": {"url": "https://x/tool-darwin", "sha256": "aaa"},
+                "darwin_arm64": {"url": "https://x/tool-darwin-arm", "sha256": "bbb"},
+            }
+        }
+        result = generate.render_formula(info)
+        assert "on_macos do" in result
+        assert "on_linux do" not in result
+
+    def test_render_formula_missing_arm(self):
+        info = {
+            "name": "tool",
+            "description": "A tool",
+            "homepage": "https://x",
+            "license": "MIT",
+            "binary": "tool",
+            "version": "1.0",
+            "platforms": {
+                "darwin_amd64": {"url": "https://x/tool-darwin", "sha256": "aaa"},
+                "linux_amd64": {"url": "https://x/tool-linux", "sha256": "bbb"},
+            }
+        }
+        result = generate.render_formula(info)
+        assert "on_intel do" in result
+        assert "on_arm do" not in result
