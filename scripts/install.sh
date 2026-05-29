@@ -109,6 +109,61 @@ json_val() {
     || true
 }
 
+# --- Resolve custom download URL (non-GitHub sources) ---
+resolve_custom_url() {
+  _pkg_json="$1" _platform="$2"
+
+  # Check if download_url field exists at all
+  _has_custom=$(printf '%s' "$_pkg_json" | grep -o '"download_url"' | head -1 || true)
+  [ -z "$_has_custom" ] && return 1
+
+  # Extract URL template for this platform from the download_url object
+  # Scope the search to the download_url block to avoid matching asset_pattern keys
+  _url_template=$(printf '%s' "$_pkg_json" \
+    | grep -o '"download_url"[^}]*}' \
+    | grep -o "\"${_platform}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
+    | head -1 \
+    | sed "s/.*\"${_platform}\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/" \
+    || true)
+  [ -z "$_url_template" ] && return 1
+
+  # If no {version} placeholder, return the URL as-is
+  case "$_url_template" in
+    *'{version}'*)
+      # Need to resolve version via checkver
+      # Scope search to checkver block
+      _checkver_block=$(printf '%s' "$_pkg_json" | grep -o '"checkver"[^}]*}' || true)
+      _ver_url=$(printf '%s' "$_checkver_block" \
+        | grep -o '"url"[[:space:]]*:[[:space:]]*"[^"]*"' \
+        | head -1 \
+        | sed 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' \
+        || true)
+      _ver_regex=$(printf '%s' "$_checkver_block" \
+        | grep -o '"regex"[[:space:]]*:[[:space:]]*"[^"]*"' \
+        | head -1 \
+        | sed 's/.*"regex"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' \
+        || true)
+      [ -z "$_ver_url" ] && return 1
+
+      _ver_content=$(http_get "$_ver_url" 2>/dev/null) || return 1
+
+      if [ -n "$_ver_regex" ]; then
+        _version=$(printf '%s' "$_ver_content" | grep -oE "$_ver_regex" | head -1 || true)
+      else
+        _version=$(printf '%s' "$_ver_content" | tr -d '[:space:]' || true)
+      fi
+      [ -z "$_version" ] && return 1
+
+      # Replace {version} placeholder in URL template
+      printf '%s' "$_url_template" | sed "s|{version}|${_version}|g"
+      ;;
+    *)
+      printf '%s' "$_url_template"
+      ;;
+  esac
+  return 0
+}
+
 # --- Verify SHA256 checksum (best-effort) ---
 verify_checksum() {
   _file="$1" _url="$2" _dir="$3"
@@ -153,7 +208,6 @@ main() {
   REPO=$(json_val "$PKG_JSON" "repo")
   BINARY=$(json_val "$PKG_JSON" "binary")
   DESCRIPTION=$(json_val "$PKG_JSON" "description")
-  [ -z "$REPO" ] && err "Invalid package definition: missing 'repo'."
   [ -z "$BINARY" ] && err "Invalid package definition: missing 'binary'."
 
   info "${DESCRIPTION}"
@@ -162,37 +216,57 @@ main() {
   PLATFORM=$(detect_platform)
   info "Platform: ${BOLD}${PLATFORM}${Z}"
 
-  # Find asset pattern for this platform
-  # PLATFORM is safe (controlled by detect_platform), so regex interpolation is OK
-  ASSET_PATTERN=$(printf '%s' "$PKG_JSON" \
-    | grep -o "\"${PLATFORM}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
-    | head -1 \
-    | sed "s/.*\"${PLATFORM}\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/" \
-    || true)
-  [ -z "$ASSET_PATTERN" ] && err "No asset pattern for ${PLATFORM}. Check packages/${PKG_NAME}.json"
+  # --- Try custom download URL first (non-GitHub sources) ---
+  USE_CUSTOM_URL=false
+  DOWNLOAD_URL=""
+  VERSION=""
+  FILENAME=""
 
-  # Get latest release
-  info "Fetching latest release..."
-  RELEASE_JSON=$(http_get "https://api.github.com/repos/${REPO}/releases/latest")
-  VERSION=$(printf '%s' "$RELEASE_JSON" | grep '"tag_name"' | head -1 | sed -E 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v?([^"]*)".*/\1/' || true)
-  [ -z "$VERSION" ] && err "Failed to parse version from GitHub API."
-  info "Latest: ${BOLD}v${VERSION}${Z}"
+  CUSTOM_URL=$(resolve_custom_url "$PKG_JSON" "$PLATFORM" || true)
+  if [ -n "$CUSTOM_URL" ]; then
+    DOWNLOAD_URL="$CUSTOM_URL"
+    FILENAME=$(basename "$DOWNLOAD_URL")
+    # Try to extract a version number from the URL (e.g. /v1.2.3/ or /1.2.3/)
+    VERSION=$(printf '%s' "$DOWNLOAD_URL" | grep -oE '[0-9]+\.[0-9]+[0-9.]*' | head -1 || echo "latest")
+    info "Latest: ${BOLD}${VERSION}${Z} (custom source)"
+    USE_CUSTOM_URL=true
+  fi
 
-  # Find matching asset URL using fixed-string match where possible
-  # Convert glob patterns to regex for grep -E
-  _regex_pattern=$(printf '%s' "$ASSET_PATTERN" | sed 's/[].$*+?(){}[]/\\&/g; s/\\\*/.*/g; s/\\\./\\./g')
-  DOWNLOAD_URL=$(printf '%s' "$RELEASE_JSON" \
-    | grep '"browser_download_url"' \
-    | grep -E "$_regex_pattern" \
-    | head -1 \
-    | sed 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' \
-    || true)
-  [ -z "$DOWNLOAD_URL" ] && err "No asset matching '${ASSET_PATTERN}' in release v${VERSION}"
-  # Validate download URL to prevent injection
-  case "$DOWNLOAD_URL" in
-    https://github.com/*) ;;
-    *) err "Unexpected download URL domain: ${DOWNLOAD_URL}" ;;
-  esac
+  if [ "$USE_CUSTOM_URL" = "false" ]; then
+    [ -z "$REPO" ] && err "Invalid package definition: missing 'repo'."
+
+    # Find asset pattern for this platform
+    # PLATFORM is safe (controlled by detect_platform), so regex interpolation is OK
+    ASSET_PATTERN=$(printf '%s' "$PKG_JSON" \
+      | grep -o "\"${PLATFORM}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
+      | head -1 \
+      | sed "s/.*\"${PLATFORM}\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/" \
+      || true)
+    [ -z "$ASSET_PATTERN" ] && err "No asset pattern for ${PLATFORM}. Check packages/${PKG_NAME}.json"
+
+    # Get latest release
+    info "Fetching latest release..."
+    RELEASE_JSON=$(http_get "https://api.github.com/repos/${REPO}/releases/latest")
+    VERSION=$(printf '%s' "$RELEASE_JSON" | grep '"tag_name"' | head -1 | sed -E 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v?([^"]*)".*/\1/' || true)
+    [ -z "$VERSION" ] && err "Failed to parse version from GitHub API."
+    info "Latest: ${BOLD}v${VERSION}${Z}"
+
+    # Find matching asset URL using fixed-string match where possible
+    # Convert glob patterns to regex for grep -E
+    _regex_pattern=$(printf '%s' "$ASSET_PATTERN" | sed 's/[].$*+?(){}[]/\\&/g; s/\\\*/.*/g; s/\\\./\\./g')
+    DOWNLOAD_URL=$(printf '%s' "$RELEASE_JSON" \
+      | grep '"browser_download_url"' \
+      | grep -E "$_regex_pattern" \
+      | head -1 \
+      | sed 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' \
+      || true)
+    [ -z "$DOWNLOAD_URL" ] && err "No asset matching '${ASSET_PATTERN}' in release v${VERSION}"
+    # Validate download URL to prevent injection
+    case "$DOWNLOAD_URL" in
+      https://github.com/*) ;;
+      *) err "Unexpected download URL domain: ${DOWNLOAD_URL}" ;;
+    esac
+  fi
 
   # Install directory
   INSTALL_DIR="${INSTALL_DIR:-$(pwd)}"
@@ -209,7 +283,7 @@ main() {
   fi
 
   # Download — use TRIBUCKET_TMPDIR to avoid shadowing system TMPDIR [#67]
-  FILENAME=$(basename "$DOWNLOAD_URL")
+  FILENAME=${FILENAME:-$(basename "$DOWNLOAD_URL")}
   TRIBUCKET_TMPDIR=$(mktemp -d)
 
   info "Downloading ${FILENAME}..."
