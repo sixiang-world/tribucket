@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths: ['packages/**']
+  schedule:
+    - cron: '17 */6 * * *'  # Every 6 hours at :17
   workflow_dispatch:
 
 permissions:
@@ -35,5 +37,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/ bucket/
-          git commit -m "chore: auto-generate Formula and Bucket from packages"
+          # Build a descriptive commit message
+          CHANGED=$(git diff --cached --name-only | sed 's|Formula/\|bucket/||; s|\.rb\|\.json||' | sort -u | tr '\n' ', ' | sed 's/,$//')
+          git commit -m "chore: update Formula/Bucket ($CHANGED)"
           git push
