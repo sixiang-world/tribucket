@@ -208,7 +208,7 @@ def render_formula(info):
         f"  end\n"
         f"\n"
         f"  test do\n"
-        f'    assert_match version.to_s, shell_output("#{bin}/{binary} --version 2>&1", 1)\n'
+        f'    assert_match version.to_s, shell_output("#{{bin}}/{binary} --version 2>&1", 1)\n'
         f"  end\n"
         f"end\n"
     )

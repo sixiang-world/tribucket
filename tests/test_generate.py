@@ -280,6 +280,24 @@ class TestFormulaRendering:
         assert "on_arm do" not in result
 
 
+    def test_render_formula_test_block(self):
+        """The Ruby test block must contain literal #{bin}, not Python's bin() builtin."""
+        info = {
+            "name": "tool",
+            "description": "A tool",
+            "homepage": "https://x",
+            "license": "MIT",
+            "binary": "tool",
+            "version": "1.0",
+            "platforms": {
+                "darwin_amd64": {"url": "https://x/tool-darwin", "sha256": "aaa"},
+            }
+        }
+        result = generate.render_formula(info)
+        assert '#{bin}/tool --version' in result
+        assert 'built-in' not in result
+
+
 class TestBucketRendering:
     def test_render_bucket_basic(self):
         info = {
