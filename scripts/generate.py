@@ -324,8 +324,14 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
         os.unlink(tmp_path)
 
 
-def process_package(pkg, cache_dir, verbose=False):
+def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
     """Process a single package: fetch release, compute hashes, render templates.
+
+    Args:
+        pkg: Package dict from packages/*.json.
+        cache_dir: Path to the .cache directory.
+        skip_hash: If True, skip SHA256 computation (use empty strings).
+        verbose: Print detailed progress.
 
     Returns:
         Tuple of (formula_content, bucket_content).
@@ -365,14 +371,17 @@ def process_package(pkg, cache_dir, verbose=False):
         filename = asset["name"]
 
         # Get SHA256
-        sha = get_cached_hash(cache_dir, name, version, filename)
-        if sha:
-            if verbose:
-                print(f"  [cache hit] {filename}")
+        if skip_hash:
+            sha = ""
         else:
-            sha = get_sha256_for_asset(
-                url, filename, all_assets, checksum_assets, cache_dir, name, version, verbose
-            )
+            sha = get_cached_hash(cache_dir, name, version, filename)
+            if sha:
+                if verbose:
+                    print(f"  [cache hit] {filename}")
+            else:
+                sha = get_sha256_for_asset(
+                    url, filename, all_assets, checksum_assets, cache_dir, name, version, verbose
+                )
 
         platforms[plat_key] = {"url": url, "sha256": sha}
 
@@ -468,7 +477,7 @@ def main():
         print(f"\n[{name}]")
 
         try:
-            formula, bucket = process_package(pkg, cache_dir, verbose=args.verbose)
+            formula, bucket = process_package(pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose)
         except Exception as e:
             print(f"  [error] {name}: {e}")
             has_warnings = True
