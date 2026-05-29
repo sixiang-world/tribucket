@@ -1,0 +1,39 @@
+name: Generate Formula & Bucket
+
+on:
+  push:
+    branches: [main]
+    paths: ['packages/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate Formula and Bucket
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/generate.py
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet Formula/ bucket/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/ bucket/
+          git commit -m "chore: auto-generate Formula and Bucket from packages"
+          git push
