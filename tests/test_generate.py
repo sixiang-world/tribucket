@@ -83,3 +83,38 @@ class TestLoadPackages:
         assert len(pkgs) == 1
         captured = capsys.readouterr()
         assert "missing" in captured.out
+
+
+class TestMatchAsset:
+    def test_substring_match(self):
+        assets = [
+            {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-amd64.tar.gz"},
+            {"name": "tool-linux-arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-arm64.tar.gz"},
+        ]
+        result = generate.match_asset(assets, "tool-linux-amd64")
+        assert result is not None
+        assert result["name"] == "tool-linux-amd64.tar.gz"
+
+    def test_glob_match(self):
+        assets = [
+            {"name": "fzf-0.50_linux_amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v0.50/fzf-0.50_linux_amd64.tar.gz"},
+            {"name": "fzf-0.50_linux_arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v0.50/fzf-0.50_linux_arm64.tar.gz"},
+        ]
+        result = generate.match_asset(assets, "fzf-*_linux_amd64.tar.gz")
+        assert result is not None
+        assert "amd64" in result["name"]
+
+    def test_no_match(self):
+        assets = [
+            {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-amd64.tar.gz"},
+        ]
+        result = generate.match_asset(assets, "tool-windows-amd64.exe")
+        assert result is None
+
+    def test_exe_match(self):
+        assets = [
+            {"name": "ccx-windows-amd64.exe", "browser_download_url": "https://github.com/o/r/releases/download/v2.8.12/ccx-windows-amd64.exe"},
+        ]
+        result = generate.match_asset(assets, "ccx-windows-amd64.exe")
+        assert result is not None
+        assert result["name"] == "ccx-windows-amd64.exe"

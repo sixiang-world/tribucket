@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import sys
+from fnmatch import fnmatch
 
 
 def load_packages(packages_dir, only=None):
@@ -30,6 +31,19 @@ def load_packages(packages_dir, only=None):
         pkgs = [p for p in pkgs if p["name"] in only_set]
 
     return pkgs
+
+
+def match_asset(assets, pattern):
+    """Find the first asset whose name matches the pattern (substring or glob)."""
+    # First try substring match
+    for asset in assets:
+        if pattern in asset["name"]:
+            return asset
+    # Then try glob match
+    for asset in assets:
+        if fnmatch(asset["name"], f"*{pattern}*"):
+            return asset
+    return None
 
 
 def parse_args(argv=None):
