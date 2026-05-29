@@ -1,0 +1,35 @@
+{
+  "version": "0.9.1",
+  "description": "Better df alternative - disk usage/free utility",
+  "homepage": "https://github.com/muesli/duf",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/muesli/duf/releases/download/v0.9.1/duf_0.9.1_windows_x86_64.zip",
+      "hash": "503934be81f847d9ddb1b739834217480633435ad16515dd199e372c0b2e1afc"
+    },
+    "arm64": {
+      "url": "https://github.com/muesli/duf/releases/download/v0.9.1/duf_0.9.1_windows_arm64.zip",
+      "hash": "6aa91380c7bd5ba935bab38bb826680255a0d9569614de7b0d149cea471ccf4b"
+    }
+  },
+  "bin": [
+    [
+      "duf_0.9.1_windows_x86_64.zip",
+      "duf"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/muesli/duf"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/muesli/duf/releases/download/v$version/duf_0.9.1_windows_x86_64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/muesli/duf/releases/download/v$version/duf_0.9.1_windows_arm64.zip"
+      }
+    }
+  }
+}

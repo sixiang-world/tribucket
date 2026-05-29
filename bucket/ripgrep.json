@@ -1,0 +1,35 @@
+{
+  "version": "15.1.0",
+  "description": "Recursively search directories for a regex pattern (rg)",
+  "homepage": "https://github.com/BurntSushi/ripgrep",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-pc-windows-msvc.zip",
+      "hash": "sha256"
+    },
+    "arm64": {
+      "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-aarch64-pc-windows-msvc.zip",
+      "hash": "sha256"
+    }
+  },
+  "bin": [
+    [
+      "ripgrep-15.1.0-x86_64-pc-windows-msvc.zip",
+      "rg"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/BurntSushi/ripgrep"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-15.1.0-x86_64-pc-windows-msvc.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-15.1.0-aarch64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

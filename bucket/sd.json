@@ -1,0 +1,28 @@
+{
+  "version": "1.1.0",
+  "description": "Intuitive find & replace CLI (sed alternative)",
+  "homepage": "https://github.com/chmln/sd",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-x86_64-pc-windows-gnu.zip",
+      "hash": "c460cd35514d1877ff7116034567c95c92b62f9f662f53a34bb02f96edf0483c"
+    }
+  },
+  "bin": [
+    [
+      "sd-v1.1.0-x86_64-pc-windows-gnu.zip",
+      "sd"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/chmln/sd"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/chmln/sd/releases/download/v$version/sd-v1.1.0-x86_64-pc-windows-gnu.zip"
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "version": "0.11.17",
+  "description": "An extremely fast Python package installer and resolver",
+  "homepage": "https://github.com/astral-sh/uv",
+  "license": "Apache-2.0",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/astral-sh/uv/releases/download/0.11.17/uv-x86_64-pc-windows-msvc.zip",
+      "hash": "35fc29e03e62f3cda769bc12773f3cb70ce305d0d36c0d8bd0c117dd0b3fcd14"
+    },
+    "arm64": {
+      "url": "https://github.com/astral-sh/uv/releases/download/0.11.17/uv-aarch64-pc-windows-msvc.zip",
+      "hash": "f4463aa9671c6d153d32f2a9b272389675a711a9bca806c4ab4a3c7559b045c2"
+    }
+  },
+  "bin": [
+    [
+      "uv-x86_64-pc-windows-msvc.zip",
+      "uv"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/astral-sh/uv"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/astral-sh/uv/releases/download/v$version/uv-x86_64-pc-windows-msvc.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/astral-sh/uv/releases/download/v$version/uv-aarch64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

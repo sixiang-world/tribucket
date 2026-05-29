@@ -1,0 +1,28 @@
+{
+  "version": "3.1.2",
+  "description": "Modern filesystem and disk usage visualizer",
+  "homepage": "https://github.com/solidiquis/erdtree",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/solidiquis/erdtree/releases/download/v3.1.2/erd-v3.1.2-x86_64-pc-windows-msvc.exe",
+      "hash": "df359e20e5a38384c27b98667d780c5bd5ab1ce4bac739a5fa9c5ed25511a0a1"
+    }
+  },
+  "bin": [
+    [
+      "erd-v3.1.2-x86_64-pc-windows-msvc.exe",
+      "erd"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/solidiquis/erdtree"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/solidiquis/erdtree/releases/download/v$version/erd-v3.1.2-x86_64-pc-windows-msvc.exe"
+      }
+    }
+  }
+}

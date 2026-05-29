@@ -1,0 +1,28 @@
+{
+  "version": "1.2.0",
+  "description": "The next gen ls command (LSDeluxe)",
+  "homepage": "https://github.com/Peltoche/lsd",
+  "license": "Apache-2.0",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/lsd-rs/lsd/releases/download/v1.2.0/lsd-v1.2.0-x86_64-pc-windows-msvc.zip",
+      "hash": "a65b9f457153934a7ce1f7e0fe1c4922a95bb2822222126e4fbaa6ee9c0d78e5"
+    }
+  },
+  "bin": [
+    [
+      "lsd-v1.2.0-x86_64-pc-windows-msvc.zip",
+      "lsd"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/Peltoche/lsd"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/lsd-rs/lsd/releases/download/v$version/lsd-v1.2.0-x86_64-pc-windows-msvc.zip"
+      }
+    }
+  }
+}

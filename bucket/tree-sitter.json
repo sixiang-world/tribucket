@@ -1,0 +1,35 @@
+{
+  "version": "0.26.9",
+  "description": "Parser generator tool and incremental parsing library",
+  "homepage": "https://github.com/tree-sitter/tree-sitter",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.9/tree-sitter-cli-windows-x64.zip",
+      "hash": "6741d210e08973eca23a81c56890970fdb8badb23dc1a4bb5aab7705c171d750"
+    },
+    "arm64": {
+      "url": "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.9/tree-sitter-cli-windows-arm64.zip",
+      "hash": "af7fcccf30bb1e1eba5b4192c4aaf868afd3910d3f99ad193a46c0b0108c2d28"
+    }
+  },
+  "bin": [
+    [
+      "tree-sitter-cli-windows-x64.zip",
+      "tree-sitter"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/tree-sitter/tree-sitter"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/tree-sitter/tree-sitter/releases/download/v$version/tree-sitter-cli-windows-x64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/tree-sitter/tree-sitter/releases/download/v$version/tree-sitter-cli-windows-arm64.zip"
+      }
+    }
+  }
+}

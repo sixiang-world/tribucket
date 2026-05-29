@@ -1,0 +1,28 @@
+{
+  "version": "0.14.11",
+  "description": "Modern replacement for ps (process viewer)",
+  "homepage": "https://github.com/dalance/procs",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/dalance/procs/releases/download/v0.14.11/procs-v0.14.11-x86_64-windows.zip",
+      "hash": "1b1fef6dfc46ce2f2fe33a678cf865bea35234febe42c3921b06ab41024cda01"
+    }
+  },
+  "bin": [
+    [
+      "procs-v0.14.11-x86_64-windows.zip",
+      "procs"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/dalance/procs"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/dalance/procs/releases/download/v$version/procs-v0.14.11-x86_64-windows.zip"
+      }
+    }
+  }
+}

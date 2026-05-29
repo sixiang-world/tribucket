@@ -1,0 +1,28 @@
+{
+  "version": "jq-1.8.1",
+  "description": "Lightweight command-line JSON processor",
+  "homepage": "https://github.com/jqlang/jq",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-win64.exe",
+      "hash": "23cb60a1354eed6bcc8d9b9735e8c7b388cd1fdcb75726b93bc299ef22dd9334"
+    }
+  },
+  "bin": [
+    [
+      "jq-win64.exe",
+      "jq"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/jqlang/jq"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/jqlang/jq/releases/download/v$version/jq-win64.exe"
+      }
+    }
+  }
+}

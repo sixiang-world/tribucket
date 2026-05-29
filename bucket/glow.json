@@ -1,0 +1,28 @@
+{
+  "version": "2.1.2",
+  "description": "Render markdown on the CLI",
+  "homepage": "https://github.com/charmbracelet/glow",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/charmbracelet/glow/releases/download/v2.1.2/glow_2.1.2_Windows_x86_64.zip",
+      "hash": "9bc12fce6061b0dd45325401b0d11ec2e45981b76eef2b7fa3c0f941ba5c0b39"
+    }
+  },
+  "bin": [
+    [
+      "glow_2.1.2_Windows_x86_64.zip",
+      "glow"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/charmbracelet/glow"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/charmbracelet/glow/releases/download/v$version/glow_2.1.2_Windows_x86_64.zip"
+      }
+    }
+  }
+}
