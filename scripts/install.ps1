@@ -92,22 +92,74 @@ Write-Info "Platform: $platform"
 
 # Get asset pattern from nested asset_pattern object
 $assetPattern = $pkg.asset_pattern.$platform
-if (-not $assetPattern) { Write-Err "No asset pattern for $platform" }
 
-# Get latest release
-Write-Info "Fetching latest release..."
-$headers = @{ "Accept" = "application/vnd.github.v3+json" }
-$release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers $headers
-$version = $release.tag_name -replace '^v', ''
-Write-Info "Latest: v$version"
+# --- Check for custom download URL (non-GitHub sources) ---
+$useCustomUrl = $false
+$downloadUrlMap = $pkg.PSObject.Properties['download_url']
+if ($downloadUrlMap) {
+    $urlTemplate = $downloadUrlMap.Value.PSObject.Properties[$platform]
+    if ($urlTemplate) {
+        $resolvedUrl = $urlTemplate.Value
+        # If URL contains {version}, resolve via checkver
+        if ($resolvedUrl -match '\{version\}') {
+            $checkver = $pkg.PSObject.Properties['checkver']
+            if ($checkver) {
+                $verUrl = $checkver.Value.url
+                $verRegex = $checkver.Value.regex
+                if ($verUrl) {
+                    try {
+                        $wc2 = New-Object System.Net.WebClient
+                        $verContent = $wc2.DownloadString($verUrl)
+                        if ($verRegex) {
+                            $match = [regex]::Match($verContent, $verRegex)
+                            if ($match.Success) {
+                                $ver = $match.Groups[1].Value
+                                $resolvedUrl = $resolvedUrl -replace '\{version\}', $ver
+                            } else {
+                                throw "Version regex did not match"
+                            }
+                        } else {
+                            $resolvedUrl = $resolvedUrl -replace '\{version\}', $verContent.Trim()
+                        }
+                    } catch {
+                        Write-Warn "Failed to resolve version from checkver: $_"
+                        $resolvedUrl = ""
+                    }
+                }
+            }
+        }
+        if ($resolvedUrl) {
+            $url = $resolvedUrl
+            $filename = Split-Path $url -Leaf
+            # Try to extract a version number from the URL
+            $verMatch = [regex]::Match($url, '[0-9]+\.[0-9]+[0-9.]*')
+            $version = if ($verMatch.Success) { $verMatch.Value } else { "latest" }
+            Write-Info "Latest: $version (custom source)"
+            Write-Info "Using custom download source"
+            $useCustomUrl = $true
+        }
+    }
+}
 
-# Find asset
-$asset = $release.assets | Where-Object { $_.name -match $assetPattern } | Select-Object -First 1
-if (-not $asset) { Write-Err "No asset matching '$assetPattern' in release v$version" }
-$url = $asset.browser_download_url
+if (-not $useCustomUrl) {
+    # Existing GitHub API flow
+    if (-not $assetPattern) { Write-Err "No asset pattern for $platform" }
 
-# Validate download URL
-Validate-Url $url
+    # Get latest release
+    Write-Info "Fetching latest release..."
+    $headers = @{ "Accept" = "application/vnd.github.v3+json" }
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers $headers
+    $version = $release.tag_name -replace '^v', ''
+    Write-Info "Latest: v$version"
+
+    # Find asset
+    $asset = $release.assets | Where-Object { $_.name -match $assetPattern } | Select-Object -First 1
+    if (-not $asset) { Write-Err "No asset matching '$assetPattern' in release v$version" }
+    $url = $asset.browser_download_url
+
+    # Validate download URL
+    Validate-Url $url
+}
 
 # Install directory
 if (-not $InstallDir) { $InstallDir = Get-Location }

@@ -16,3 +16,4 @@ Desktop.ini
 
 # Generator cache
 .cache/
+__pycache__/

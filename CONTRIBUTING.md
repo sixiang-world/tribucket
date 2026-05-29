@@ -29,6 +29,8 @@ python scripts/generate.py --skip-hash
 
 ### packages/\<name\>.json 字段说明
 
+**GitHub Release 源（标准方式）：**
+
 | 字段 | 必填 | 说明 |
 |------|------|------|
 | `name` | 是 | 软件名，与文件名一致 |
@@ -39,12 +41,34 @@ python scripts/generate.py --skip-hash
 | `homepage` | 是 | 项目主页 URL |
 | `asset_pattern` | 是 | 各平台的 release asset 匹配规则 |
 
-### asset_pattern 注意事项
+**自定义下载源（非 GitHub Release）：**
 
-- 每个 key 必须是 `linux_amd64`、`linux_arm64`、`darwin_amd64`、`darwin_arm64`、`windows_amd64`、`windows_arm64` 之一
-- 值是用于匹配 GitHub release 文件名的**子字符串或 glob 模式**（`*` 匹配任意字符）
-- 确保包含文件扩展名（`.tar.gz`、`.zip`、`.exe` 等），安装脚本依赖扩展名判断解压方式
-- 如果某平台没有对应的 release asset，填写一个不会匹配到其他文件的占位字符串
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `download_url` | 否 | 各平台的下载 URL 模板（见下方说明） |
+| `checkver` | 否 | 版本检测配置（与 `download_url` 配合使用） |
+
+当 `download_url` 存在时，安装脚本会直接从该 URL 下载，不走 GitHub API。
+
+```json
+{
+  "download_url": {
+    "linux_amd64": "https://example.com/releases/{version}/tool-linux-x64.tar.gz",
+    "darwin_amd64": "https://example.com/releases/{version}/tool-macos-x64.tar.gz",
+    "windows_amd64": "https://example.com/releases/{version}/tool-windows-x64.zip"
+  },
+  "checkver": {
+    "url": "https://example.com/api/latest",
+    "regex": "\"version\":\"([^\"]+)\""
+  }
+}
+```
+
+- `download_url` 的 key 与 `asset_pattern` 相同（6 个平台）
+- `{version}` 占位符会被 `checkver` 获取的版本号替换
+- `checkver.url` 返回的内容用 `checkver.regex` 提取版本号（第一个捕获组）
+- 如果 URL 不含 `{version}`，则直接使用（静态 URL）
+- 不支持的平台填 `"NO_MATCH"`
 
 ### 验证
 
