@@ -1,0 +1,16 @@
+{
+  "name": "tencent-kona-jdk21",
+  "repo": "Tencent/TencentKona-21",
+  "description": "Tencent Kona - Tencent's distribution of OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://cloud.tencent.com/product/tkjdk",
+  "asset_pattern": {
+    "linux_amd64": "TencentKona-21-jdk_linux-x86_64.tar.gz",
+    "linux_arm64": "TencentKona-21-jdk_linux-aarch64.tar.gz",
+    "darwin_amd64": "TencentKona-21_jdk_macosx-x86_64_notarized.tar.gz",
+    "darwin_arm64": "TencentKona-21_jdk_macosx-aarch64_notarized.tar.gz",
+    "windows_amd64": "TencentKona-21_jdk_windows-x86_64_signed.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

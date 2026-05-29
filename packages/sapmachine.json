@@ -1,0 +1,16 @@
+{
+  "name": "sapmachine",
+  "repo": "SAP/SapMachine",
+  "description": "SAP's distribution of OpenJDK",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://github.com/SAP/SapMachine",
+  "asset_pattern": {
+    "linux_amd64": "sapmachine-jdk-_linux-x64_bin.tar.gz",
+    "linux_arm64": "sapmachine-jdk-_linux-aarch64_bin.tar.gz",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "sapmachine-jdk-_macos-aarch64_bin.tar.gz",
+    "windows_amd64": "sapmachine-jdk-_windows-x64_bin.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

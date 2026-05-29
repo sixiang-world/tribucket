@@ -1,0 +1,16 @@
+{
+  "name": "temurin-jdk21",
+  "repo": "adoptium/temurin21-binaries",
+  "description": "Eclipse Temurin - OpenJDK binaries by Adoptium",
+  "binary": "java",
+  "license": "GPL-2.0",
+  "homepage": "https://adoptium.net",
+  "asset_pattern": {
+    "linux_amd64": "OpenJDK21U-jdk_x64_linux_hotspot",
+    "linux_arm64": "OpenJDK21U-jdk_aarch64_linux_hotspot",
+    "darwin_amd64": "OpenJDK21U-jdk_x64_mac_hotspot",
+    "darwin_arm64": "OpenJDK21U-jdk_aarch64_mac_hotspot",
+    "windows_amd64": "OpenJDK21U-jdk_x64_windows_hotspot",
+    "windows_arm64": "OpenJDK21U-jdk_aarch64_windows_hotspot"
+  }
+}
