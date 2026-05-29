@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/BenedictKing/ccx/releases/download/v2.8.12/ccx-windows-amd64.exe",
-      "hash": ""
+      "hash": "cf19990d759de41cf076654df3eb1110818413c8a2ef12f73f43a435feaa8014"
     },
     "arm64": {
       "url": "https://github.com/BenedictKing/ccx/releases/download/v2.8.12/ccx-windows-arm64.exe",
-      "hash": ""
+      "hash": "16de240e505cf7c32a9fd3b5f31aa250fd923d95b91ff9e03dc17352dfe5bf70"
     }
   },
   "bin": [["ccx-windows-amd64.exe", "ccx"]],

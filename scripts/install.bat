@@ -11,7 +11,7 @@ setlocal
 set "PKG_NAME=%~1"
 if "%PKG_NAME%"=="" (
     echo [error] Usage: install.bat ^<package-name^>
-    echo   Available: ccx
+    echo   See packages/ directory for available packages.
     exit /b 1
 )
 

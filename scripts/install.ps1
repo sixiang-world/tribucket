@@ -14,15 +14,45 @@ function Write-Ok    { param($msg) Write-Host "[ok]    $msg" -ForegroundColor Gr
 function Write-Warn  { param($msg) Write-Host "[warn]  $msg" -ForegroundColor Yellow }
 function Write-Err   { param($msg) Write-Host "[error] $msg" -ForegroundColor Red; exit 1 }
 
-function Get-JsonVal {
-    param($json, $key)
-    if ($json -match ('"' + $key + '"\s*:\s*"([^"]*)"')) { return $Matches[1] }
-    return $null
+function Validate-Url {
+    param([string]$url)
+    if ($url -notmatch '^https://github\.com/') {
+        Write-Err "Unexpected download URL domain: $url"
+    }
+}
+
+function Verify-Checksum {
+    param([string]$filePath, [string]$downloadUrl)
+    $basename = Split-Path $filePath -Leaf
+    $candidates = @("${basename}.sha256", "SHA256SUMS", "sha256sums.txt", "checksums.txt")
+    $dir = Split-Path $filePath
+    foreach ($name in $candidates) {
+        $cksumUrl = $downloadUrl -replace '/[^/]*$', "/$name"
+        try {
+            $wc = New-Object System.Net.WebClient
+            $cksumContent = $wc.DownloadString($cksumUrl)
+        } catch { continue }
+        if ([string]::IsNullOrEmpty($cksumContent)) { continue }
+        $expected = ($cksumContent -split "`n" | Where-Object { $_ -match $basename } | Select-Object -First 1) -replace '\s+.*', ''
+        if ([string]::IsNullOrEmpty($expected)) { continue }
+        $actual = (Get-FileHash -Path $filePath -Algorithm SHA256).Hash.ToLower()
+        if ($actual -eq $expected.ToLower()) {
+            Write-Ok "Checksum verified."
+            return
+        } else {
+            Write-Err "Checksum mismatch! Expected: $expected, Got: $actual"
+        }
+    }
+    Write-Info "No checksum file found — skipping verification."
 }
 
 # --- Main ---
 if (-not $Package) {
-    Write-Err "Usage: install.ps1 -Package <name>`n  Available: ccx"
+    $pkgDir = Join-Path $PSScriptRoot "..\packages"
+    $available = if (Test-Path $pkgDir) {
+        (Get-ChildItem $pkgDir -Filter *.json | ForEach-Object { $_.BaseName }) -join ", "
+    } else { "(cannot list — run from cloned repo)" }
+    Write-Err "Usage: install.ps1 -Package <name>`n  Available: $available"
 }
 
 Write-Info "Package: $Package"
@@ -40,10 +70,18 @@ if (Test-Path $localPath) {
     }
 }
 
-$repo = Get-JsonVal $pkgJson "repo"
-$binary = Get-JsonVal $pkgJson "binary"
-$description = Get-JsonVal $pkgJson "description"
-if (-not $repo) { Write-Err "Invalid package definition." }
+# Parse JSON properly
+try {
+    $pkg = $pkgJson | ConvertFrom-Json
+} catch {
+    Write-Err "Invalid JSON in package definition for '$Package'."
+}
+
+$repo = $pkg.repo
+$binary = $pkg.binary
+$description = $pkg.description
+if (-not $repo) { Write-Err "Invalid package definition: missing 'repo'." }
+if (-not $binary) { Write-Err "Invalid package definition: missing 'binary'." }
 
 Write-Info $description
 
@@ -52,8 +90,8 @@ $arch = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "arm64" } else { "amd64" 
 $platform = "windows_$arch"
 Write-Info "Platform: $platform"
 
-# Get asset pattern
-$assetPattern = Get-JsonVal $pkgJson $platform
+# Get asset pattern from nested asset_pattern object
+$assetPattern = $pkg.asset_pattern.$platform
 if (-not $assetPattern) { Write-Err "No asset pattern for $platform" }
 
 # Get latest release
@@ -67,6 +105,9 @@ Write-Info "Latest: v$version"
 $asset = $release.assets | Where-Object { $_.name -match $assetPattern } | Select-Object -First 1
 if (-not $asset) { Write-Err "No asset matching '$assetPattern' in release v$version" }
 $url = $asset.browser_download_url
+
+# Validate download URL
+Validate-Url $url
 
 # Install directory
 if (-not $InstallDir) { $InstallDir = Get-Location }
@@ -95,6 +136,9 @@ Write-Info "Downloading $filename..."
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($url, $downloadPath)
 
+# Verify checksum
+Verify-Checksum $downloadPath $url
+
 # Handle zip
 if ($filename -match '\.zip$') {
     $extractDir = Join-Path $tmpDir "extracted"
@@ -116,12 +160,13 @@ $updateContent = @"
 `$ErrorActionPreference = "Stop"
 `$wc = New-Object System.Net.WebClient
 `$pkgJson = `$wc.DownloadString("https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages/$Package.json")
-if (`$pkgJson -match '"repo"\s*:\s*"([^"]*)"') { `$repo = `$Matches[1] }
+`$pkg = `$pkgJson | ConvertFrom-Json
+`$repo = `$pkg.repo
 `$release = Invoke-RestMethod -Uri "https://api.github.com/repos/`$repo/releases/latest"
 `$version = `$release.tag_name -replace '^v', ''
 `$arch = if (`$env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'amd64' }
 `$platform = "windows_`$arch"
-if (`$pkgJson -match ('"' + `$platform + '"\s*:\s*"([^"]*)"')) { `$pattern = `$Matches[1] }
+`$pattern = `$pkg.asset_pattern.`$platform
 `$asset = `$release.assets | Where-Object { `$_.name -match `$pattern } | Select-Object -First 1
 `$destPath = Join-Path (Get-Location) "$binary.exe"
 `$currentVer = if (Test-Path `$destPath) { try { ((& `$destPath --version 2>&1) -replace '[^0-9.]','').Trim() } catch { 'none' } } else { 'none' }
