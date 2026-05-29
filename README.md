@@ -87,29 +87,77 @@ tribucket/
 ├── README.md
 ├── CONTRIBUTING.md        # 贡献指南
 ├── VERSION                # 仓库版本
-├── Formula/               # Homebrew formulas (目前仅 ccx)
-│   └── ccx.rb
-├── bucket/                # Scoop manifests (目前仅 ccx)
-│   └── ccx.json
+├── Formula/               # Homebrew formulas (自动生成，共 17 个)
+│   ├── axonhub.rb
+│   ├── ccx.rb
+│   ├── ...
+│   └── zoxide.rb
+├── bucket/                # Scoop manifests (自动生成，共 17 个)
+│   ├── axonhub.json
+│   ├── ccx.json
+│   ├── ...
+│   └── zoxide.json
 ├── packages/              # 软件包元数据 (核心，共 17 个)
 │   ├── axonhub.json
 │   ├── bat.json
 │   ├── ccx.json
 │   ├── ...
 │   └── zoxide.json
-└── scripts/               # 通用安装脚本
-    ├── install.sh         # Linux / macOS 安装
-    ├── install.ps1        # Windows PowerShell 安装
-    └── install.bat        # Windows CMD 入口 (调用 install.ps1)
+├── scripts/               # 通用脚本
+│   ├── generate.py        # 自动生成 Formula 和 Bucket
+│   ├── install.sh         # Linux / macOS 安装
+│   ├── install.ps1        # Windows PowerShell 安装
+│   └── install.bat        # Windows CMD 入口 (调用 install.ps1)
+└── tests/                 # 单元测试
+    └── test_generate.py   # generate.py 的测试 (35 个)
 ```
 
 > `update.sh` / `uninstall.sh` / `update.ps1` / `uninstall.ps1` 由安装脚本在安装目录自动生成，不在仓库中。
+> `Formula/`、`bucket/` 由 `scripts/generate.py` 自动生成，不要手动编辑。
 
 ## 添加新软件
 
 1. 在 `packages/` 下新建 `<name>.json`，填入 GitHub 仓库和 asset 匹配规则
 2. 运行 `python scripts/generate.py --only <name>` 自动生成 Formula 和 Bucket
 3. 提交 PR
+
+### 自动生成 Formula 和 Bucket
+
+`scripts/generate.py` 从 `packages/*.json` 自动读取元数据，调用 GitHub API 获取最新 release，生成 `Formula/*.rb` 和 `bucket/*.json`。
+
+```bash
+# 生成全部
+python scripts/generate.py
+
+# 只生成某个包
+python scripts/generate.py --only <name>
+
+# 预览（不写文件）
+python scripts/generate.py --dry-run
+
+# 跳过 SHA256 计算（快速预览模板）
+python scripts/generate.py --skip-hash
+```
+
+**代理设置**（中国大陆用户）：
+
+```bash
+export HTTPS_PROXY=http://127.0.0.1:7897
+export HTTP_PROXY=http://127.0.0.1:7897
+```
+
+**GitHub Token**（可选，提升 API 速率限制到 5000 次/小时）：
+
+```bash
+export GITHUB_TOKEN=你的token
+```
+
+**运行测试**：
+
+```bash
+pip install pytest
+python -m pytest tests/ -v
+```
 
 `packages/<name>.json` 格式：
 ```json
