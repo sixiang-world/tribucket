@@ -215,6 +215,68 @@ def render_formula(info):
     return formula
 
 
+def autoupdate_url(url, version):
+    """Derive a Scoop autoupdate URL by replacing the version segment with $version.
+
+    Handles both 'v1.2.3' and '1.2.3' in the URL path.
+    """
+    # Try v-prefixed first
+    v_str = f"v{version}"
+    if v_str in url:
+        return url.replace(v_str, "v$version", 1)
+    # Try bare version
+    if version in url:
+        return url.replace(version, "v$version", 1)
+    return url
+
+
+def render_bucket(info):
+    """Render a Scoop Bucket .json file from package info.
+
+    Args:
+        info: Dict with keys: name, repo, description, homepage, license, binary, version,
+              windows (dict of arch_key -> {url, hash, filename}).
+
+    Returns:
+        String content of the .json file.
+    """
+    w = info["windows"]
+    repo = info["repo"]
+
+    architecture = {}
+    autoupdate_arch = {}
+
+    for arch_key in ("64bit", "arm64"):
+        if arch_key in w:
+            entry = w[arch_key]
+            architecture[arch_key] = {
+                "url": entry["url"],
+                "hash": entry["hash"],
+            }
+            autoupdate_arch[arch_key] = {
+                "url": autoupdate_url(entry["url"], info["version"]),
+            }
+
+    # bin: use 64bit filename if available, else arm64
+    bin_filename = w.get("64bit", w.get("arm64", {})).get("filename", "")
+
+    bucket = {
+        "version": info["version"],
+        "description": info["description"],
+        "homepage": info["homepage"],
+        "license": info["license"],
+        "architecture": architecture,
+        "bin": [[bin_filename, info["binary"]]],
+        "checkver": {
+            "github": f"https://github.com/{repo}",
+        },
+        "autoupdate": {
+            "architecture": autoupdate_arch,
+        },
+    }
+    return json.dumps(bucket, indent=2, ensure_ascii=False) + "\n"
+
+
 def parse_args(argv=None):
     """Parse CLI arguments. Accepts list for testing; defaults to sys.argv[1:]."""
     parser = argparse.ArgumentParser(

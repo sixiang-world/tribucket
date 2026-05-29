@@ -278,3 +278,67 @@ class TestFormulaRendering:
         result = generate.render_formula(info)
         assert "on_intel do" in result
         assert "on_arm do" not in result
+
+
+class TestBucketRendering:
+    def test_render_bucket_basic(self):
+        info = {
+            "name": "ccx",
+            "repo": "BenedictKing/ccx",
+            "description": "Claude / Codex / Gemini API Proxy",
+            "homepage": "https://github.com/BenedictKing/ccx",
+            "license": "MIT",
+            "binary": "ccx",
+            "version": "2.8.12",
+            "windows": {
+                "64bit": {
+                    "url": "https://github.com/BenedictKing/ccx/releases/download/v2.8.12/ccx-windows-amd64.exe",
+                    "hash": "abc123",
+                    "filename": "ccx-windows-amd64.exe",
+                },
+                "arm64": {
+                    "url": "https://github.com/BenedictKing/ccx/releases/download/v2.8.12/ccx-windows-arm64.exe",
+                    "hash": "def456",
+                    "filename": "ccx-windows-arm64.exe",
+                },
+            },
+        }
+        result = generate.render_bucket(info)
+        parsed = json.loads(result)
+        assert parsed["version"] == "2.8.12"
+        assert parsed["architecture"]["64bit"]["hash"] == "abc123"
+        assert parsed["bin"] == [["ccx-windows-amd64.exe", "ccx"]]
+        assert "checkver" in parsed
+        assert "autoupdate" in parsed
+
+    def test_render_bucket_only_64bit(self):
+        info = {
+            "name": "tool",
+            "repo": "o/tool",
+            "description": "A tool",
+            "homepage": "https://x",
+            "license": "MIT",
+            "binary": "tool",
+            "version": "1.0",
+            "windows": {
+                "64bit": {
+                    "url": "https://github.com/o/tool/releases/download/v1.0/tool-windows-amd64.zip",
+                    "hash": "aaa",
+                    "filename": "tool-windows-amd64.zip",
+                },
+            },
+        }
+        result = generate.render_bucket(info)
+        parsed = json.loads(result)
+        assert "64bit" in parsed["architecture"]
+        assert "arm64" not in parsed["architecture"]
+
+    def test_autoupdate_url(self):
+        url = "https://github.com/o/r/releases/download/v1.2.3/file.zip"
+        au_url = generate.autoupdate_url(url, "1.2.3")
+        assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
+
+    def test_autoupdate_url_no_v_prefix(self):
+        url = "https://github.com/o/r/releases/download/1.2.3/file.zip"
+        au_url = generate.autoupdate_url(url, "1.2.3")
+        assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
