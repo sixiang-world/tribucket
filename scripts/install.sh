@@ -183,7 +183,7 @@ main() {
   _regex_pattern=$(printf '%s' "$ASSET_PATTERN" | sed 's/[].$*+?(){}[]/\\&/g; s/\\\*/.*/g; s/\\\./\\./g')
   DOWNLOAD_URL=$(printf '%s' "$RELEASE_JSON" \
     | grep '"browser_download_url"' \
-    | grep -iE "$_regex_pattern" \
+    | grep -E "$_regex_pattern" \
     | head -1 \
     | sed 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' \
     || true)
@@ -226,6 +226,22 @@ main() {
       if [ -z "$EXTRACTED" ]; then
         EXTRACTED=$(find "$TRIBUCKET_TMPDIR" -type f \( -name "${BINARY}-*" -o -name "${BINARY}.*" \) \
           ! -name "*.tar*" ! -name "*.sha*" ! -name "*.zip" -print | head -1)
+      fi
+      ;;
+    *.tar.zst)
+      if ! command -v zstd >/dev/null 2>&1; then
+        err "zstd is required to extract .tar.zst archives. Install it with your package manager."
+      fi
+      zstd -d "${TRIBUCKET_TMPDIR}/${FILENAME}" --output-dir-flat "$TRIBUCKET_TMPDIR" 2>/dev/null \
+        || zstd -d "${TRIBUCKET_TMPDIR}/${FILENAME}" -o "${TRIBUCKET_TMPDIR}/${FILENAME%.zst}" 2>/dev/null \
+        || err "Failed to decompress .tar.zst archive"
+      _tar_file=$(find "$TRIBUCKET_TMPDIR" -type f -name "*.tar" ! -name "*.zst" -print | head -1)
+      [ -z "$_tar_file" ] && err "No .tar file found after zstd decompression"
+      tar -xf "$_tar_file" -C "$TRIBUCKET_TMPDIR"
+      EXTRACTED=$(find "$TRIBUCKET_TMPDIR" -type f -name "$BINARY" -print | head -1)
+      if [ -z "$EXTRACTED" ]; then
+        EXTRACTED=$(find "$TRIBUCKET_TMPDIR" -type f \( -name "${BINARY}-*" -o -name "${BINARY}.*" \) \
+          ! -name "*.tar*" ! -name "*.sha*" ! -name "*.zip" ! -name "*.zst" -print | head -1)
       fi
       ;;
     *.zip)
