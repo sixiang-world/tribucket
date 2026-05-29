@@ -68,8 +68,20 @@ def parse_release(release_json):
     return version, all_assets, checksum_assets
 
 
+def _build_opener():
+    """Build a URL opener that respects HTTP_PROXY/HTTPS_PROXY env vars."""
+    proxy_handler = urllib.request.ProxyHandler()
+    return urllib.request.build_opener(proxy_handler)
+
+
+_opener = _build_opener()
+
+
 def http_get(url, token=None, retries=3):
-    """Fetch a URL with optional GitHub token and retry logic."""
+    """Fetch a URL with optional GitHub token and retry logic.
+
+    Respects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables.
+    """
     headers = {"Accept": "application/vnd.github.v3+json"}
     if token:
         headers["Authorization"] = f"token {token}"
@@ -78,7 +90,7 @@ def http_get(url, token=None, retries=3):
     last_err = None
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with _opener.open(req, timeout=30) as resp:
                 return resp.read()
         except urllib.error.HTTPError as e:
             last_err = e
