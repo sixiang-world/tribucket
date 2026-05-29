@@ -13,3 +13,6 @@ Desktop.ini
 # Temp
 *.tmp
 *.bak
+
+# Generator cache
+.cache/

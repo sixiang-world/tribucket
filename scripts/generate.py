@@ -5,6 +5,7 @@ Usage:
     python scripts/generate.py [--only NAME ...] [--skip-hash] [--dry-run] [--verbose]
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -102,6 +103,46 @@ def fetch_latest_release(repo, token=None):
     body = http_get(url, token=token)
     release_json = json.loads(body)
     return parse_release(release_json)
+
+
+def cache_key_path(cache_dir, pkg_name, version, filename):
+    """Return the path to a cached SHA256 hash file."""
+    return os.path.join(cache_dir, pkg_name, version, f"{filename}.sha256")
+
+
+def get_cached_hash(cache_dir, pkg_name, version, filename):
+    """Return cached SHA256 hash if it exists, else None."""
+    path = cache_key_path(cache_dir, pkg_name, version, filename)
+    if os.path.isfile(path):
+        with open(path) as f:
+            return f.read().strip()
+    return None
+
+
+def write_cache(cache_dir, pkg_name, version, filename, sha256_hash):
+    """Write a SHA256 hash to the cache."""
+    path = cache_key_path(cache_dir, pkg_name, version, filename)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write(sha256_hash)
+
+
+def compute_sha256(filepath):
+    """Compute SHA256 hex digest of a file."""
+    h = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def parse_checksum_file(content, target_filename):
+    """Extract SHA256 hash for target_filename from a checksum file."""
+    for line in content.strip().splitlines():
+        parts = line.strip().split()
+        if len(parts) >= 2 and target_filename in parts[-1]:
+            return parts[0].lower()
+    return None
 
 
 def parse_args(argv=None):

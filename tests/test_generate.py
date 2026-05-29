@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import hashlib
 import pytest
 
 # Add scripts/ to path so we can import generate
@@ -161,3 +162,49 @@ class TestGitHubAPI:
         assert "tool.tar.gz.sha256" in names
         assert "sha256sums.txt" in names
         assert "checksums.txt" in names
+
+
+class TestSHA256:
+    def test_cache_key_path(self):
+        path = generate.cache_key_path("/repo/.cache", "ccx", "2.8.12", "ccx-linux-amd64.tar.gz")
+        assert path.replace("\\", "/").endswith(".cache/ccx/2.8.12/ccx-linux-amd64.tar.gz.sha256")
+
+    def test_cache_hit(self, tmp_path):
+        cache_dir = str(tmp_path / ".cache")
+        key_path = generate.cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
+        os.makedirs(os.path.dirname(key_path), exist_ok=True)
+        with open(key_path, "w") as f:
+            f.write("abc123")
+        result = generate.get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
+        assert result == "abc123"
+
+    def test_cache_miss(self, tmp_path):
+        cache_dir = str(tmp_path / ".cache")
+        result = generate.get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
+        assert result is None
+
+    def test_write_cache(self, tmp_path):
+        cache_dir = str(tmp_path / ".cache")
+        generate.write_cache(cache_dir, "pkg", "1.0", "file.tar.gz", "deadbeef")
+        key_path = generate.cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
+        with open(key_path) as f:
+            assert f.read() == "deadbeef"
+
+    def test_compute_sha256(self, tmp_path):
+        content = b"hello world"
+        fpath = str(tmp_path / "test.bin")
+        with open(fpath, "wb") as f:
+            f.write(content)
+        expected = hashlib.sha256(content).hexdigest()
+        result = generate.compute_sha256(fpath)
+        assert result == expected
+
+    def test_parse_checksum_file(self):
+        content = "abc123  tool-linux-amd64.tar.gz\ndef456  tool-linux-arm64.tar.gz\n"
+        result = generate.parse_checksum_file(content, "tool-linux-amd64.tar.gz")
+        assert result == "abc123"
+
+    def test_parse_checksum_file_no_match(self):
+        content = "abc123  other-file.tar.gz\n"
+        result = generate.parse_checksum_file(content, "tool-linux-amd64.tar.gz")
+        assert result is None
