@@ -33,7 +33,7 @@ jobs:
 
             # Check required top-level fields
             for field in $required_fields; do
-              val=$(python3 -c "import json; d=json.load(open('$f')); print(d.get('$field',''))" 2>/dev/null)
+              val=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get(sys.argv[2],''))" "$f" "$field" 2>/dev/null)
               if [ -z "$val" ]; then
                 echo "  ERROR: Missing required field '$field'"
                 errors=$((errors + 1))
@@ -42,31 +42,13 @@ jobs:
 
             # Check asset_pattern platforms
             for plat in $required_platforms; do
-              val=$(python3 -c "
-import json
-d = json.load(open('$f'))
-ap = d.get('asset_pattern', {})
-print(ap.get('$plat', ''))
-" 2>/dev/null)
+              val=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ap=d.get('asset_pattern',{}); print(ap.get(sys.argv[2],''))" "$f" "$plat" 2>/dev/null)
               if [ -z "$val" ]; then
                 echo "  WARNING: Missing asset_pattern for $plat"
               fi
             done
 
-            # Check binary field matches pattern (binary name should appear in at least one pattern)
-            binary=$(python3 -c "import json; d=json.load(open('$f')); print(d.get('binary',''))" 2>/dev/null)
-            if [ -n "$binary" ]; then
-              found=$(python3 -c "
-import json
-d = json.load(open('$f'))
-ap = d.get('asset_pattern', {})
-patterns = ' '.join(ap.values())
-print('yes' if '$binary' in patterns else 'no')
-" 2>/dev/null)
-              if [ "$found" = "no" ]; then
-                echo "  INFO: binary '$binary' not found in any asset_pattern — may be extracted from archive"
-              fi
-            fi
+            echo "  OK   $f"
           done
 
           if [ $errors -gt 0 ]; then
@@ -96,16 +78,8 @@ print('yes' if '$binary' in patterns else 'no')
           set -eu
           errors=0
           for f in bucket/*.json; do
-            if python3 -c "
-import json, sys
-d = json.load(open('$f'))
-for arch, info in d.get('architecture', {}).items():
-    if not info.get('hash', ''):
-        print(f'ERROR: $f {arch} has empty hash')
-        sys.exit(1)
-" 2>&1; then
-              :
-            else
+            if ! python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [sys.exit(1) for arch,info in d.get('architecture',{}).items() if not info.get('hash','')]" "$f" 2>/dev/null; then
+              echo "ERROR: $f has empty hash"
               errors=$((errors + 1))
             fi
           done
