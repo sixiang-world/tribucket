@@ -1,0 +1,16 @@
+{
+  "name": "ProxyBridge",
+  "repo": "InterceptSuite/ProxyBridge",
+  "description": "Network proxy interception tool",
+  "binary": "ProxyBridge",
+  "license": "MIT",
+  "homepage": "https://github.com/InterceptSuite/ProxyBridge",
+  "asset_pattern": {
+    "linux_amd64": "ProxyBridge-Linux-v3.2.0.tar.gz",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "ProxyBridge-Setup-3.2.0.exe",
+    "windows_arm64": "NO_MATCH"
+  }
+}

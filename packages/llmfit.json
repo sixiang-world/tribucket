@@ -1,0 +1,16 @@
+{
+  "name": "llmfit",
+  "repo": "AlexsJones/llmfit",
+  "description": "LLM fitness evaluation tool",
+  "binary": "llmfit",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/AlexsJones/llmfit",
+  "asset_pattern": {
+    "linux_amd64": "llmfit-v0.9.29-x86_64-unknown-linux-musl.tar.gz",
+    "linux_arm64": "llmfit-v0.9.29-aarch64-unknown-linux-gnu.tar.gz",
+    "darwin_amd64": "llmfit-v0.9.29-x86_64-apple-darwin.tar.gz",
+    "darwin_arm64": "llmfit-v0.9.29-aarch64-apple-darwin.tar.gz",
+    "windows_amd64": "llmfit-v0.9.29-x86_64-pc-windows-msvc.zip",
+    "windows_arm64": "llmfit-v0.9.29-aarch64-pc-windows-msvc.zip"
+  }
+}

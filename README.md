@@ -11,10 +11,13 @@
 
 | 软件 | 描述 | GitHub |
 |------|------|--------|
+| CLIProxyAPI | CLI proxy API tool with wide platform support | [router-for-me/CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) |
+| ProxyBridge | Network proxy interception tool | [InterceptSuite/ProxyBridge](https://github.com/InterceptSuite/ProxyBridge) |
 | ast-grep | Structural search/replace using AST patterns | [ast-grep/ast-grep](https://github.com/ast-grep/ast-grep) |
 | axonhub | Open-source AI Gateway — call 100+ LLMs with failover and load balancing | [looplj/axonhub](https://github.com/looplj/axonhub) |
 | bat | A cat(1) clone with syntax highlighting and Git integration | [sharkdp/bat](https://github.com/sharkdp/bat) |
 | bottom | Cross-platform graphical system monitor | [ClementTsang/bottom](https://github.com/ClementTsang/bottom) |
+| cc-connect | Claude Code connectivity utility | [chenhg5/cc-connect](https://github.com/chenhg5/cc-connect) |
 | ccx | Claude / Codex / Gemini API Proxy and Gateway | [BenedictKing/ccx](https://github.com/BenedictKing/ccx) |
 | claude-code | Claude Code — agentic coding tool by Anthropic | [anthropics/claude-code](https://github.com/anthropics/claude-code) |
 | codewhale | DeepSeek + MiMo coding agent in terminal | [Hmbown/CodeWhale](https://github.com/Hmbown/CodeWhale) |
@@ -29,6 +32,7 @@
 | fzf | Command-line fuzzy finder | [junegunn/fzf](https://github.com/junegunn/fzf) |
 | gh | GitHub CLI — GitHub from the command line | [cli/cli](https://github.com/cli/cli) |
 | glow | Render markdown on the CLI | [charmbracelet/glow](https://github.com/charmbracelet/glow) |
+| go-wxpush | WeChat push notification utility | [hezhizheng/go-wxpush](https://github.com/hezhizheng/go-wxpush) |
 | goose | Open-source AI agent by Block — extensible, runs in terminal | [block/goose](https://github.com/block/goose) |
 | gping | Ping with a graph | [orf/gping](https://github.com/orf/gping) |
 | helix | Post-modern modal text editor | [helix-editor/helix](https://github.com/helix-editor/helix) |
@@ -36,12 +40,15 @@
 | jq | Lightweight command-line JSON processor | [jqlang/jq](https://github.com/jqlang/jq) |
 | k9s | Terminal UI for managing Kubernetes clusters | [derailed/k9s](https://github.com/derailed/k9s) |
 | lazygit | Simple terminal UI for git commands | [jesseduffield/lazygit](https://github.com/jesseduffield/lazygit) |
+| llmfit | LLM fitness evaluation tool | [AlexsJones/llmfit](https://github.com/AlexsJones/llmfit) |
 | lsd | The next gen ls command (LSDeluxe) | [Peltoche/lsd](https://github.com/Peltoche/lsd) |
 | mise | Polyglot runtime manager (asdf replacement) | [jdx/mise](https://github.com/jdx/mise) |
 | neovim | Hyperextensible Vim-based text editor | [neovim/neovim](https://github.com/neovim/neovim) |
 | ollama | Get up and running with Llama 3, Mistral, Gemma 2, and other LLMs | [ollama/ollama](https://github.com/ollama/ollama) |
+| octopus | Multi-platform CLI tool | [bestruirui/octopus](https://github.com/bestruirui/octopus) |
 | opentofu | Open-source infrastructure as code tool (Terraform fork) | [opentofu/opentofu](https://github.com/opentofu/opentofu) |
 | procs | Modern replacement for ps (process viewer) | [dalance/procs](https://github.com/dalance/procs) |
+| quarkdown | Markdown-to-PDF/document engine | [iamgio/quarkdown](https://github.com/iamgio/quarkdown) |
 | ripgrep | Recursively search directories for a regex pattern (rg) | [BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep) |
 | ruff | An extremely fast Python linter and formatter | [astral-sh/ruff](https://github.com/astral-sh/ruff) |
 | sd | Intuitive find & replace CLI (sed alternative) | [chmln/sd](https://github.com/chmln/sd) |

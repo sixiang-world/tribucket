@@ -1,0 +1,16 @@
+{
+  "name": "quarkdown",
+  "repo": "iamgio/quarkdown",
+  "description": "Markdown-to-PDF/document engine",
+  "binary": "quarkdown",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/iamgio/quarkdown",
+  "asset_pattern": {
+    "linux_amd64": "quarkdown-linux-x64.zip",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "quarkdown-macos-x64.zip",
+    "darwin_arm64": "quarkdown-macos-aarch64.zip",
+    "windows_amd64": "quarkdown-windows-x64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}

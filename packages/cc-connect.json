@@ -1,0 +1,16 @@
+{
+  "name": "cc-connect",
+  "repo": "chenhg5/cc-connect",
+  "description": "Claude Code connectivity utility",
+  "binary": "cc-connect",
+  "license": "MIT",
+  "homepage": "https://github.com/chenhg5/cc-connect",
+  "asset_pattern": {
+    "linux_amd64": "cc-connect-v1.3.2-linux-amd64.tar.gz",
+    "linux_arm64": "cc-connect-v1.3.2-linux-arm64.tar.gz",
+    "darwin_amd64": "cc-connect-v1.3.2-darwin-amd64.tar.gz",
+    "darwin_arm64": "cc-connect-v1.3.2-darwin-arm64.tar.gz",
+    "windows_amd64": "cc-connect-v1.3.2-windows-amd64.zip",
+    "windows_arm64": "cc-connect-v1.3.2-windows-arm64.zip"
+  }
+}
