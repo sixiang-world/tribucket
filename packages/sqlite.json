@@ -1,7 +1,7 @@
 {
   "name": "sqlite",
   "repo": "sqlite/sqlite",
-  "version": "3.49.1.0",
+  "version": "3.53.1",
   "description": "Self-contained, serverless, zero-configuration SQL database engine",
   "binary": "sqlite3",
   "license": "Public-Domain",
@@ -15,11 +15,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://sqlite.org/2025/sqlite-tools-linux-x64-3490100.zip",
+    "linux_amd64": "https://sqlite.org/2026/sqlite-tools-linux-x64-3530100.zip",
     "linux_arm64": "NO_MATCH",
-    "darwin_amd64": "https://sqlite.org/2025/sqlite-tools-osx-x64-3490100.zip",
-    "darwin_arm64": "https://sqlite.org/2025/sqlite-tools-osx-arm64-3490100.zip",
-    "windows_amd64": "https://sqlite.org/2025/sqlite-tools-win-x64-3490100.zip",
-    "windows_arm64": "https://sqlite.org/2025/sqlite-tools-win-arm64-3490100.zip"
+    "darwin_amd64": "https://sqlite.org/2026/sqlite-tools-osx-x64-3530100.zip",
+    "darwin_arm64": "https://sqlite.org/2026/sqlite-tools-osx-arm64-3530100.zip",
+    "windows_amd64": "https://sqlite.org/2026/sqlite-tools-win-x64-3530100.zip",
+    "windows_arm64": "https://sqlite.org/2026/sqlite-tools-win-arm64-3530100.zip"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "liberica-jdk21",
   "repo": "bell-sw/Liberica",
-  "version": "21.0.11+12",
+  "version": "21.0.11+11",
   "description": "BellSoft Liberica - 100% open-source Java implementation",
   "binary": "java",
   "license": "GPL-2.0",
@@ -15,11 +15,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-linux-amd64.tar.gz",
-    "linux_arm64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-linux-aarch64.tar.gz",
-    "darwin_amd64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-macos-amd64.tar.gz",
-    "darwin_arm64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-macos-aarch64.tar.gz",
-    "windows_amd64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-windows-amd64.zip",
-    "windows_arm64": "https://download.bell-sw.com/java/21.0.11+12/bellsoft-jdk21.0.11+12-windows-aarch64.zip"
+    "linux_amd64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-linux-amd64.tar.gz",
+    "linux_arm64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-linux-aarch64.tar.gz",
+    "darwin_amd64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-macos-amd64.tar.gz",
+    "darwin_arm64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-macos-aarch64.tar.gz",
+    "windows_amd64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-windows-amd64.zip",
+    "windows_arm64": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-windows-aarch64.zip"
   }
 }

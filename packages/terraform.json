@@ -1,7 +1,7 @@
 {
   "name": "terraform",
   "repo": "hashicorp/terraform",
-  "version": "1.11.4",
+  "version": "1.15.5",
   "description": "Infrastructure as Code tool by HashiCorp",
   "binary": "terraform",
   "license": "BSL-1.1",
@@ -15,11 +15,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_linux_amd64.zip",
-    "linux_arm64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_linux_arm64.zip",
-    "darwin_amd64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_darwin_amd64.zip",
-    "darwin_arm64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_darwin_arm64.zip",
-    "windows_amd64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_windows_amd64.zip",
-    "windows_arm64": "https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_windows_arm64.zip"
+    "linux_amd64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_linux_amd64.zip",
+    "linux_arm64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_linux_arm64.zip",
+    "darwin_amd64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_darwin_amd64.zip",
+    "darwin_arm64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_darwin_arm64.zip",
+    "windows_amd64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_windows_amd64.zip",
+    "windows_arm64": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_windows_arm64.zip"
   }
 }

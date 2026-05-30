@@ -1,7 +1,7 @@
 {
   "name": "dragonwell-jdk21",
   "repo": "dragonwell-project/dragonwell-21",
-  "version": "21.0.6.0.6+9",
+  "version": "21.0.11.0.11+10",
   "description": "Alibaba Dragonwell - downstream distribution of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
@@ -15,11 +15,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://github.com/dragonwell-project/dragonwell-21/releases/download/dragonwell-21.0.6.0.6%2B9/Alibaba_Dragonwell_Extended_21.0.6.0.6%2B9_x64_linux.tar.gz",
-    "linux_arm64": "https://github.com/dragonwell-project/dragonwell-21/releases/download/dragonwell-21.0.6.0.6%2B9/Alibaba_Dragonwell_Extended_21.0.6.0.6%2B9_aarch64_linux.tar.gz",
+    "linux_amd64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_x64_linux.tar.gz",
+    "linux_arm64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_aarch64_linux.tar.gz",
     "darwin_amd64": "NO_MATCH",
     "darwin_arm64": "NO_MATCH",
-    "windows_amd64": "https://github.com/dragonwell-project/dragonwell-21/releases/download/dragonwell-21.0.6.0.6%2B9/Alibaba_Dragonwell_Extended_21.0.6.0.6%2B9_x64_windows.zip",
+    "windows_amd64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_x64_windows.zip",
     "windows_arm64": "NO_MATCH"
   }
 }
