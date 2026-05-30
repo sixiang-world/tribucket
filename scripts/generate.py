@@ -82,7 +82,10 @@ def http_get(url, token=None, retries=3):
 
     Respects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables.
     """
-    headers = {"Accept": "application/vnd.github.v3+json"}
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "Mozilla/5.0 (compatible; tribucket/1.0; +https://github.com/sixiang-world/tribucket)",
+    }
     if token:
         headers["Authorization"] = f"token {token}"
 
