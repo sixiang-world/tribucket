@@ -122,17 +122,17 @@ tribucket/
 ├── README.md
 ├── CONTRIBUTING.md        # 贡献指南
 ├── VERSION                # 仓库版本
-├── Formula/               # Homebrew formulas (自动生成，共 17 个)
+├── Formula/               # Homebrew formulas (自动生成，共 99 个)
 │   ├── axonhub.rb
 │   ├── ccx.rb
 │   ├── ...
 │   └── zoxide.rb
-├── bucket/                # Scoop manifests (自动生成，共 17 个)
+├── bucket/                # Scoop manifests (自动生成，共 99 个)
 │   ├── axonhub.json
 │   ├── ccx.json
 │   ├── ...
 │   └── zoxide.json
-├── packages/              # 软件包元数据 (核心，共 17 个)
+├── packages/              # 软件包元数据 (核心，共 106 个)
 │   ├── axonhub.json
 │   ├── bat.json
 │   ├── ccx.json
@@ -195,6 +195,8 @@ python -m pytest tests/ -v
 ```
 
 `packages/<name>.json` 格式：
+
+**方式一：GitHub Release 源**（从 `repo` 的 release assets 自动匹配，无需 `version`）：
 ```json
 {
   "name": "tool-name",
@@ -210,6 +212,28 @@ python -m pytest tests/ -v
     "darwin_arm64": "keyword-in-asset-filename",
     "windows_amd64": "keyword-in-asset-filename.exe",
     "windows_arm64": "keyword-in-asset-filename.exe"
+  }
+}
+```
+
+**方式二：自定义下载源**（从 `download_url` 直接下载，必须提供 `version`）：
+```json
+{
+  "name": "tool-name",
+  "repo": "owner/repo",
+  "version": "1.2.3",
+  "description": "一句话描述",
+  "binary": "binary-name",
+  "license": "MIT",
+  "homepage": "https://example.com/",
+  "asset_pattern": {
+    "linux_amd64": "NO_MATCH",
+    ...
+
+  },
+  "download_url": {
+    "linux_amd64": "https://example.com/releases/tool-1.2.3-linux-x64.tar.gz",
+    ...
   }
 }
 ```

@@ -45,17 +45,19 @@ python scripts/generate.py --skip-hash
 
 | 字段 | 必填 | 说明 |
 |------|------|------|
-| `download_url` | 否 | 各平台的下载 URL 模板（见下方说明） |
+| `version` | **是** | 当前软件版本号（`download_url` 存在时必填） |
+| `download_url` | 否 | 各平台的下载 URL（见下方说明） |
 | `checkver` | 否 | 版本检测配置（与 `download_url` 配合使用） |
 
-当 `download_url` 存在时，安装脚本会直接从该 URL 下载，不走 GitHub API。
+当 `download_url` 存在时，生成器直接使用该 URL 和 `version` 字段，不走 GitHub API。
 
 ```json
 {
+  "version": "1.2.3",
   "download_url": {
-    "linux_amd64": "https://example.com/releases/{version}/tool-linux-x64.tar.gz",
-    "darwin_amd64": "https://example.com/releases/{version}/tool-macos-x64.tar.gz",
-    "windows_amd64": "https://example.com/releases/{version}/tool-windows-x64.zip"
+    "linux_amd64": "https://example.com/releases/tool-1.2.3-linux-x64.tar.gz",
+    "darwin_amd64": "https://example.com/releases/tool-1.2.3-macos-x64.tar.gz",
+    "windows_amd64": "https://example.com/releases/tool-1.2.3-windows-x64.zip"
   },
   "checkver": {
     "url": "https://example.com/api/latest",
