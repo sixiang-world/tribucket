@@ -186,3 +186,45 @@ def run_checkver(pkg):
 
     captures["version"] = version
     return version, captures
+
+
+def in_place_replace(download_urls, old_version, new_version):
+    """Replace old version string with new version in all URLs.
+
+    Returns a new dict with updated URLs. Prints a warning if the
+    old version string is not found in a URL.
+    """
+    result = {}
+    for platform, url in download_urls.items():
+        if url == "NO_MATCH" or not url:
+            result[platform] = url
+            continue
+        new_url = url.replace(old_version, new_version)
+        if new_url == url:
+            print(f"  [warn] in-place replace: old version '{old_version}' "
+                  f"not found in {platform} URL, please add autoupdate field")
+        result[platform] = new_url
+    return result
+
+
+def apply_autoupdate(autoupdate_tmpl, version, captures):
+    """Apply autoupdate templates to construct new download URLs.
+
+    Args:
+        autoupdate_tmpl: Dict of platform -> URL template with ${var} placeholders.
+        version: The detected version string.
+        captures: Dict of variable -> value from checkver (includes 'version').
+
+    Returns:
+        Dict of platform -> concrete URL.
+    """
+    result = {}
+    for platform, tmpl in autoupdate_tmpl.items():
+        if tmpl == "NO_MATCH" or not tmpl:
+            result[platform] = tmpl
+            continue
+        url = tmpl
+        for name, value in captures.items():
+            url = url.replace(f"${{{name}}}", value)
+        result[platform] = url
+    return result

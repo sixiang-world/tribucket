@@ -195,3 +195,40 @@ class TestRunCheckver:
         }
         version, captures = checkver.run_checkver(pkg)
         assert version == "1.0.0"
+
+
+class TestUrlConstruction:
+    def test_in_place_replace(self):
+        urls = {
+            "linux_amd64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-linux-x64.tar.gz",
+            "darwin_arm64": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-darwin-arm64.tar.gz",
+            "windows_amd64": "NO_MATCH",
+        }
+        result = checkver.in_place_replace(urls, "22.15.0", "22.16.0")
+        assert "22.16.0" in result["linux_amd64"]
+        assert "22.15.0" not in result["linux_amd64"]
+        assert "22.16.0" in result["darwin_arm64"]
+        assert result["windows_amd64"] == "NO_MATCH"
+
+    def test_in_place_replace_not_found(self):
+        urls = {"linux_amd64": "https://x/tool-1.0.tar.gz"}
+        result = checkver.in_place_replace(urls, "2.0", "3.0")
+        assert result["linux_amd64"] == "https://x/tool-1.0.tar.gz"  # unchanged
+
+    def test_apply_autoupdate_with_version(self):
+        urls = {
+            "linux_amd64": "https://go.dev/dl/go${version}.linux-amd64.tar.gz",
+            "linux_arm64": "https://go.dev/dl/go${version}.linux-arm64.tar.gz",
+        }
+        result = checkver.apply_autoupdate(urls, "1.25.0", {"version": "1.25.0"})
+        assert result["linux_amd64"] == "https://go.dev/dl/go1.25.0.linux-amd64.tar.gz"
+        assert result["linux_arm64"] == "https://go.dev/dl/go1.25.0.linux-arm64.tar.gz"
+
+    def test_apply_autoupdate_with_named_captures(self):
+        urls = {
+            "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-linux_x64.tar.gz",
+        }
+        captures = {"build": "21.52.17", "ver": "21.0.15", "version": "21.0.15"}
+        result = checkver.apply_autoupdate(urls, "21.0.15", captures)
+        expected = "https://cdn.azul.com/zulu/bin/zulu21.52.17-ca-jdk21.0.15-linux_x64.tar.gz"
+        assert result["linux_amd64"] == expected
