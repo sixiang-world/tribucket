@@ -360,16 +360,45 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
 
     if "download_url" in pkg:
         # ── Custom download URL path ──────────────────────────────────
-        version = pkg.get("version")
-        if not version:
+        hardcoded_version = pkg.get("version")
+        if not hardcoded_version:
             print(f"  [error] {name}: 'download_url' present but 'version' field is missing")
-            return None, None
+            return None, None, None, None
 
         repo = pkg.get("repo", "")
         download_urls = pkg["download_url"]
 
+        # 1. Run checkver to detect latest version
+        from checkver import run_checkver, apply_autoupdate, in_place_replace
+        try:
+            latest_version, captures = run_checkver(pkg)
+        except Exception as e:
+            print(f"  [warn] {name}: checkver error: {e}, using hardcoded version")
+            latest_version = hardcoded_version
+            captures = {"version": hardcoded_version}
+
+        if latest_version is None:
+            latest_version = hardcoded_version
+            captures = {"version": hardcoded_version}
+
+        # 2. Construct new URLs if version changed
+        if latest_version != hardcoded_version:
+            if verbose:
+                print(f"  Version: {hardcoded_version} → {latest_version}")
+
+            if "autoupdate" in pkg:
+                download_urls = apply_autoupdate(
+                    pkg["autoupdate"], latest_version, captures
+                )
+            else:
+                download_urls = in_place_replace(
+                    pkg["download_url"], hardcoded_version, latest_version
+                )
+
+        version = latest_version
+
         if verbose:
-            print(f"  Using custom download URLs (v{version})")
+            print(f"  Using download URLs (v{version})")
 
         for plat_key in PLATFORM_KEYS:
             url = download_urls.get(plat_key)
@@ -400,8 +429,15 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
                 arch_key = "64bit" if "amd64" in plat_key else "arm64"
                 windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
 
+        # Track whether version changed for write-back
+        version_changed = (latest_version != hardcoded_version)
+        new_download_urls_for_writeback = download_urls if version_changed else None
+
     else:
         # ── GitHub release API path ───────────────────────────────────
+        version_changed = False
+        new_download_urls_for_writeback = None
+
         repo = pkg["repo"]
 
         if verbose:
@@ -481,7 +517,9 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
     else:
         print(f"  [warn] {name}: no Windows assets, skipping Bucket")
 
-    return formula, bucket
+    return formula, bucket, \
+           (latest_version if version_changed else None), \
+           new_download_urls_for_writeback
 
 
 def parse_args(argv=None):
@@ -534,7 +572,9 @@ def main():
         print(f"\n[{name}]")
 
         try:
-            formula, bucket = process_package(pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose)
+            formula, bucket, new_version, new_urls = process_package(
+                pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose
+            )
         except Exception as e:
             print(f"  [error] {name}: {e}")
             has_errors = True
@@ -542,6 +582,22 @@ def main():
 
         if formula is None and bucket is None:
             continue
+
+        # Write back updated version to packages/*.json
+        if new_version and not args.dry_run:
+            pkg_path = os.path.join(packages_dir, f"{name}.json")
+            try:
+                with open(pkg_path, encoding="utf-8") as f:
+                    pkg_data = json.load(f)
+                pkg_data["version"] = new_version
+                if new_urls:
+                    pkg_data["download_url"] = new_urls
+                with open(pkg_path, "w", encoding="utf-8") as f:
+                    json.dump(pkg_data, f, indent=2, ensure_ascii=False)
+                    f.write("\n")
+                print(f"  -> packages/{name}.json (version → {new_version})")
+            except Exception as e:
+                print(f"  [warn] {name}: failed to write back version: {e}")
 
         if args.dry_run:
             if formula:

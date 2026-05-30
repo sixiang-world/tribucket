@@ -411,7 +411,7 @@ class TestFullPipeline:
         }
 
         cache_dir = str(tmp_path / ".cache")
-        formula, bucket = generate.process_package(pkg, cache_dir, verbose=False)
+        formula, bucket, new_version, new_urls = generate.process_package(pkg, cache_dir, verbose=False)
 
         assert "class Tool < Formula" in formula
         assert 'version "1.0.0"' in formula
@@ -420,3 +420,7 @@ class TestFullPipeline:
         bucket_parsed = json.loads(bucket)
         assert bucket_parsed["version"] == "1.0.0"
         assert bucket_parsed["architecture"]["64bit"]["hash"] == "eee555"
+
+        # GitHub release packages don't trigger write-back
+        assert new_version is None
+        assert new_urls is None
