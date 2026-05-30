@@ -26,3 +26,43 @@ def extract_version_from_url(url):
         return None
     # Pick the longest match — avoids matching partial segments like "21.0"
     return max(matches, key=len)
+
+
+# Minimal JSONPath tokenizer: splits on .field and [index]
+_JSONPATH_TOKEN = re_module.compile(r'\.([a-zA-Z_]\w*)|\[(\d+)\]')
+
+
+def resolve_jsonpath(data, expr):
+    """Resolve a minimal JSONPath expression against `data`.
+
+    Supports a subset of JSONPath:
+      $.field          — dict key access
+      $.field.sub      — nested dict
+      $[0].field       — array index then dict
+      $.field[1].sub   — mixed
+
+    Returns the resolved value or None if any step fails.
+    """
+    if expr.startswith("$"):
+        expr = expr[1:]
+    else:
+        expr = "." + expr  # "version" → ".version" so the tokenizer can match
+
+    current = data
+
+    for field, index in _JSONPATH_TOKEN.findall(expr):
+        if field:
+            if isinstance(current, dict):
+                current = current.get(field)
+            else:
+                return None
+        elif index:
+            idx = int(index)
+            if isinstance(current, list) and 0 <= idx < len(current):
+                current = current[idx]
+            else:
+                return None
+        if current is None:
+            return None
+
+    return current
