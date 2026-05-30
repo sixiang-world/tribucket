@@ -1,6 +1,7 @@
 {
   "name": "liberica-jdk21",
   "repo": "bell-sw/Liberica",
+  "version": "21.0.11+12",
   "description": "BellSoft Liberica - 100% open-source Java implementation",
   "binary": "java",
   "license": "GPL-2.0",

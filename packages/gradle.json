@@ -1,6 +1,7 @@
 {
   "name": "gradle",
   "repo": "gradle/gradle",
+  "version": "8.14",
   "description": "Build automation tool for JVM projects",
   "binary": "gradle",
   "license": "Apache-2.0",

@@ -1,6 +1,7 @@
 {
   "name": "liberica-jdk17",
   "repo": "bell-sw/Liberica",
+  "version": "17.0.19+11",
   "description": "BellSoft Liberica JDK 17 - open-source Java implementation",
   "binary": "java",
   "license": "GPL-2.0",

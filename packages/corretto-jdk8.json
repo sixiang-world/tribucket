@@ -1,6 +1,7 @@
 {
   "name": "corretto-jdk8",
   "repo": "corretto/corretto-8",
+  "version": "8.492.09.2",
   "description": "Amazon Corretto JDK 8 - no-cost, production-ready OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

@@ -327,6 +327,12 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
 def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
     """Process a single package: fetch release, compute hashes, render templates.
 
+    Supports two modes:
+      - GitHub release: uses ``repo`` + ``asset_pattern`` to match assets from the
+        latest GitHub release.
+      - Custom download URL: if ``download_url`` is present, uses those direct URLs
+        and reads the version from the required ``version`` field.
+
     Args:
         pkg: Package dict from packages/*.json.
         cache_dir: Path to the .cache directory.
@@ -338,19 +344,7 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
         Either may be None if the package lacks assets for that format.
     """
     name = pkg["name"]
-    repo = pkg["repo"]
     token = os.environ.get("GITHUB_TOKEN")
-
-    if verbose:
-        print(f"  Fetching latest release for {repo}...")
-
-    version, all_assets, checksum_assets = fetch_latest_release(repo, token)
-    if verbose:
-        print(f"  Latest: v{version} ({len(all_assets)} assets)")
-
-    # Match assets per platform
-    platforms = {}  # platform_key -> {url, sha256}
-    windows = {}    # arch_key -> {url, hash, filename}
 
     PLATFORM_KEYS = [
         "linux_amd64", "linux_arm64",
@@ -358,37 +352,97 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
         "windows_amd64", "windows_arm64",
     ]
 
-    for plat_key in PLATFORM_KEYS:
-        pattern = pkg.get("asset_pattern", {}).get(plat_key)
-        if not pattern:
-            continue
-        asset = match_asset(all_assets, pattern)
-        if not asset:
-            print(f"  [warn] {name}: no asset matching '{pattern}' for {plat_key}")
-            continue
+    platforms = {}  # platform_key -> {url, sha256}
+    windows = {}    # arch_key -> {url, hash, filename}
 
-        url = asset["browser_download_url"]
-        filename = asset["name"]
+    if "download_url" in pkg:
+        # ── Custom download URL path ──────────────────────────────────
+        version = pkg.get("version")
+        if not version:
+            print(f"  [error] {name}: 'download_url' present but 'version' field is missing")
+            return None, None
 
-        # Get SHA256
-        if skip_hash:
-            sha = ""
-        else:
-            sha = get_cached_hash(cache_dir, name, version, filename)
-            if sha:
-                if verbose:
-                    print(f"  [cache hit] {filename}")
+        repo = pkg.get("repo", "")
+        download_urls = pkg["download_url"]
+
+        if verbose:
+            print(f"  Using custom download URLs (v{version})")
+
+        for plat_key in PLATFORM_KEYS:
+            url = download_urls.get(plat_key)
+            if not url or url == "NO_MATCH":
+                continue
+
+            filename = url.split("/")[-1]
+
+            # Get SHA256
+            if skip_hash:
+                sha = ""
             else:
-                sha = get_sha256_for_asset(
-                    url, filename, all_assets, checksum_assets, cache_dir, name, version, verbose
-                )
+                sha = get_cached_hash(cache_dir, name, version, filename)
+                if sha:
+                    if verbose:
+                        print(f"  [cache hit] {filename}")
+                else:
+                    # No checksum assets for custom downloads — pass empty lists
+                    sha = get_sha256_for_asset(
+                        url, filename, [], [],
+                        cache_dir, name, version, verbose,
+                    )
 
-        platforms[plat_key] = {"url": url, "sha256": sha}
+            platforms[plat_key] = {"url": url, "sha256": sha}
 
-        # Collect Windows assets for bucket
-        if plat_key.startswith("windows_"):
-            arch_key = "64bit" if "amd64" in plat_key else "arm64"
-            windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
+            # Collect Windows assets for bucket
+            if plat_key.startswith("windows_"):
+                arch_key = "64bit" if "amd64" in plat_key else "arm64"
+                windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
+
+    else:
+        # ── GitHub release API path ───────────────────────────────────
+        repo = pkg["repo"]
+
+        if verbose:
+            print(f"  Fetching latest release for {repo}...")
+
+        version, all_assets, checksum_assets = fetch_latest_release(repo, token)
+        if verbose:
+            print(f"  Latest: v{version} ({len(all_assets)} assets)")
+
+        # Match assets per platform
+        for plat_key in PLATFORM_KEYS:
+            pattern = pkg.get("asset_pattern", {}).get(plat_key)
+            if not pattern:
+                continue
+            asset = match_asset(all_assets, pattern)
+            if not asset:
+                print(f"  [warn] {name}: no asset matching '{pattern}' for {plat_key}")
+                continue
+
+            url = asset["browser_download_url"]
+            filename = asset["name"]
+
+            # Get SHA256
+            if skip_hash:
+                sha = ""
+            else:
+                sha = get_cached_hash(cache_dir, name, version, filename)
+                if sha:
+                    if verbose:
+                        print(f"  [cache hit] {filename}")
+                else:
+                    sha = get_sha256_for_asset(
+                        url, filename, all_assets, checksum_assets,
+                        cache_dir, name, version, verbose,
+                    )
+
+            platforms[plat_key] = {"url": url, "sha256": sha}
+
+            # Collect Windows assets for bucket
+            if plat_key.startswith("windows_"):
+                arch_key = "64bit" if "amd64" in plat_key else "arm64"
+                windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
+
+    # ── Common rendering logic ────────────────────────────────────
 
     # Render Formula (needs at least one macOS or Linux platform)
     darwin_linux = {k: v for k, v in platforms.items() if not k.startswith("windows_")}

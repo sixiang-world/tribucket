@@ -1,6 +1,7 @@
 {
   "name": "microsoft-jdk11",
   "repo": "microsoft/openjdk-jdk",
+  "version": "11",
   "description": "Microsoft Build of OpenJDK 11",
   "binary": "java",
   "license": "GPL-2.0",

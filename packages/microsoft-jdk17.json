@@ -1,6 +1,7 @@
 {
   "name": "microsoft-jdk17",
   "repo": "microsoft/openjdk-jdk",
+  "version": "17",
   "description": "Microsoft Build of OpenJDK 17",
   "binary": "java",
   "license": "GPL-2.0",

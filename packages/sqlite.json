@@ -1,6 +1,7 @@
 {
   "name": "sqlite",
   "repo": "sqlite/sqlite",
+  "version": "3.49.1.0",
   "description": "Self-contained, serverless, zero-configuration SQL database engine",
   "binary": "sqlite3",
   "license": "Public-Domain",

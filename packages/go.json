@@ -1,6 +1,7 @@
 {
   "name": "go",
   "repo": "golang/go",
+  "version": "1.24.3",
   "description": "Go programming language - compiled, concurrent, garbage-collected",
   "binary": "go",
   "license": "BSD-3-Clause",

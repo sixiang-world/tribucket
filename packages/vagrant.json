@@ -1,6 +1,7 @@
 {
   "name": "vagrant",
   "repo": "hashicorp/vagrant",
+  "version": "2.4.6",
   "description": "Development environment management tool by HashiCorp",
   "binary": "vagrant",
   "license": "BSL-1.1",

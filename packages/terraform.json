@@ -1,6 +1,7 @@
 {
   "name": "terraform",
   "repo": "hashicorp/terraform",
+  "version": "1.11.4",
   "description": "Infrastructure as Code tool by HashiCorp",
   "binary": "terraform",
   "license": "BSL-1.1",

@@ -1,6 +1,7 @@
 {
   "name": "microsoft-jdk21",
   "repo": "microsoft/openjdk-jdk",
+  "version": "21.0.6",
   "description": "Microsoft Build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

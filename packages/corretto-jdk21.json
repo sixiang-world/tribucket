@@ -1,6 +1,7 @@
 {
   "name": "corretto-jdk21",
   "repo": "corretto/corretto-21",
+  "version": "21.0.11.10.1",
   "description": "Amazon Corretto - no-cost, production-ready distribution of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

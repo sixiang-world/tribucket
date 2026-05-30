@@ -1,6 +1,7 @@
 {
   "name": "elasticsearch",
   "repo": "elastic/elasticsearch",
+  "version": "8.17.6",
   "description": "Distributed search and analytics engine by Elastic",
   "binary": "elasticsearch",
   "license": "Elastic-2.0",

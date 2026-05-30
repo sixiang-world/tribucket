@@ -1,6 +1,7 @@
 {
   "name": "corretto-jdk17",
   "repo": "corretto/corretto-17",
+  "version": "17.0.19.10.1",
   "description": "Amazon Corretto JDK 17 - no-cost, production-ready OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

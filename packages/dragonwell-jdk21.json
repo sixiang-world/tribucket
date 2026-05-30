@@ -1,6 +1,7 @@
 {
   "name": "dragonwell-jdk21",
   "repo": "dragonwell-project/dragonwell-21",
+  "version": "21.0.6.0.6+9",
   "description": "Alibaba Dragonwell - downstream distribution of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

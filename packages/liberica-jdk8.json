@@ -1,6 +1,7 @@
 {
   "name": "liberica-jdk8",
   "repo": "bell-sw/Liberica",
+  "version": "8u492+9",
   "description": "BellSoft Liberica JDK 8 - open-source Java implementation",
   "binary": "java",
   "license": "GPL-2.0",
