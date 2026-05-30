@@ -448,3 +448,81 @@ class TestFullPipeline:
         # GitHub release packages don't trigger write-back
         assert new_version is None
         assert new_urls is None
+
+
+class TestCheckverIntegration:
+    def test_download_url_package_with_checkver(self, tmp_path, monkeypatch):
+        """Full pipeline: download_url package with checkver detects new version."""
+        fake_checkver_response = json.dumps({"version": "2.0.0"})
+
+        def mock_http_get(url, token=None, retries=3):
+            if "api.example.com" in url:
+                return fake_checkver_response.encode()
+            # For SHA256 download, return a small binary
+            return b"fake-binary-content"
+
+        monkeypatch.setattr(generate, "http_get", mock_http_get)
+
+        pkg = {
+            "name": "demo",
+            "repo": "owner/demo",
+            "version": "1.0.0",
+            "description": "Demo tool",
+            "binary": "demo",
+            "license": "MIT",
+            "homepage": "https://example.com",
+            "download_url": {
+                "linux_amd64": "https://example.com/releases/demo-1.0.0-linux-amd64.tar.gz",
+                "darwin_amd64": "https://example.com/releases/demo-1.0.0-darwin-amd64.tar.gz",
+                "windows_amd64": "https://example.com/releases/demo-1.0.0-windows-amd64.zip",
+            },
+            "checkver": {
+                "url": "https://api.example.com/latest",
+                "jsonpath": "$.version",
+                "regex": "([\\d.]+)"
+            }
+        }
+
+        cache_dir = str(tmp_path / ".cache")
+        formula, bucket, new_version, new_urls = generate.process_package(
+            pkg, cache_dir, verbose=False
+        )
+
+        # Should detect version 2.0.0
+        assert 'version "2.0.0"' in formula
+        assert new_version == "2.0.0"
+        assert new_urls is not None
+        assert "2.0.0" in new_urls["linux_amd64"]
+        assert "1.0.0" not in new_urls["linux_amd64"]
+
+    def test_download_url_package_zero_config(self, tmp_path, monkeypatch):
+        """Zero-config: extracts version from URL, uses in-place replace."""
+        def mock_http_get(url, token=None, retries=3):
+            return b"fake-binary-content"
+
+        monkeypatch.setattr(generate, "http_get", mock_http_get)
+
+        pkg = {
+            "name": "go",
+            "repo": "golang/go",
+            "version": "1.24.3",
+            "description": "Go language",
+            "binary": "go",
+            "license": "BSD-3-Clause",
+            "homepage": "https://go.dev/",
+            "download_url": {
+                "linux_amd64": "https://go.dev/dl/go1.24.3.linux-amd64.tar.gz",
+                "darwin_amd64": "https://go.dev/dl/go1.24.3.darwin-amd64.tar.gz",
+                "windows_amd64": "https://go.dev/dl/go1.24.3.windows-amd64.zip",
+            },
+        }
+
+        cache_dir = str(tmp_path / ".cache")
+        formula, bucket, new_version, new_urls = generate.process_package(
+            pkg, cache_dir, verbose=False
+        )
+
+        # Version from URL matches hardcoded — no update triggered
+        assert 'version "1.24.3"' in formula
+        assert new_version is None  # no change
+        assert new_urls is None
