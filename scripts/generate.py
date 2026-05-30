@@ -245,18 +245,17 @@ def autoupdate_url(url, version):
     return url
 
 
-def render_bucket(info):
+def render_bucket(info, is_download_url=False):
     """Render a Scoop Bucket .json file from package info.
 
     Args:
-        info: Dict with keys: name, repo, description, homepage, license, binary, version,
-              windows (dict of arch_key -> {url, hash, filename}).
-
-    Returns:
-        String content of the .json file.
+        info: Dict with keys: name, repo, description, homepage, license,
+              binary, version, windows (dict of arch_key -> {url, hash, filename}).
+        is_download_url: If True, use the download_url checkver pattern
+                         instead of the default GitHub checkver.
     """
     w = info["windows"]
-    repo = info["repo"]
+    repo = info.get("repo", "")
 
     architecture = {}
     autoupdate_arch = {}
@@ -268,9 +267,14 @@ def render_bucket(info):
                 "url": entry["url"],
                 "hash": entry["hash"],
             }
-            autoupdate_arch[arch_key] = {
-                "url": autoupdate_url(entry["url"], info["version"]),
-            }
+            if is_download_url:
+                autoupdate_arch[arch_key] = {
+                    "url": entry["url"],
+                }
+            else:
+                autoupdate_arch[arch_key] = {
+                    "url": autoupdate_url(entry["url"], info["version"]),
+                }
 
     # bin: use 64bit filename if available, else arm64
     bin_filename = w.get("64bit", w.get("arm64", {})).get("filename", "")
@@ -282,13 +286,21 @@ def render_bucket(info):
         "license": info["license"],
         "architecture": architecture,
         "bin": [[bin_filename, info["binary"]]],
-        "checkver": {
-            "github": f"https://github.com/{repo}",
-        },
         "autoupdate": {
             "architecture": autoupdate_arch,
         },
     }
+
+    if is_download_url:
+        # Download_url packages: omit checkver since Scoop's PowerShell-based
+        # checkver can't be auto-generated from Python regex/jsonpath config.
+        # Scoop will use the hardcoded version; users configure checkver manually.
+        pass
+    else:
+        bucket["checkver"] = {
+            "github": f"https://github.com/{repo}",
+        }
+
     return json.dumps(bucket, indent=2, ensure_ascii=False) + "\n"
 
 
@@ -513,7 +525,7 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
             "version": version,
             "windows": windows,
         }
-        bucket = render_bucket(bucket_info)
+        bucket = render_bucket(bucket_info, is_download_url=("download_url" in pkg))
     else:
         print(f"  [warn] {name}: no Windows assets, skipping Bucket")
 

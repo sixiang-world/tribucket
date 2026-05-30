@@ -327,6 +327,7 @@ class TestBucketRendering:
         assert parsed["architecture"]["64bit"]["hash"] == "abc123"
         assert parsed["bin"] == [["ccx-windows-amd64.exe", "ccx"]]
         assert "checkver" in parsed
+        assert parsed["checkver"] == {"github": "https://github.com/BenedictKing/ccx"}
         assert "autoupdate" in parsed
 
     def test_render_bucket_only_64bit(self):
@@ -360,6 +361,29 @@ class TestBucketRendering:
         url = "https://github.com/o/r/releases/download/1.2.3/file.zip"
         au_url = generate.autoupdate_url(url, "1.2.3")
         assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
+
+    def test_render_bucket_download_url(self):
+        info = {
+            "name": "go",
+            "repo": "golang/go",
+            "description": "Go programming language",
+            "homepage": "https://go.dev/",
+            "license": "BSD-3-Clause",
+            "binary": "go",
+            "version": "1.24.3",
+            "windows": {
+                "64bit": {
+                    "url": "https://go.dev/dl/go1.24.3.windows-amd64.zip",
+                    "hash": "abc123",
+                    "filename": "go1.24.3.windows-amd64.zip",
+                },
+            },
+        }
+        result = generate.render_bucket(info, is_download_url=True)
+        parsed = json.loads(result)
+        # Download_url packages omit checkver (Scoop uses hardcoded version)
+        assert "checkver" not in parsed
+        assert "autoupdate" in parsed
 
 
 class TestFullPipeline:
