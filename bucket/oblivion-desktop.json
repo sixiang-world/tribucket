@@ -1,0 +1,35 @@
+{
+  "version": "3.11.0",
+  "description": "Unofficial Warp Client for Windows/Mac/Linux",
+  "homepage": "https://github.com/bepass-org/oblivion-desktop",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/bepass-org/oblivion-desktop/releases/download/v3.11.0/oblivion-desktop-win-x64.zip",
+      "hash": "956c0e35e8309bd33c2c05457a3f595fb69036372bc3532eddba301dcb58fb22"
+    },
+    "arm64": {
+      "url": "https://github.com/bepass-org/oblivion-desktop/releases/download/v3.11.0/oblivion-desktop-win-arm64.zip",
+      "hash": "328f3645d97c74cae2e999bc0426d1f7a2717f613f7c6eeeccae974d12c23986"
+    }
+  },
+  "bin": [
+    [
+      "oblivion-desktop-win-x64.zip",
+      "oblivion-desktop"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/bepass-org/oblivion-desktop"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/bepass-org/oblivion-desktop/releases/download/v$version/oblivion-desktop-win-x64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/bepass-org/oblivion-desktop/releases/download/v$version/oblivion-desktop-win-arm64.zip"
+      }
+    }
+  }
+}

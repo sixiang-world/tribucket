@@ -1,0 +1,28 @@
+{
+  "version": "3.2.0",
+  "description": "Network proxy interception tool",
+  "homepage": "https://github.com/InterceptSuite/ProxyBridge",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/InterceptSuite/ProxyBridge/releases/download/v3.2.0/ProxyBridge-Setup-3.2.0.exe",
+      "hash": "d2147b1431b4af2788e28bd07df41862f0fa1bd0d4919c180ede172d9cabe17f"
+    }
+  },
+  "bin": [
+    [
+      "ProxyBridge-Setup-3.2.0.exe",
+      "ProxyBridge"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/InterceptSuite/ProxyBridge"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/InterceptSuite/ProxyBridge/releases/download/v$version/ProxyBridge-Setup-3.2.0.exe"
+      }
+    }
+  }
+}

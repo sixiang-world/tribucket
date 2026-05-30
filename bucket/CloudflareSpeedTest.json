@@ -1,0 +1,35 @@
+{
+  "version": "2.3.5",
+  "description": "Test Cloudflare CDN latency and speed, find the fastest IP",
+  "homepage": "https://github.com/XIU2/CloudflareSpeedTest",
+  "license": "GPL-3.0",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v2.3.5/cfst_windows_amd64.zip",
+      "hash": "67d06a0c68b7fd6998d5e6abea1dbf850cac2c19c5d8c5980aa32fc7aba1ff5f"
+    },
+    "arm64": {
+      "url": "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v2.3.5/cfst_windows_arm64.zip",
+      "hash": "84db1fd918fbc4e6fc1fc127681b24810dfdb4b31aa22374e5e129c6ec529573"
+    }
+  },
+  "bin": [
+    [
+      "cfst_windows_amd64.zip",
+      "cfst"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/XIU2/CloudflareSpeedTest"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v$version/cfst_windows_amd64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v$version/cfst_windows_arm64.zip"
+      }
+    }
+  }
+}

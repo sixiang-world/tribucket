@@ -1,0 +1,35 @@
+{
+  "version": "3.53.1",
+  "description": "Self-contained, serverless, zero-configuration SQL database engine",
+  "homepage": "https://www.sqlite.org/",
+  "license": "Public-Domain",
+  "architecture": {
+    "64bit": {
+      "url": "https://sqlite.org/2026/sqlite-tools-win-x64-3530100.zip",
+      "hash": "bcc88a2f9ebcf3d90b7a95337cc96bd492b1633f741bbdbff0525d1806098fc2"
+    },
+    "arm64": {
+      "url": "https://sqlite.org/2026/sqlite-tools-win-arm64-3530100.zip",
+      "hash": "77e0e6a323d17ff2ecc90bdb0bb6ae17127111fd21ffb0758e12538ff55ea502"
+    }
+  },
+  "bin": [
+    [
+      "sqlite-tools-win-x64-3530100.zip",
+      "sqlite3"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/sqlite/sqlite"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://sqlite.org/2026/sqlite-tools-win-x64-3530100.zip"
+      },
+      "arm64": {
+        "url": "https://sqlite.org/2026/sqlite-tools-win-arm64-3530100.zip"
+      }
+    }
+  }
+}

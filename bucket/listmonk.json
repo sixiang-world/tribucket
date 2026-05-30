@@ -1,0 +1,35 @@
+{
+  "version": "6.1.0",
+  "description": "High performance, self-hosted newsletter and mailing list manager",
+  "homepage": "https://github.com/knadh/listmonk",
+  "license": "AGPL-3.0",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_windows_amd64.tar.gz",
+      "hash": "77d5b4c489b0e415f1bc40ad65ebae78b709b052b1c06d19238298a05f14e969"
+    },
+    "arm64": {
+      "url": "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_windows_arm64.tar.gz",
+      "hash": "037c2f4ca97365344da11aa49c78b4fe68711b10140efff7a17f12a76d3e3c6b"
+    }
+  },
+  "bin": [
+    [
+      "listmonk_6.1.0_windows_amd64.tar.gz",
+      "listmonk"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/knadh/listmonk"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_6.1.0_windows_amd64.tar.gz"
+      },
+      "arm64": {
+        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_6.1.0_windows_arm64.tar.gz"
+      }
+    }
+  }
+}

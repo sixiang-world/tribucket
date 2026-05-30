@@ -1,0 +1,28 @@
+{
+  "version": "2.4.6",
+  "description": "Development environment management tool by HashiCorp",
+  "homepage": "https://www.vagrantup.com/",
+  "license": "BSL-1.1",
+  "architecture": {
+    "64bit": {
+      "url": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_windows_amd64.msi",
+      "hash": "1313c24033840aa1b80e54156730a570b631d4f5a85632ed96d23f30c65d6b02"
+    }
+  },
+  "bin": [
+    [
+      "vagrant_2.4.6_windows_amd64.msi",
+      "vagrant"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/hashicorp/vagrant"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://releases.hashicorp.com/vagrant/v$version/vagrant_2.4.6_windows_amd64.msi"
+      }
+    }
+  }
+}
