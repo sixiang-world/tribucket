@@ -524,7 +524,7 @@ def main():
 
     print(f"Processing {len(pkgs)} package(s)...")
 
-    has_warnings = False
+    has_errors = False
 
     for pkg in pkgs:
         name = pkg["name"]
@@ -534,11 +534,10 @@ def main():
             formula, bucket = process_package(pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose)
         except Exception as e:
             print(f"  [error] {name}: {e}")
-            has_warnings = True
+            has_errors = True
             continue
 
         if formula is None and bucket is None:
-            has_warnings = True
             continue
 
         if args.dry_run:
@@ -564,8 +563,8 @@ def main():
                 print(f"  -> bucket/{name}.json")
 
     print(f"\nDone. Processed {len(pkgs)} package(s).")
-    if has_warnings:
-        print("Some packages had warnings (see above).")
+    if has_errors:
+        print("Some packages had errors (see above).")
         sys.exit(2)
 
 

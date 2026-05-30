@@ -88,4 +88,6 @@ jobs:
           echo "All Bucket hash values present."
 
       - name: Verify generate script (dry-run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/generate.py --dry-run --skip-hash
