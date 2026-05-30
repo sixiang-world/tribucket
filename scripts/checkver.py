@@ -8,7 +8,6 @@ Supports three modes:
 import json
 import os
 import re as re_module
-import urllib.request
 
 
 # Match semver-like patterns in URLs: 1.2.3, v1.2.3, 2025.3.0, 21.0.7.1.1
@@ -157,7 +156,10 @@ def run_checkver(pkg):
             if extracted is None:
                 print(f"  [warn] checkver: jsonpath '{jsonpath_expr}' returned null")
                 return hardcoded, {"version": hardcoded}
-            content = str(extracted)
+            if isinstance(extracted, (dict, list)):
+                content = json.dumps(extracted)
+            else:
+                content = str(extracted)
         except json.JSONDecodeError:
             print("  [warn] checkver: response is not valid JSON, using raw text")
 
@@ -177,6 +179,11 @@ def run_checkver(pkg):
     if not captures:
         # Numbered groups: {1: group1, 2: group2, ...}
         captures = {str(i): g for i, g in enumerate(match.groups(), 1)}
+
+    # Guard: regex with zero capture groups
+    if not captures:
+        print(f"  [warn] checkver: regex '{regex}' has no capture groups")
+        return hardcoded, {"version": hardcoded}
 
     # 4. Replace template
     replace_tmpl = checkver_cfg.get("replace", "${1}")
