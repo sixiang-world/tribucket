@@ -1,6 +1,6 @@
 {
   "name": "dragonwell-jdk21",
-  "repo": "dragonwell-project/dragonwell-21",
+  "repo": "dragonwell-project/dragonwell21",
   "version": "21.0.11.0.11+10",
   "description": "Alibaba Dragonwell - downstream distribution of OpenJDK",
   "binary": "java",
@@ -21,5 +21,11 @@
     "darwin_arm64": "NO_MATCH",
     "windows_amd64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_x64_windows.zip",
     "windows_arm64": "NO_MATCH"
+  },
+  "checkver": {
+    "url": "https://api.github.com/repos/dragonwell-project/dragonwell21/releases/latest",
+    "jsonpath": "$.tag_name",
+    "regex": "dragonwell-extended-(?P<ver>[\\d.]+\\+\\d+)",
+    "replace": "${ver}"
   }
 }
