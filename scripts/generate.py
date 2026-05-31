@@ -555,7 +555,73 @@ def parse_args(argv=None):
         "--verbose", action="store_true", default=False,
         help="Print detailed progress"
     )
+    parser.add_argument(
+        "--check-assets", action="store_true", default=False,
+        help="Only validate asset_pattern against latest releases, then exit"
+    )
     return parser.parse_args(argv)
+
+
+def check_asset_patterns(pkgs):
+    """Validate asset_pattern against latest GitHub releases.
+
+    Prints a per-package status:
+      ✅  all non-NO_MATCH patterns match at least one asset
+      ⚠️  some patterns match, some don't
+      ❌  no patterns match (package will produce zero output)
+      —   download_url package (always fine)
+      ?   network error (couldn't check)
+
+    Returns True if all packages pass (no ❌), False otherwise.
+    """
+    token = os.environ.get("GITHUB_TOKEN")
+    all_ok = True
+
+    for pkg in pkgs:
+        name = pkg["name"]
+
+        # download_url packages always pass
+        if "download_url" in pkg:
+            print(f"  —  {name}: download_url (hardcoded)")
+            continue
+
+        repo = pkg.get("repo", "")
+        if not repo:
+            print(f"  ❌ {name}: no repo field")
+            all_ok = False
+            continue
+
+        # Fetch latest release
+        try:
+            version, all_assets, _ = fetch_latest_release(repo, token)
+        except Exception as e:
+            print(f"  ?  {name}: network error — {e}")
+            continue
+
+        # Check each platform
+        patterns = pkg.get("asset_pattern", {})
+        matched = 0
+        total = 0
+        for plat, pat in patterns.items():
+            if pat == "NO_MATCH" or not pat:
+                continue
+            total += 1
+            if match_asset(all_assets, pat):
+                matched += 1
+
+        if total == 0:
+            print(f"  ❌ {name}: no asset_pattern defined")
+            all_ok = False
+        elif matched == 0:
+            print(f"  ❌ {name}: 0/{total} patterns matched (zero output)")
+            all_ok = False
+        elif matched < total:
+            missing = total - matched
+            print(f"  ⚠️  {name}: {matched}/{total} matched ({missing} platform(s) missing)")
+        else:
+            print(f"  ✅ {name}: {matched}/{total} matched")
+
+    return all_ok
 
 
 def main():
@@ -574,6 +640,13 @@ def main():
     if not pkgs:
         print("[error] No packages found.")
         sys.exit(1)
+
+    # --check-assets mode: validate patterns and exit
+    if args.check_assets:
+        print(f"Checking asset patterns for {len(pkgs)} package(s)...\n")
+        ok = check_asset_patterns(pkgs)
+        print(f"\n{'All patterns OK.' if ok else 'Some patterns have issues (see above).'}")
+        sys.exit(0 if ok else 1)
 
     print(f"Processing {len(pkgs)} package(s)...")
 
