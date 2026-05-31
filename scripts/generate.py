@@ -77,7 +77,7 @@ def _build_opener():
 _opener = _build_opener()
 
 
-def http_get(url, token=None, retries=3):
+def http_get(url, token=None, retries=3, timeout=30):
     """Fetch a URL with optional GitHub token and retry logic.
 
     Respects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables.
@@ -93,7 +93,7 @@ def http_get(url, token=None, retries=3):
     last_err = None
     for attempt in range(retries):
         try:
-            with _opener.open(req, timeout=30) as resp:
+            with _opener.open(req, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as e:
             last_err = e
@@ -329,7 +329,7 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
     import tempfile
     with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{filename}") as tmp:
         tmp_path = tmp.name
-        body = http_get(url)
+        body = http_get(url, timeout=120)
         tmp.write(body)
     try:
         sha = compute_sha256(tmp_path)
@@ -587,6 +587,9 @@ def main():
             formula, bucket, new_version, new_urls = process_package(
                 pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose
             )
+        except urllib.error.URLError as e:
+            print(f"  [warn] {name}: network error — {e}")
+            continue
         except Exception as e:
             print(f"  [error] {name}: {e}")
             has_errors = True
