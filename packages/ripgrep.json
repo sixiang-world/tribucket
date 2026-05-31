@@ -7,7 +7,7 @@
   "homepage": "https://github.com/BurntSushi/ripgrep",
   "asset_pattern": {
     "linux_amd64": "x86_64-unknown-linux-musl.tar.gz",
-    "linux_arm64": "aarch64-unknown-linux-musl.tar.gz",
+    "linux_arm64": "aarch64-unknown-linux-gnu.tar.gz",
     "darwin_amd64": "x86_64-apple-darwin.tar.gz",
     "darwin_arm64": "aarch64-apple-darwin.tar.gz",
     "windows_amd64": "x86_64-pc-windows-msvc.zip",

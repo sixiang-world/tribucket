@@ -1,16 +1,16 @@
 {
   "name": "lsd",
-  "repo": "Peltoche/lsd",
+  "repo": "lsd-rs/lsd",
   "description": "The next gen ls command (LSDeluxe)",
   "binary": "lsd",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/Peltoche/lsd",
+  "homepage": "https://github.com/lsd-rs/lsd",
   "asset_pattern": {
     "linux_amd64": "lsd-*-x86_64-unknown-linux-gnu.tar.gz",
     "linux_arm64": "lsd-*-aarch64-unknown-linux-gnu.tar.gz",
     "darwin_amd64": "lsd-*-x86_64-apple-darwin.tar.gz",
     "darwin_arm64": "lsd-*-aarch64-apple-darwin.tar.gz",
     "windows_amd64": "lsd-*-x86_64-pc-windows-msvc.zip",
-    "windows_arm64": "lsd-*-aarch64-pc-windows-msvc.zip"
+    "windows_arm64": "NO_MATCH"
   }
 }
