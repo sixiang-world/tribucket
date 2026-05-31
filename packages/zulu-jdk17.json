@@ -2,7 +2,6 @@
   "name": "zulu-jdk17",
   "repo": "azul/zulu-builds",
   "version": "17.0.19",
-  "checkver": "github",
   "description": "Azul Zulu JDK 17 - certified build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
@@ -22,5 +21,18 @@
     "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-macosx_aarch64.tar.gz",
     "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-win_x64.zip",
     "windows_arm64": "https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jdk17.0.19-win_aarch64.zip"
+  },
+  "checkver": {
+    "url": "https://api.azul.com/metadata/v1/zulu/packages/?java_version=17&os=linux&arch=x64&archive_type=tar.gz&java_package_type=jdk&javafx_bundled=false&crac_supported=false&release_type=PSU&latest=true&page_size=1",
+    "regex": "zulu(?P<build>[\\d.]+)-ca-jdk(?P<ver>[\\d.]+)-linux_x64",
+    "replace": "${ver}"
+  },
+  "autoupdate": {
+    "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-linux_x64.tar.gz",
+    "linux_arm64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-linux_aarch64.tar.gz",
+    "darwin_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-macosx_x64.tar.gz",
+    "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-macosx_aarch64.tar.gz",
+    "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-win_x64.zip",
+    "windows_arm64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-win_aarch64.zip"
   }
 }

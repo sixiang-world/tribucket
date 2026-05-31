@@ -10,8 +10,8 @@ import os
 import re as re_module
 
 
-# Match semver-like patterns in URLs: 1.2.3, v1.2.3, 2025.3.0, 21.0.7.1.1
-_VERSION_PATTERN = re_module.compile(r'(\d+\.\d+\.\d+(?:\.\d+)*)')
+# Match semver-like patterns in URLs: 1.2.3, v1.2.3, 2025.3.0, 21.0.7.1.1, 11.0.31+11
+_VERSION_PATTERN = re_module.compile(r'(\d+\.\d+\.\d+(?:\.\d+)*(?:\+\d+)?)')
 
 
 def extract_version_from_url(url):
@@ -195,21 +195,50 @@ def run_checkver(pkg):
     return version, captures
 
 
+def _url_encode_version(ver):
+    """Return the URL-encoded variant of a version string (e.g., + → %2B)."""
+    from urllib.parse import quote
+    # Only encode the '+' character — other chars like '.' and digits stay as-is
+    return ver.replace("+", quote("+"))
+
+
 def in_place_replace(download_urls, old_version, new_version):
     """Replace old version string with new version in all URLs.
 
     Returns a new dict with updated URLs. Prints a warning if the
     old version string is not found in a URL.
+
+    Handles URL-encoded variants: if the old version contains '+',
+    also tries matching its '%2B'-encoded form in URLs.
     """
+    # Collect all variants of old_version to try
+    old_variants = [old_version]
+    if "+" in old_version:
+        old_variants.append(_url_encode_version(old_version))
+
     result = {}
     for platform, url in download_urls.items():
         if url == "NO_MATCH" or not url:
             result[platform] = url
             continue
-        new_url = url.replace(old_version, new_version)
-        if new_url == url:
+
+        # Replace all variant forms of the old version in the URL
+        new_url = url
+        found_any = False
+        for old_var in old_variants:
+            if old_var in new_url:
+                found_any = True
+                # Compute corresponding new_version variant (same encoding)
+                if old_var == old_version:
+                    new_var = new_version
+                else:
+                    new_var = _url_encode_version(new_version)
+                new_url = new_url.replace(old_var, new_var)
+
+        if not found_any:
             print(f"  [warn] in-place replace: old version '{old_version}' "
                   f"not found in {platform} URL, please add autoupdate field")
+
         result[platform] = new_url
     return result
 

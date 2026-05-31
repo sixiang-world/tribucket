@@ -2,7 +2,6 @@
   "name": "zulu-jdk11",
   "repo": "azul/zulu-builds",
   "version": "11.0.31",
-  "checkver": "github",
   "description": "Azul Zulu JDK 11 - certified build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
@@ -22,5 +21,17 @@
     "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu11.88.17-ca-jdk11.0.31-macosx_aarch64.tar.gz",
     "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu11.88.17-ca-jdk11.0.31-win_x64.zip",
     "windows_arm64": "NO_MATCH"
+  },
+  "checkver": {
+    "url": "https://api.azul.com/metadata/v1/zulu/packages/?java_version=11&os=linux&arch=x64&archive_type=tar.gz&java_package_type=jdk&javafx_bundled=false&crac_supported=false&release_type=PSU&latest=true&page_size=1",
+    "regex": "zulu(?P<build>[\\d.]+)-ca-jdk(?P<ver>[\\d.]+)-linux_x64",
+    "replace": "${ver}"
+  },
+  "autoupdate": {
+    "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-linux_x64.tar.gz",
+    "linux_arm64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-linux_aarch64.tar.gz",
+    "darwin_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-macosx_x64.tar.gz",
+    "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-macosx_aarch64.tar.gz",
+    "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu${build}-ca-jdk${ver}-win_x64.zip"
   }
 }

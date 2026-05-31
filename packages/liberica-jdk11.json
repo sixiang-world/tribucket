@@ -2,7 +2,6 @@
   "name": "liberica-jdk11",
   "repo": "bell-sw/Liberica",
   "version": "11.0.31+11",
-  "checkver": "github",
   "description": "BellSoft Liberica JDK 11 - open-source Java implementation",
   "binary": "java",
   "license": "GPL-2.0",
