@@ -115,6 +115,38 @@ install.bat <package>
 ./uninstall.sh ccx     # 卸载
 ```
 
+### CNB 镜像仓库（中国大陆加速）
+
+本仓库已自动镜像到 [cnb.cool](https://cnb.cool/shisheng820/tribucket)（腾讯云代码托管平台），中国大陆用户可通过镜像获得更快的访问速度。
+
+> **注意**：cnb.cool 不支持匿名原始文件直链（`/-/raw/` 端点经 JS 动态加载，不可用于 `curl` 下载），因此脚本安装方式仍需使用 GitHub raw URL。
+> 但 **Scoop** 和 **Homebrew tap** 使用 `git clone` 获取仓库，可以正常使用 CNB 镜像。
+
+**Scoop (Windows)：**
+
+```powershell
+# 使用 CNB 镜像添加 bucket（中国大陆加速）
+scoop bucket add tribucket https://cnb.cool/shisheng820/tribucket.git
+scoop install ccx
+```
+
+**Homebrew (macOS / Linux)：**
+
+```bash
+# 使用 CNB 镜像添加 tap（中国大陆加速）
+brew tap shisheng820/tribucket https://cnb.cool/shisheng820/tribucket.git
+brew install ccx
+```
+
+**Git 克隆（浏览 / 贡献）：**
+
+```bash
+# 从 CNB 镜像克隆（中国大陆加速）
+git clone https://cnb.cool/shisheng820/tribucket.git
+```
+
+> **脚本安装用户**：Shell 脚本依赖 GitHub raw URL 下载包定义和安装脚本，CNB 镜像暂不适用。请继续使用上方 [脚本兜底](#脚本兜底-任意平台) 中的 GitHub 命令，如网络受限可先通过 `git clone` 镜像仓库后在本地运行脚本。
+
 ## 项目结构
 
 ```
