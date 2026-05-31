@@ -15,14 +15,14 @@
       "sd"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/chmln/sd"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/chmln/sd/releases/download/v$version/sd-v1.1.0-x86_64-pc-windows-gnu.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/chmln/sd"
   }
 }
