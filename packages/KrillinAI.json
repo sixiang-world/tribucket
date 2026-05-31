@@ -2,15 +2,15 @@
   "name": "KrillinAI",
   "repo": "KrillinAI/KrillinAI",
   "description": "AI video translation and dubbing tool powered by LLMs",
-  "binary": "KlicStudio",
+  "binary": "KrillinAI-cli",
   "license": "MIT",
   "homepage": "https://github.com/KrillinAI/KrillinAI",
   "asset_pattern": {
-    "linux_amd64": "KlicStudio_1.4.0_Linux_x86_64",
-    "linux_arm64": "KlicStudio_1.4.0_Linux_arm64",
-    "darwin_amd64": "KlicStudio_1.4.0_macOS_amd64",
-    "darwin_arm64": "KlicStudio_1.4.0_macOS_arm64",
-    "windows_amd64": "KlicStudio_1.4.0_Windows.exe",
-    "windows_arm64": "KlicStudio_1.4.0_Windows_arm64.exe"
+    "linux_amd64": "KrillinAI-cli_*_Linux_x86_64",
+    "linux_arm64": "KrillinAI-cli_*_Linux_arm64",
+    "darwin_amd64": "KrillinAI-cli_*_macOS_amd64",
+    "darwin_arm64": "KrillinAI-cli_*_macOS_arm64",
+    "windows_amd64": "KrillinAI-cli_*_Windows.exe",
+    "windows_arm64": "KrillinAI-cli_*_Windows_arm64.exe"
   }
 }

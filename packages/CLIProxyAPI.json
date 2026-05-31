@@ -6,11 +6,11 @@
   "license": "MIT",
   "homepage": "https://github.com/router-for-me/CLIProxyAPI",
   "asset_pattern": {
-    "linux_amd64": "CLIProxyAPI_7.1.30_linux_amd64.tar.gz",
-    "linux_arm64": "CLIProxyAPI_7.1.30_linux_aarch64.tar.gz",
-    "darwin_amd64": "CLIProxyAPI_7.1.30_darwin_amd64.tar.gz",
-    "darwin_arm64": "CLIProxyAPI_7.1.30_darwin_aarch64.tar.gz",
-    "windows_amd64": "CLIProxyAPI_7.1.30_windows_amd64.zip",
-    "windows_arm64": "CLIProxyAPI_7.1.30_windows_aarch64.zip"
+    "linux_amd64": "CLIProxyAPI_*_linux_amd64.tar.gz",
+    "linux_arm64": "CLIProxyAPI_*_linux_aarch64.tar.gz",
+    "darwin_amd64": "CLIProxyAPI_*_darwin_amd64.tar.gz",
+    "darwin_arm64": "CLIProxyAPI_*_darwin_aarch64.tar.gz",
+    "windows_amd64": "CLIProxyAPI_*_windows_amd64.zip",
+    "windows_arm64": "CLIProxyAPI_*_windows_aarch64.zip"
   }
 }

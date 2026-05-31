@@ -1,16 +1,25 @@
 {
   "name": "graalvm-ce-jdk17",
   "repo": "graalvm/graalvm-ce-builds",
-  "description": "GraalVM Community Edition JDK 17 - high-performance JDK with AOT compilation",
+  "version": "17.0.9",
+  "description": "GraalVM Community Edition JDK 17 - high-performance JDK distribution",
   "binary": "java",
   "license": "GPL-2.0",
-  "homepage": "https://github.com/graalvm/graalvm-ce-builds",
+  "homepage": "https://www.graalvm.org/",
   "asset_pattern": {
-    "linux_amd64": "graalvm-community-jdk-17",
-    "linux_arm64": "graalvm-community-jdk-17",
-    "darwin_amd64": "graalvm-community-jdk-17",
-    "darwin_arm64": "graalvm-community-jdk-17",
-    "windows_amd64": "graalvm-community-jdk-17",
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-17.0.9/graalvm-community-jdk-17.0.9_linux-x64_bin.tar.gz",
+    "linux_arm64": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-17.0.9/graalvm-community-jdk-17.0.9_linux-aarch64_bin.tar.gz",
+    "darwin_amd64": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-17.0.9/graalvm-community-jdk-17.0.9_macos-x64_bin.tar.gz",
+    "darwin_arm64": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-17.0.9/graalvm-community-jdk-17.0.9_macos-aarch64_bin.tar.gz",
+    "windows_amd64": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-17.0.9/graalvm-community-jdk-17.0.9_windows-x64_bin.zip",
     "windows_arm64": "NO_MATCH"
   }
 }

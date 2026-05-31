@@ -6,11 +6,11 @@
   "license": "MIT",
   "homepage": "https://github.com/go-musicfox/go-musicfox",
   "asset_pattern": {
-    "linux_amd64": "go-musicfox_v4.8.5_linux_amd64.tar.gz",
-    "linux_arm64": "go-musicfox_v4.8.5_linux_arm64.tar.gz",
-    "darwin_amd64": "go-musicfox_v4.8.5_darwin_amd64.tar.gz",
-    "darwin_arm64": "go-musicfox_v4.8.5_darwin_arm64.tar.gz",
-    "windows_amd64": "go-musicfox_v4.8.5_windows_amd64.zip",
+    "linux_amd64": "go-musicfox_*_linux_amd64",
+    "linux_arm64": "go-musicfox_*_linux_arm64",
+    "darwin_amd64": "go-musicfox_*_darwin_amd64",
+    "darwin_arm64": "go-musicfox_*_darwin_arm64",
+    "windows_amd64": "go-musicfox_*_windows_amd64",
     "windows_arm64": "NO_MATCH"
   }
 }

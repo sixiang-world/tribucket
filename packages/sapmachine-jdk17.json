@@ -1,16 +1,25 @@
 {
   "name": "sapmachine-jdk17",
   "repo": "SAP/SapMachine",
+  "version": "17.0.19",
   "description": "SAP SapMachine JDK 17 - SAP's distribution of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
   "homepage": "https://sap.github.io/SapMachine/",
   "asset_pattern": {
-    "linux_amd64": "sapmachine-jdk-17",
-    "linux_arm64": "sapmachine-jdk-17",
-    "darwin_amd64": "sapmachine-jdk-17",
-    "darwin_arm64": "sapmachine-jdk-17",
-    "windows_amd64": "sapmachine-jdk-17",
+    "linux_amd64": "NO_MATCH",
+    "linux_arm64": "NO_MATCH",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "NO_MATCH",
+    "windows_arm64": "NO_MATCH"
+  },
+  "download_url": {
+    "linux_amd64": "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jdk-17.0.19_linux-x64_bin.tar.gz",
+    "linux_arm64": "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jdk-17.0.19_linux-aarch64_bin.tar.gz",
+    "darwin_amd64": "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jdk-17.0.19_macos-x64_bin.tar.gz",
+    "darwin_arm64": "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jdk-17.0.19_macos-aarch64_bin.tar.gz",
+    "windows_amd64": "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jdk-17.0.19_windows-x64_bin.zip",
     "windows_arm64": "NO_MATCH"
   }
 }
