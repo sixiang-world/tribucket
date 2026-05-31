@@ -15,14 +15,14 @@
       "memos"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/usememos/memos"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/usememos/memos/releases/download/v$version/memos_0.29.0_windows_amd64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/usememos/memos"
   }
 }

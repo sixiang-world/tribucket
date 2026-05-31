@@ -19,9 +19,6 @@
       "nvim"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/neovim/neovim"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/neovim/neovim/releases/download/v$version/nvim-win-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/neovim/neovim"
   }
 }

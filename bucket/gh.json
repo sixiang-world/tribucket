@@ -19,9 +19,6 @@
       "gh"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/cli/cli"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/cli/cli/releases/download/v$version/gh_2.93.0_windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/cli/cli"
   }
 }

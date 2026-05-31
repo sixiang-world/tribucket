@@ -19,9 +19,6 @@
       "mise"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/jdx/mise"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.5.16-windows-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/jdx/mise"
   }
 }

@@ -19,9 +19,6 @@
       "lazygit"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/jesseduffield/lazygit"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/jesseduffield/lazygit/releases/download/v$version/lazygit_0.62.1_windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/jesseduffield/lazygit"
   }
 }

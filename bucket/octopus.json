@@ -15,14 +15,14 @@
       "octopus"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/bestruirui/octopus"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/bestruirui/octopus/releases/download/v$version/octopus-windows-x86_64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/bestruirui/octopus"
   }
 }

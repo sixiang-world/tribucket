@@ -15,14 +15,14 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/Tencent/TencentKona-17"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/Tencent/TencentKona-17/releases/download/v$version/TencentKona-17.0.19.b1-jdk_linux-aarch64.tar.gz"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/Tencent/TencentKona-17"
   }
 }

@@ -19,9 +19,6 @@
       "claude"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/anthropics/claude-code"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/anthropics/claude-code/releases/download/v$version/claude-win32-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/anthropics/claude-code"
   }
 }

@@ -19,9 +19,6 @@
       "btm"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/ClementTsang/bottom"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/ClementTsang/bottom/releases/download/v$version/bottom_aarch64-pc-windows-msvc.tar.gz"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/ClementTsang/bottom"
   }
 }

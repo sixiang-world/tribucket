@@ -19,9 +19,6 @@
       "sqlite3"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/sqlite/sqlite"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {

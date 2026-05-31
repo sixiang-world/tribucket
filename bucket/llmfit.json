@@ -19,9 +19,6 @@
       "llmfit"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/AlexsJones/llmfit"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.29-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/AlexsJones/llmfit"
   }
 }

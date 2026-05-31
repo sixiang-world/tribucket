@@ -19,9 +19,6 @@
       "starship"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/starship/starship"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/starship/starship/releases/download/v$version/starship-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/starship/starship"
   }
 }

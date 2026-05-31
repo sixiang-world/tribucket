@@ -19,9 +19,6 @@
       "duf"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/muesli/duf"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/muesli/duf/releases/download/v$version/duf_0.9.1_windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/muesli/duf"
   }
 }

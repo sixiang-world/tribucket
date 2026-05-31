@@ -19,9 +19,6 @@
       "siteone-crawler"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/janreges/siteone-crawler"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/janreges/siteone-crawler/releases/download/v$version/siteone-crawler-v2.3.0-win-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/janreges/siteone-crawler"
   }
 }

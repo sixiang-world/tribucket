@@ -15,14 +15,14 @@
       "zellij"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/zellij-org/zellij"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/zellij-org/zellij/releases/download/v$version/zellij-x86_64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/zellij-org/zellij"
   }
 }

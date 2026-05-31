@@ -15,14 +15,14 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/adoptium/temurin11-binaries"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.31%2B11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.31_11.msi"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/adoptium/temurin11-binaries"
   }
 }

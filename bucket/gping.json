@@ -15,14 +15,14 @@
       "gping"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/orf/gping"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/orf/gping/releases/download/v$version/gping-Windows-msvc-x86_64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/orf/gping"
   }
 }

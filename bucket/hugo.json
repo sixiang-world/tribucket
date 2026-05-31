@@ -15,14 +15,14 @@
       "hugo"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/gohugoio/hugo"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/gohugoio/hugo/releases/download/v$version/hugo_extended_0.162.1_windows-amd64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/gohugoio/hugo"
   }
 }

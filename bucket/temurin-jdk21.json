@@ -19,9 +19,6 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/adoptium/temurin21-binaries"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.11%2B10/OpenJDK21U-jdk_aarch64_windows_hotspot_21.0.11_10.msi"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/adoptium/temurin21-binaries"
   }
 }

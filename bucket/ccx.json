@@ -19,9 +19,6 @@
       "ccx"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/BenedictKing/ccx"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/BenedictKing/ccx/releases/download/v$version/ccx-windows-arm64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/BenedictKing/ccx"
   }
 }

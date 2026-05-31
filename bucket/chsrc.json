@@ -15,14 +15,14 @@
       "chsrc"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/RubyMetric/chsrc"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/RubyMetric/chsrc/releases/download/v$version/chsrc-x64-windows.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/RubyMetric/chsrc"
   }
 }

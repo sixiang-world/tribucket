@@ -15,14 +15,14 @@
       "procs"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/dalance/procs"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/dalance/procs/releases/download/v$version/procs-v0.14.11-x86_64-windows.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/dalance/procs"
   }
 }

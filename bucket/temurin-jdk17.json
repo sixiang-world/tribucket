@@ -15,14 +15,14 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/adoptium/temurin17-binaries"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.19%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.19_10.msi"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/adoptium/temurin17-binaries"
   }
 }

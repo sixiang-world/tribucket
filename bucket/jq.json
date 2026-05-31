@@ -15,14 +15,14 @@
       "jq"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/jqlang/jq"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/jqlang/jq/releases/download/v$version/jq-win64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/jqlang/jq"
   }
 }

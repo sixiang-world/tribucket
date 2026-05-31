@@ -15,14 +15,14 @@
       "shfmt"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/mvdan/sh"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/mvdan/sh/releases/download/v$version/shfmt_v3.13.1_windows_amd64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/mvdan/sh"
   }
 }

@@ -19,9 +19,6 @@
       "sg"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/ast-grep/ast-grep"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/ast-grep/ast-grep/releases/download/v$version/app-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/ast-grep/ast-grep"
   }
 }

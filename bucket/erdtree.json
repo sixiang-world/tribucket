@@ -15,14 +15,14 @@
       "erd"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/solidiquis/erdtree"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/solidiquis/erdtree/releases/download/v$version/erd-v3.1.2-x86_64-pc-windows-msvc.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/solidiquis/erdtree"
   }
 }

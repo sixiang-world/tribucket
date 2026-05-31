@@ -15,9 +15,6 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/dragonwell-project/dragonwell-21"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {

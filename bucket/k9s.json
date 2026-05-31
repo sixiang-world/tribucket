@@ -19,9 +19,6 @@
       "k9s"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/derailed/k9s"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/derailed/k9s/releases/download/v$version/k9s_Windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/derailed/k9s"
   }
 }

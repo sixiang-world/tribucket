@@ -19,16 +19,13 @@
       "go"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/golang/go"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://go.dev/dl/gov$version.windows-amd64.zip"
+        "url": "https://go.dev/dl/go1.24.3.windows-amd64.zip"
       },
       "arm64": {
-        "url": "https://go.dev/dl/gov$version.windows-arm64.zip"
+        "url": "https://go.dev/dl/go1.24.3.windows-arm64.zip"
       }
     }
   }

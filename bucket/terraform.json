@@ -19,16 +19,13 @@
       "terraform"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/hashicorp/terraform"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://releases.hashicorp.com/terraform/v$version/terraform_1.15.5_windows_amd64.zip"
+        "url": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_windows_amd64.zip"
       },
       "arm64": {
-        "url": "https://releases.hashicorp.com/terraform/v$version/terraform_1.15.5_windows_arm64.zip"
+        "url": "https://releases.hashicorp.com/terraform/1.15.5/terraform_1.15.5_windows_arm64.zip"
       }
     }
   }

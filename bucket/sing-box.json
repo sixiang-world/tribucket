@@ -19,9 +19,6 @@
       "sing-box"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/SagerNet/sing-box"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.13.12-windows-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/SagerNet/sing-box"
   }
 }

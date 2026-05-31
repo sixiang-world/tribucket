@@ -19,9 +19,6 @@
       "oblivion-desktop"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/bepass-org/oblivion-desktop"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/bepass-org/oblivion-desktop/releases/download/v$version/oblivion-desktop-win-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/bepass-org/oblivion-desktop"
   }
 }

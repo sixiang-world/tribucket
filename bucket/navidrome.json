@@ -15,14 +15,14 @@
       "navidrome"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/navidrome/navidrome"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/navidrome/navidrome/releases/download/v$version/navidrome_0.61.2_windows_amd64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/navidrome/navidrome"
   }
 }

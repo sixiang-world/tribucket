@@ -19,16 +19,13 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/bell-sw/Liberica"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdkv$version-windows-amd64.zip"
+        "url": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-windows-amd64.zip"
       },
       "arm64": {
-        "url": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdkv$version-windows-aarch64.zip"
+        "url": "https://github.com/bell-sw/Liberica/releases/download/21.0.11%2B11/bellsoft-jdk21.0.11+11-windows-aarch64.zip"
       }
     }
   }

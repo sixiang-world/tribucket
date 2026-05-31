@@ -15,14 +15,14 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/graalvm/graalvm-ce-builds"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/v$version/graalvm-community-jdk-25.0.2_windows-x64_bin.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/graalvm/graalvm-ce-builds"
   }
 }

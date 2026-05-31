@@ -19,9 +19,6 @@
       "tree-sitter"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/tree-sitter/tree-sitter"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/tree-sitter/tree-sitter/releases/download/v$version/tree-sitter-cli-windows-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/tree-sitter/tree-sitter"
   }
 }

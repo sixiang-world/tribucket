@@ -19,9 +19,6 @@
       "rg"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/BurntSushi/ripgrep"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-15.1.0-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/BurntSushi/ripgrep"
   }
 }

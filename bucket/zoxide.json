@@ -19,9 +19,6 @@
       "zoxide"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/ajeetdsouza/zoxide"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v$version/zoxide-0.9.9-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/ajeetdsouza/zoxide"
   }
 }

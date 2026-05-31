@@ -15,14 +15,14 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/Tencent/TencentKona-8"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/Tencent/TencentKona-8/releases/download/v$version/TencentKona8.0.26.b1_jdk_linux-aarch64_8u492.tar.gz"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/Tencent/TencentKona-8"
   }
 }

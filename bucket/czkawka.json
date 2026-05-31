@@ -15,14 +15,14 @@
       "czkawka_cli"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/qarmin/czkawka"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/qarmin/czkawka/releases/download/v$version/windows_czkawka_cli.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/qarmin/czkawka"
   }
 }

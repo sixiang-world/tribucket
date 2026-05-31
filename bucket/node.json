@@ -19,16 +19,13 @@
       "node"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/nodejs/node"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://nodejs.org/dist/v$version/node-v22.15.0-win-x64.zip"
+        "url": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-win-x64.zip"
       },
       "arm64": {
-        "url": "https://nodejs.org/dist/v$version/node-v22.15.0-win-arm64.zip"
+        "url": "https://nodejs.org/dist/v22.15.0/node-v22.15.0-win-arm64.zip"
       }
     }
   }

@@ -19,9 +19,6 @@
       "ruff"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/astral-sh/ruff"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/astral-sh/ruff/releases/download/v$version/ruff-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/astral-sh/ruff"
   }
 }

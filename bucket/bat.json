@@ -19,9 +19,6 @@
       "bat"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/sharkdp/bat"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/sharkdp/bat/releases/download/v$version/bat-v0.26.1-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/sharkdp/bat"
   }
 }

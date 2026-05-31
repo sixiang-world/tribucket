@@ -19,9 +19,6 @@
       "listmonk"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/knadh/listmonk"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_6.1.0_windows_arm64.tar.gz"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/knadh/listmonk"
   }
 }

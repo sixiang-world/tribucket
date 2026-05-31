@@ -15,14 +15,14 @@
       "ProxyBridge"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/InterceptSuite/ProxyBridge"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/InterceptSuite/ProxyBridge/releases/download/v$version/ProxyBridge-Setup-3.2.0.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/InterceptSuite/ProxyBridge"
   }
 }

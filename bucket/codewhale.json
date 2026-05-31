@@ -15,14 +15,14 @@
       "codewhale"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/Hmbown/CodeWhale"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/Hmbown/CodeWhale/releases/download/v$version/codewhale-windows-x64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/Hmbown/CodeWhale"
   }
 }

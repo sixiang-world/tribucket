@@ -15,14 +15,14 @@
       "hyperfine"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/sharkdp/hyperfine"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/sharkdp/hyperfine/releases/download/v$version/hyperfine-v1.20.0-x86_64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/sharkdp/hyperfine"
   }
 }

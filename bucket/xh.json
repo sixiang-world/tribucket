@@ -15,14 +15,14 @@
       "xh"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/ducaale/xh"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/ducaale/xh/releases/download/v$version/xh-v0.25.3-x86_64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/ducaale/xh"
   }
 }

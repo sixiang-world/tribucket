@@ -15,14 +15,14 @@
       "surreal"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/surrealdb/surrealdb"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/surrealdb/surrealdb/releases/download/v$version/surreal-v3.0.5.windows-amd64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/surrealdb/surrealdb"
   }
 }

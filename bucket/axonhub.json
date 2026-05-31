@@ -19,9 +19,6 @@
       "axonhub"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/looplj/axonhub"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/looplj/axonhub/releases/download/v$version/axonhub_1.0.0-beta1_windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/looplj/axonhub"
   }
 }

@@ -19,16 +19,13 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/azul/zulu-builds"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdkv$version-win_x64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_x64.zip"
       },
       "arm64": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdkv$version-win_aarch64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_aarch64.zip"
       }
     }
   }

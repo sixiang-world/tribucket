@@ -19,9 +19,6 @@
       "deno"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/denoland/deno"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/denoland/deno/releases/download/v$version/deno-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/denoland/deno"
   }
 }

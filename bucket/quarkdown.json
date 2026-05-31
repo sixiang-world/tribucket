@@ -15,14 +15,14 @@
       "quarkdown"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/iamgio/quarkdown"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/iamgio/quarkdown/releases/download/v$version/quarkdown-windows-x64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/iamgio/quarkdown"
   }
 }

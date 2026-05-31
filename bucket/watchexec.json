@@ -15,14 +15,14 @@
       "watchexec"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/watchexec/watchexec"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/watchexec/watchexec/releases/download/v$version/watchexec-2.5.1-x86_64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/watchexec/watchexec"
   }
 }

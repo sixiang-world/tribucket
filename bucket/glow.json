@@ -15,14 +15,14 @@
       "glow"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/charmbracelet/glow"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/charmbracelet/glow/releases/download/v$version/glow_2.1.2_Windows_x86_64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/charmbracelet/glow"
   }
 }

@@ -15,14 +15,14 @@
       "hx"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/helix-editor/helix"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/helix-editor/helix/releases/download/v$version/helix-25.07.1-x86_64-windows.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/helix-editor/helix"
   }
 }

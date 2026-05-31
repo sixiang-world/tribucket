@@ -19,9 +19,6 @@
       "wgcf"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/ViRb3/wgcf"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/ViRb3/wgcf/releases/download/v$version/wgcf_2.2.31_windows_arm64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/ViRb3/wgcf"
   }
 }

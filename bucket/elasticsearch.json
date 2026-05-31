@@ -1,27 +1,24 @@
 {
-  "version": "8.17.6",
+  "version": "9.4.2",
   "description": "Distributed search and analytics engine by Elastic",
   "homepage": "https://www.elastic.co/elasticsearch",
   "license": "Elastic-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-windows-x86_64.zip",
-      "hash": "0e62795a8107befb9dc7c28807d511f7480e1de8a6469b6ba3e4a1758407ca33"
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-windows-x86_64.zip",
+      "hash": "977ac5fb40ab3b7015db1750340acf83497f9a73f8ee409143cc536c435a9e16"
     }
   },
   "bin": [
     [
-      "elasticsearch-8.17.6-windows-x86_64.zip",
+      "elasticsearch-9.4.2-windows-x86_64.zip",
       "elasticsearch"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/elastic/elasticsearch"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-v$version-windows-x86_64.zip"
+        "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-windows-x86_64.zip"
       }
     }
   }

@@ -15,14 +15,14 @@
       "cosign"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/sigstore/cosign"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/sigstore/cosign/releases/download/v$version/cosign-windows-amd64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/sigstore/cosign"
   }
 }

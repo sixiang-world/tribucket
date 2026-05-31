@@ -15,9 +15,6 @@
       "java"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/corretto/corretto-21"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {

@@ -19,9 +19,6 @@
       "cfst"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/XIU2/CloudflareSpeedTest"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v$version/cfst_windows_arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/XIU2/CloudflareSpeedTest"
   }
 }

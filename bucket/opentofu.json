@@ -15,14 +15,14 @@
       "tofu"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/opentofu/opentofu"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/opentofu/opentofu/releases/download/v$version/tofu_1.12.1_windows_amd64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/opentofu/opentofu"
   }
 }

@@ -19,9 +19,6 @@
       "uv"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/astral-sh/uv"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/astral-sh/uv/releases/download/v$version/uv-aarch64-pc-windows-msvc.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/astral-sh/uv"
   }
 }

@@ -15,13 +15,10 @@
       "vagrant"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/hashicorp/vagrant"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://releases.hashicorp.com/vagrant/v$version/vagrant_2.4.6_windows_amd64.msi"
+        "url": "https://releases.hashicorp.com/vagrant/2.4.6/vagrant_2.4.6_windows_amd64.msi"
       }
     }
   }

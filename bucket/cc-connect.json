@@ -19,9 +19,6 @@
       "cc-connect"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/chenhg5/cc-connect"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
@@ -31,5 +28,8 @@
         "url": "https://github.com/chenhg5/cc-connect/releases/download/v$version/cc-connect-v1.3.2-windows-arm64.zip"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/chenhg5/cc-connect"
   }
 }

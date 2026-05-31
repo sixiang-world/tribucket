@@ -15,14 +15,14 @@
       "go-wxpush"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/hezhizheng/go-wxpush"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
         "url": "https://github.com/hezhizheng/go-wxpush/releases/download/v$version/go-wxpush_windows_amd64.exe"
       }
     }
+  },
+  "checkver": {
+    "github": "https://github.com/hezhizheng/go-wxpush"
   }
 }

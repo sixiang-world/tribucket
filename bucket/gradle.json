@@ -19,16 +19,13 @@
       "gradle"
     ]
   ],
-  "checkver": {
-    "github": "https://github.com/gradle/gradle"
-  },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://services.gradle.org/distributions/gradle-v$version-bin.zip"
+        "url": "https://services.gradle.org/distributions/gradle-8.14-bin.zip"
       },
       "arm64": {
-        "url": "https://services.gradle.org/distributions/gradle-v$version-bin.zip"
+        "url": "https://services.gradle.org/distributions/gradle-8.14-bin.zip"
       }
     }
   }
