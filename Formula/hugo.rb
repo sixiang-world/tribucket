@@ -6,12 +6,12 @@ class Hugo < Formula
 
   on_linux do
     on_arm do
-      url "https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_extended_0.162.1_linux-arm64.tar.gz"
-      sha256 "f5531494dd573cfc142779894a9e3e414ab05626d6e0492cc06209dc783aaf39"
+      url "https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_0.162.1_linux-arm64.tar.gz"
+      sha256 "ed2a4dcdc4149b575693b35d0f7220fe5248b70179097bed4cdbf98a238cbdca"
     end
     on_intel do
-      url "https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_extended_0.162.1_linux-amd64.tar.gz"
-      sha256 "e34160095b6a6406af857fe212f50e4451f67ed1276b9bb0de13d08754980118"
+      url "https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_0.162.1_linux-amd64.tar.gz"
+      sha256 "4bfcdb092d0306586f1b72e5687787ead053faab2d71f09951d3c5fecde66873"
     end
   end
 

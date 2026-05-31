@@ -1,6 +1,6 @@
 class Lsd < Formula
   desc "The next gen ls command (LSDeluxe)"
-  homepage "https://github.com/Peltoche/lsd"
+  homepage "https://github.com/lsd-rs/lsd"
   version "1.2.0"
   license "Apache-2.0"
 
