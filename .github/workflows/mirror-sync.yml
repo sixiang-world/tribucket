@@ -1,0 +1,19 @@
+name: Mirror Sync to CNB
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to CNB mirror
+        run: |
+          git remote add mirror https://cnb:${{ secrets.CNB_TOKEN }}@cnb.cool/shisheng820/tribucket.git
+          git push mirror --all
+          git push mirror --tags
