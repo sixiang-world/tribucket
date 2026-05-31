@@ -2,6 +2,7 @@
   "name": "elasticsearch",
   "repo": "elastic/elasticsearch",
   "version": "8.17.6",
+  "checkver": "github",
   "description": "Distributed search and analytics engine by Elastic",
   "binary": "elasticsearch",
   "license": "Elastic-2.0",

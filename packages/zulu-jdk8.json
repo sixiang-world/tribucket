@@ -2,6 +2,7 @@
   "name": "zulu-jdk8",
   "repo": "azul/zulu-builds",
   "version": "8.0.492",
+  "checkver": "github",
   "description": "Azul Zulu JDK 8 - certified build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",

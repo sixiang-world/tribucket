@@ -2,6 +2,7 @@
   "name": "zulu-jdk11",
   "repo": "azul/zulu-builds",
   "version": "11.0.31",
+  "checkver": "github",
   "description": "Azul Zulu JDK 11 - certified build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
