@@ -165,17 +165,54 @@ if (-not $useCustomUrl) {
 if (-not $InstallDir) { $InstallDir = Get-Location }
 if (-not (Test-Path $InstallDir)) { New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null }
 
-# Check current version
+# --- Version detection + legacy migration ---
+# Use dot-prefixed dir to avoid collision when binary name == package name
+$pkgDir = Join-Path $InstallDir ".$Package"
 $destPath = Join-Path $InstallDir "$binary.exe"
-if (Test-Path $destPath) {
+
+function Create-SymlinkOrFallback {
+    param([string]$target, [string]$linkPath)
     try {
-        $currentVer = ((& $destPath --version 2>&1) -replace '[^0-9.]','').Trim()
-        if ($currentVer -eq $version) {
-            Write-Ok "Already up to date (v$version)."
-            exit 0
+        New-Item -ItemType SymbolicLink -Path $linkPath -Target $target -Force | Out-Null
+    } catch {
+        try {
+            if (Test-Path $target -PathType Container) {
+                New-Item -ItemType Junction -Path $linkPath -Target $target -Force | Out-Null
+            } else {
+                Copy-Item -Path $target -Destination $linkPath -Force
+            }
+        } catch {
+            Copy-Item -Path $target -Destination $linkPath -Force
         }
-        Write-Info "Updating $currentVer -> v$version..."
-    } catch {}
+    }
+}
+
+if ((Test-Path $destPath) -and (Test-Path $pkgDir)) {
+    # New structure: check .version file
+    $verFile = Join-Path $pkgDir "current\.version"
+    if (Test-Path $verFile) {
+        $currentVer = (Get-Content $verFile -Raw).Trim()
+    } else {
+        try { $currentVer = ((& $destPath --version 2>&1) -replace '[^0-9.]','').Trim() } catch { $currentVer = "unknown" }
+    }
+    if ($currentVer -eq $version) {
+        Write-Ok "Already up to date (v$version)."
+        exit 0
+    }
+    Write-Info "Updating $currentVer -> v$version..."
+} elseif ((Test-Path $destPath) -and -not (Get-Item $destPath).Attributes.ToString().Contains("ReparsePoint")) {
+    # Legacy structure: real file — auto-migrate
+    try { $oldVer = ((& $destPath --version 2>&1) -replace '[^0-9.]','').Trim() } catch { $oldVer = "legacy" }
+    Write-Info "Detected legacy install (v$oldVer) — migrating to versioned structure..."
+    $oldVerDir = Join-Path $pkgDir $oldVer
+    New-Item -ItemType Directory -Path $oldVerDir -Force | Out-Null
+    Copy-Item -Path $destPath -Destination (Join-Path $oldVerDir "$binary.exe") -Force
+    Set-Content -Path (Join-Path $oldVerDir ".version") -Value $oldVer
+    $currentLink = Join-Path $pkgDir "current"
+    Create-SymlinkOrFallback -target $oldVerDir -linkPath $currentLink
+    Rename-Item -Path $destPath -NewName "$binary.exe.bak"
+    Create-SymlinkOrFallback -target (Join-Path $currentLink "$binary.exe") -linkPath $destPath
+    Write-Ok "Migrated legacy v$oldVer. Old binary backed up as $binary.exe.bak"
 }
 
 # Download
