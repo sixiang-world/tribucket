@@ -371,13 +371,12 @@ main() {
       ;;
   esac
   [ -z "$EXTRACTED" ] && err "Binary not found in download."
-  chmod +x "$EXTRACTED"
-  mv "$EXTRACTED" "${INSTALL_DIR}/${BINARY}"
-  ok "Installed ${BOLD}${BINARY} v${VERSION}${Z} -> ${INSTALL_DIR}/${BINARY}"
+  setup_versioned_install "$INSTALL_DIR" "$BINARY" "$PKG_NAME" "$VERSION" "$EXTRACTED"
+  ok "Installed ${BOLD}${BINARY} v${VERSION}${Z}"
 
-  # Generate helper scripts in install dir
-  gen_update_script "$INSTALL_DIR" "$BINARY" "$PKG_NAME"
-  gen_uninstall_script "$INSTALL_DIR" "$BINARY"
+  # Generate helper scripts in package dir
+  gen_update_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
+  gen_uninstall_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
 
   # PATH hint
   case ":${PATH}:" in
