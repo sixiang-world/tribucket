@@ -239,45 +239,54 @@ if ($filename -match '\.zip$') {
     if (!$downloadPath) { Write-Err "Binary not found in archive" }
 }
 
-Copy-Item -Path $downloadPath -Destination $destPath -Force
-Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
-Write-Ok "Installed $binary v$version -> $destPath"
+# --- Versioned install ---
+$versionDir = Join-Path $pkgDir $version
+New-Item -ItemType Directory -Path $versionDir -Force | Out-Null
+Copy-Item -Path $downloadPath -Destination (Join-Path $versionDir "$binary.exe") -Force
+Set-Content -Path (Join-Path $versionDir ".version") -Value $version
 
-# Generate update.ps1
+# Update current symlink/junction
+$currentLink = Join-Path $pkgDir "current"
+Create-SymlinkOrFallback -target $versionDir -linkPath $currentLink
+
+# Generate helper scripts BEFORE creating user-visible symlink
+# (to avoid path conflicts when binary == package name)
+
+Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+Write-Ok "Installed $binary v$version"
+
+# Generate versioned update.ps1
 $updateContent = @"
 # tribucket updater for $Package (auto-generated)
+# Usage: .\update.ps1
 `$ErrorActionPreference = "Stop"
-`$wc = New-Object System.Net.WebClient
-`$pkgJson = `$wc.DownloadString("https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages/$Package.json")
-`$pkg = `$pkgJson | ConvertFrom-Json
-`$repo = `$pkg.repo
-`$release = Invoke-RestMethod -Uri "https://api.github.com/repos/`$repo/releases/latest"
-`$version = `$release.tag_name -replace '^v', ''
-`$arch = if (`$env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'amd64' }
-`$platform = "windows_`$arch"
-`$pattern = `$pkg.asset_pattern.`$platform
-`$asset = `$release.assets | Where-Object { `$_.name -match `$pattern } | Select-Object -First 1
-`$destPath = Join-Path (Get-Location) "$binary.exe"
-`$currentVer = if (Test-Path `$destPath) { try { ((& `$destPath --version 2>&1) -replace '[^0-9.]','').Trim() } catch { 'none' } } else { 'none' }
-if (`$currentVer -eq `$version) { Write-Host "Already up to date (v`$version)."; exit 0 }
-Write-Host "Updating `$currentVer -> v`$version..."
-`$tmp = Join-Path `$env:TEMP "tribucket-`$(Get-Random)"; New-Item -ItemType Directory -Path `$tmp -Force | Out-Null
-`$wc.DownloadFile(`$asset.browser_download_url, (Join-Path `$tmp `$asset.name))
-Copy-Item (Join-Path `$tmp `$asset.name) `$destPath -Force
-Remove-Item `$tmp -Recurse -Force -ErrorAction SilentlyContinue
-Write-Host "Updated to v`$version."
+Write-Host "[info]  Updating $Package..." -ForegroundColor Cyan
+`$scriptDir = Split-Path -Parent `$MyInvocation.MyCommand.Path
+`$installDir = Split-Path -Parent `$scriptDir
+`$url = "$TRIBUCKET_RAW/scripts/install.ps1"
+`$tmpFile = Join-Path `$env:TEMP "tribucket-install.ps1"
+(New-Object System.Net.WebClient).DownloadString(`$url) | Set-Content -Path `$tmpFile -Encoding UTF8
+& `$tmpFile -Package "$Package" -InstallDir `$installDir
+Remove-Item `$tmpFile -ErrorAction SilentlyContinue
 "@
-Set-Content -Path (Join-Path $InstallDir "update.ps1") -Value $updateContent -Encoding UTF8
+$updatePath = Join-Path $pkgDir "update.ps1"
+Set-Content -Path $updatePath -Value $updateContent -Encoding UTF8
 
-# Generate uninstall.ps1
+# Generate versioned uninstall.ps1
 $uninstallContent = @"
-# tribucket uninstaller (auto-generated)
-`$dir = Get-Location
-Remove-Item (Join-Path `$dir "$binary.exe") -Force -ErrorAction SilentlyContinue
-Remove-Item (Join-Path `$dir "update.ps1") -Force -ErrorAction SilentlyContinue
-Remove-Item (Join-Path `$dir "uninstall.ps1") -Force -ErrorAction SilentlyContinue
+# tribucket uninstaller for $Package (auto-generated)
+`$ErrorActionPreference = "Stop"
+`$scriptDir = Split-Path -Parent `$MyInvocation.MyCommand.Path
+`$installDir = Split-Path -Parent `$scriptDir
+Write-Host "Removing $binary ($Package)..."
+Remove-Item (Join-Path `$installDir "$binary.exe") -Force -ErrorAction SilentlyContinue
+Remove-Item `$scriptDir -Recurse -Force -ErrorAction SilentlyContinue
 Write-Host "Done."
 "@
-Set-Content -Path (Join-Path $InstallDir "uninstall.ps1") -Value $uninstallContent -Encoding UTF8
+$uninstallPath = Join-Path $pkgDir "uninstall.ps1"
+Set-Content -Path $uninstallPath -Value $uninstallContent -Encoding UTF8
+
+# Create user-visible binary symlink (after helper scripts to avoid path conflicts)
+Create-SymlinkOrFallback -target (Join-Path $currentLink "$binary.exe") -linkPath $destPath
 
 Write-Ok "Done! Run '$binary' to get started."
