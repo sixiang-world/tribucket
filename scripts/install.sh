@@ -413,23 +413,28 @@ UPDEOF
   chmod +x "${_pkg_dir}/update.sh"
 }
 
-# --- Generate uninstall.sh ---
+# --- Generate versioned uninstall.sh ---
 gen_uninstall_script() {
-  _dir="$1" _bin="$2"
-  # Use quoted heredoc + placeholders to handle paths with special chars [$, backtick, etc.] [#195]
-  cat > "${_dir}/uninstall.sh" << 'UNEOF'
+  _pkg_dir="$1" _bin="$2" _pkg="$3"
+  _install_dir=$(cd "$(dirname "$_pkg_dir")" && pwd)
+
+  cat > "${_pkg_dir}/uninstall.sh" << 'UNEOF'
 #!/bin/sh
 # tribucket uninstaller (auto-generated)
+set -eu
 INSTALL_DIR="__INSTALL_DIR__"
-BINARY="__BINARY__"
-echo "Removing ${BINARY} from ${INSTALL_DIR}..."
-rm -f "${INSTALL_DIR}/${BINARY}" "${INSTALL_DIR}/update.sh" "${INSTALL_DIR}/uninstall.sh"
+BIN="__BIN__"
+PKG="__PKG__"
+PKG_DIR="${INSTALL_DIR}/${PKG}"
+printf 'Removing %s (%s)...\n' "$BIN" "$PKG"
+rm -f "${INSTALL_DIR}/${BIN}"
+rm -rf "${PKG_DIR}"
 echo "Done."
 UNEOF
-  # Replace placeholders (portable: no sed -i; using | as delimiter)
-  sed "s|__INSTALL_DIR__|${_dir}|g; s|__BINARY__|${_bin}|g" "${_dir}/uninstall.sh" > "${_dir}/uninstall.sh.tmp"
-  mv "${_dir}/uninstall.sh.tmp" "${_dir}/uninstall.sh"
-  chmod +x "${_dir}/uninstall.sh"
+  sed "s|__INSTALL_DIR__|${_install_dir}|g; s|__BIN__|${_bin}|g; s|__PKG__|${_pkg}|g" \
+    "${_pkg_dir}/uninstall.sh" > "${_pkg_dir}/uninstall.sh.tmp"
+  mv "${_pkg_dir}/uninstall.sh.tmp" "${_pkg_dir}/uninstall.sh"
+  chmod +x "${_pkg_dir}/uninstall.sh"
 }
 
 main "$@"
