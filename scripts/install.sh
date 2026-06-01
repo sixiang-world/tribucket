@@ -392,25 +392,25 @@ main() {
   ok "Done! Run '${BINARY}' to get started."
 }
 
-# --- Generate update.sh ---
+# --- Generate versioned update.sh ---
 gen_update_script() {
-  _dir="$1" _bin="$2" _pkg="$3"
-  # Use quoted heredoc + sed placeholders to handle special chars in repo URL [#189]
-  _repo_url="${TRIBUCKET_RAW}/scripts/install.sh"
-  cat > "${_dir}/update.sh" << 'UPDEOF'
+  _pkg_dir="$1" _bin="$2" _pkg="$3"
+  _install_dir=$(cd "$(dirname "$_pkg_dir")" && pwd)
+  _tribucket_raw="${TRIBUCKET_RAW}"
+
+  cat > "${_pkg_dir}/update.sh" << 'UPDEOF'
 #!/bin/sh
 # tribucket updater (auto-generated)
-# Re-downloads and runs the latest install.sh from GitHub
-INSTALL_DIR="$(cd "$(dirname "$0")" && pwd)"
-PKG_NAME="__PKG__"
-SCRIPT_URL="__REPO_URL__"
-echo "Updating ${PKG_NAME} in ${INSTALL_DIR}..."
-curl -fsSL "${SCRIPT_URL}" | INSTALL_DIR="${INSTALL_DIR}" bash -s "${PKG_NAME}"
+set -eu
+INSTALL_DIR="__INSTALL_DIR__"
+PKG="__PKG__"
+printf '\033[0;34m[info]\033[0m  Updating %s...\n' "${PKG}"
+curl -fsSL "__TRIBUCKET_RAW__/scripts/install.sh" | INSTALL_DIR="${INSTALL_DIR}" bash -s "${PKG}"
 UPDEOF
-  # Replace placeholders with actual values (portable: no sed -i)
-  sed "s|__PKG__|${_pkg}|g; s|__REPO_URL__|${_repo_url}|g" "${_dir}/update.sh" > "${_dir}/update.sh.tmp"
-  mv "${_dir}/update.sh.tmp" "${_dir}/update.sh"
-  chmod +x "${_dir}/update.sh"
+  sed "s|__PKG__|${_pkg}|g; s|__INSTALL_DIR__|${_install_dir}|g; s|__TRIBUCKET_RAW__|${_tribucket_raw}|g" \
+    "${_pkg_dir}/update.sh" > "${_pkg_dir}/update.sh.tmp"
+  mv "${_pkg_dir}/update.sh.tmp" "${_pkg_dir}/update.sh"
+  chmod +x "${_pkg_dir}/update.sh"
 }
 
 # --- Generate uninstall.sh ---
