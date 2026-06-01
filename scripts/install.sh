@@ -195,6 +195,27 @@ verify_checksum() {
   info "No checksum file found — skipping verification."
 }
 
+# --- Versioned install: place binary in version dir, create symlinks ---
+setup_versioned_install() {
+  _install_dir="$1" _binary="$2" _pkg_name="$3" _version="$4" _extracted="$5"
+  _pkg_dir="${_install_dir}/${_pkg_name}"
+  _version_dir="${_pkg_dir}/${_version}"
+
+  # Create version directory and move binary
+  mkdir -p "$_version_dir"
+  mv "$_extracted" "${_version_dir}/${_binary}"
+  chmod +x "${_version_dir}/${_binary}"
+
+  # Write version file
+  printf '%s' "$_version" > "${_version_dir}/.version"
+
+  # Update current symlink
+  ln -snf "$_version" "${_pkg_dir}/current"
+
+  # Update user-visible binary symlink (absolute path)
+  ln -snf "${_pkg_dir}/current/${_binary}" "${_install_dir}/${_binary}"
+}
+
 # --- Main ---
 main() {
   [ -z "$PKG_NAME" ] && err "Usage: install.sh <package-name>"
