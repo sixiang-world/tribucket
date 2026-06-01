@@ -16,7 +16,7 @@
 | 版本记录 | .version 文件 + fallback --version | 可靠且兼容旧版迁移 |
 | 旧版清理 | 暂不实现 | YAGNI，核心功能优先 |
 | install.ps1 | 同步改 | 保持跨平台一致性 |
-| 软链接 | 绝对路径 | 跨目录调用不会断 |
+| 软链接 | 相对路径（`./.pkg/current/bin`） | 避免 dot-prefixed 目录下的路径问题 |
 | 实现方案 | 就地改造 install.sh | 改动集中，不新增文件 |
 
 ## 目录结构
@@ -25,8 +25,8 @@
 
 ```
 <INSTALL_DIR>/
-├── <binary>              ← 绝对路径软链接 -> <INSTALL_DIR>/<pkg>/current/<binary>
-├── <pkg>/                ← 包数据目录
+├── <binary>              ← 相对路径软链接 -> .<pkg>/current/<binary>
+├── .<pkg>/               ← 包数据目录（dot-prefixed 避免与 binary 同名冲突）
 │   ├── <version>/        ← 版本目录（如 14.1.0/）
 │   │   ├── <binary>      ← 实际 binary
 │   │   └── .version      ← 版本号文本文件（如 "14.1.0"）
@@ -35,15 +35,31 @@
 │   └── uninstall.sh      ← 直接运行
 ```
 
-示例：在 `~/tools/` 下执行 `install.sh rg`
+**为什么用 dot-prefixed 目录（`.pkg/`）？** 当 `binary` 和 `pkg_name` 相同时（如 fzf），用 `fzf/` 作为包目录会与用户可见的 `fzf` 软链接冲突。dot-prefixed 解决了这个路径冲突。
+
+示例：在 `~/tools/` 下执行 `install.sh fzf`
 
 ```
 ~/tools/
-├── rg -> ~/tools/rg/current/rg     ← 用户直接运行
-├── rg/
+├── fzf -> .fzf/current/fzf     ← 用户直接运行（相对路径软链接）
+├── .fzf/                        ← 包数据目录
+│   ├── 0.73.1/
+│   │   ├── fzf
+│   │   └── .version             ← 内容: "0.73.1"
+│   ├── current -> 0.73.1/
+│   ├── update.sh
+│   └── uninstall.sh
+```
+
+示例：在 `~/tools/` 下执行 `install.sh rg`（binary=rg, pkg=rg）
+
+```
+~/tools/
+├── rg -> .rg/current/rg
+├── .rg/
 │   ├── 14.1.0/
 │   │   ├── rg
-│   │   └── .version                ← 内容: "14.1.0"
+│   │   └── .version
 │   ├── current -> 14.1.0/
 │   ├── update.sh
 │   └── uninstall.sh
@@ -54,7 +70,7 @@
 ```
 <InstallDir>/
 ├── <binary>.exe          ← 软链接（fallback: copy）
-├── <pkg>/
+├── .<pkg>/               ← 包数据目录（dot-prefixed）
 │   ├── <version>/
 │   │   ├── <binary>.exe
 │   │   └── .version
@@ -77,7 +93,7 @@ Windows 符号链接 fallback 策略：
 ```bash
 setup_versioned_install() {
   # $1=INSTALL_DIR  $2=BINARY  $3=PKG_NAME  $4=VERSION  $5=EXTRACTED
-  PKG_DIR="${1}/${3}"
+  PKG_DIR="${1}/.${3}"
   VERSION_DIR="${PKG_DIR}/${4}"
 
   # 创建版本目录，移动 binary
@@ -91,8 +107,7 @@ setup_versioned_install() {
   # 更新 current 软链接
   ln -snf "$4" "${PKG_DIR}/current"
 
-  # 更新用户可见的 binary 软链接（绝对路径）
-  ln -snf "${PKG_DIR}/current/${2}" "${1}/${2}"
+  # 注意：用户可见的 binary 软链接在 main() 中 helper scripts 生成之后创建
 }
 ```
 
@@ -143,8 +158,12 @@ gen_update_script "$INSTALL_DIR" "$BINARY" "$PKG_NAME"
 gen_uninstall_script "$INSTALL_DIR" "$BINARY"
 
 # 改为：
-gen_update_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
-gen_uninstall_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
+gen_update_script "$PKG_DIR" "$BINARY" "$PKG_NAME"
+gen_uninstall_script "$PKG_DIR" "$BINARY" "$PKG_NAME"
+
+# 在 helper scripts 之后，创建用户可见的 binary 软链接（相对路径）
+rm -rf "${INSTALL_DIR}/${BINARY}"
+ln -snf ".${PKG_NAME}/current/${BINARY}" "${INSTALL_DIR}/${BINARY}"
 ```
 
 ## install.ps1 改动
