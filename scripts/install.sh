@@ -293,14 +293,33 @@ main() {
   INSTALL_DIR="${INSTALL_DIR:-$(pwd)}"
   mkdir -p "$INSTALL_DIR"
 
-  # Check current version (with timeout to prevent hangs) [#155]
-  if [ -f "${INSTALL_DIR}/${BINARY}" ]; then
-    CURRENT=$(timeout 5 "${INSTALL_DIR}/${BINARY}" --version 2>/dev/null | head -1 | sed 's/[^0-9.]//g' || echo "unknown")
+  # --- Version detection + legacy migration ---
+  PKG_DIR="${INSTALL_DIR}/${PKG_NAME}"
+  if [ -L "${INSTALL_DIR}/${BINARY}" ] && [ -d "${PKG_DIR}" ]; then
+    # New structure: symlink + pkg dir exist
+    _ver_file="${PKG_DIR}/current/.version"
+    if [ -f "$_ver_file" ]; then
+      CURRENT=$(cat "$_ver_file")
+    else
+      CURRENT=$(timeout 5 "${INSTALL_DIR}/${BINARY}" --version 2>/dev/null | head -1 | sed 's/[^0-9.]//g' || echo "unknown")
+    fi
     if [ "$CURRENT" = "$VERSION" ]; then
       ok "Already up to date (v${VERSION}). Nothing to do."
       exit 0
     fi
     info "Updating ${CURRENT} -> v${VERSION}..."
+  elif [ -f "${INSTALL_DIR}/${BINARY}" ] && [ ! -L "${INSTALL_DIR}/${BINARY}" ]; then
+    # Legacy structure: binary is a real file — auto-migrate
+    OLD_VER=$(timeout 5 "${INSTALL_DIR}/${BINARY}" --version 2>/dev/null | head -1 | sed 's/[^0-9.]//g' || echo "legacy")
+    info "Detected legacy install (v${OLD_VER}) — migrating to versioned structure..."
+    mkdir -p "${PKG_DIR}/${OLD_VER}"
+    cp "${INSTALL_DIR}/${BINARY}" "${PKG_DIR}/${OLD_VER}/${BINARY}"
+    chmod +x "${PKG_DIR}/${OLD_VER}/${BINARY}"
+    printf '%s' "$OLD_VER" > "${PKG_DIR}/${OLD_VER}/.version"
+    ln -snf "$OLD_VER" "${PKG_DIR}/current"
+    mv "${INSTALL_DIR}/${BINARY}" "${INSTALL_DIR}/${BINARY}.bak"
+    ln -snf "${PKG_DIR}/current/${BINARY}" "${INSTALL_DIR}/${BINARY}"
+    ok "Migrated legacy v${OLD_VER}. Old binary backed up as ${BINARY}.bak"
   fi
 
   # Download — use TRIBUCKET_TMPDIR to avoid shadowing system TMPDIR [#67]
