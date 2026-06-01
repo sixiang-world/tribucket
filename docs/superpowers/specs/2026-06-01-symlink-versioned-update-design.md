@@ -156,6 +156,10 @@ gen_uninstall_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
 3. **helper scripts**：替换 update.ps1/uninstall.ps1 生成为版本化版本
 4. **符号链接**：尝试 SymbolicLink → Junction → Copy fallback
 
+## custom download_url 包的处理
+
+对于使用 `download_url` 的包（如 corretto-jdk21），VERSION 从 URL 中解析（`grep -oE '[0-9]+\.[0-9]+[0-9.]*'`），解析失败时为 `latest`。这些包同样走版本化逻辑——版本目录名可能为 `latest`，更新时会创建新目录。update.sh 对这类包会 re-run install.sh，install.sh 内部的版本检测会正确处理。
+
 ## 不做的事情
 
 - 不提供旧版本清理机制（后续按需添加）
