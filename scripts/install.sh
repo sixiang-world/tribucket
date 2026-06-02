@@ -198,7 +198,7 @@ verify_checksum() {
 # --- Versioned install: place binary in version dir, create symlinks ---
 setup_versioned_install() {
   _install_dir="$1" _binary="$2" _pkg_name="$3" _version="$4" _extracted="$5"
-  _pkg_dir="${_install_dir}/${_pkg_name}"
+  _pkg_dir="${_install_dir}/.${_pkg_name}"
   _version_dir="${_pkg_dir}/${_version}"
 
   # Create version directory and move binary
@@ -212,8 +212,8 @@ setup_versioned_install() {
   # Update current symlink
   ln -snf "$_version" "${_pkg_dir}/current"
 
-  # Update user-visible binary symlink (absolute path)
-  ln -snf "${_pkg_dir}/current/${_binary}" "${_install_dir}/${_binary}"
+  # Update user-visible binary symlink (relative path for portability)
+  ln -snf ".${_pkg_name}/current/${_binary}" "${_install_dir}/${_binary}"
 }
 
 # --- Main ---
@@ -294,7 +294,7 @@ main() {
   mkdir -p "$INSTALL_DIR"
 
   # --- Version detection + legacy migration ---
-  PKG_DIR="${INSTALL_DIR}/${PKG_NAME}"
+  PKG_DIR="${INSTALL_DIR}/.${PKG_NAME}"
   if [ -L "${INSTALL_DIR}/${BINARY}" ] && [ -d "${PKG_DIR}" ]; then
     # New structure: symlink + pkg dir exist
     _ver_file="${PKG_DIR}/current/.version"
@@ -318,8 +318,12 @@ main() {
     printf '%s' "$OLD_VER" > "${PKG_DIR}/${OLD_VER}/.version"
     ln -snf "$OLD_VER" "${PKG_DIR}/current"
     mv "${INSTALL_DIR}/${BINARY}" "${INSTALL_DIR}/${BINARY}.bak"
-    ln -snf "${PKG_DIR}/current/${BINARY}" "${INSTALL_DIR}/${BINARY}"
+    ln -snf ".${PKG_NAME}/current/${BINARY}" "${INSTALL_DIR}/${BINARY}"
     ok "Migrated legacy v${OLD_VER}. Old binary backed up as ${BINARY}.bak"
+    if [ "$OLD_VER" = "$VERSION" ]; then
+      ok "Already up to date (v${VERSION}). Nothing to do."
+      exit 0
+    fi
   fi
 
   # Download — use TRIBUCKET_TMPDIR to avoid shadowing system TMPDIR [#67]
@@ -375,8 +379,8 @@ main() {
   ok "Installed ${BOLD}${BINARY} v${VERSION}${Z}"
 
   # Generate helper scripts in package dir
-  gen_update_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
-  gen_uninstall_script "${INSTALL_DIR}/${PKG_NAME}" "$BINARY" "$PKG_NAME"
+  gen_update_script "${PKG_DIR}" "$BINARY" "$PKG_NAME"
+  gen_uninstall_script "${PKG_DIR}" "$BINARY" "$PKG_NAME"
 
   # PATH hint
   case ":${PATH}:" in
@@ -403,7 +407,11 @@ gen_update_script() {
 set -eu
 INSTALL_DIR="__INSTALL_DIR__"
 PKG="__PKG__"
-printf '\033[0;34m[info]\033[0m  Updating %s...\n' "${PKG}"
+if [ -t 1 ]; then
+  printf '\033[0;34m[info]\033[0m  Updating %s...\n' "${PKG}"
+else
+  printf '[info]  Updating %s...\n' "${PKG}"
+fi
 curl -fsSL "__TRIBUCKET_RAW__/scripts/install.sh" | INSTALL_DIR="${INSTALL_DIR}" bash -s "${PKG}"
 UPDEOF
   sed "s|__PKG__|${_pkg}|g; s|__INSTALL_DIR__|${_install_dir}|g; s|__TRIBUCKET_RAW__|${_tribucket_raw}|g" \
@@ -424,7 +432,7 @@ set -eu
 INSTALL_DIR="__INSTALL_DIR__"
 BIN="__BIN__"
 PKG="__PKG__"
-PKG_DIR="${INSTALL_DIR}/${PKG}"
+PKG_DIR="${INSTALL_DIR}/.${PKG}"
 printf 'Removing %s (%s)...\n' "$BIN" "$PKG"
 rm -f "${INSTALL_DIR}/${BIN}"
 rm -rf "${PKG_DIR}"

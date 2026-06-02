@@ -14,6 +14,23 @@ function Write-Ok    { param($msg) Write-Host "[ok]    $msg" -ForegroundColor Gr
 function Write-Warn  { param($msg) Write-Host "[warn]  $msg" -ForegroundColor Yellow }
 function Write-Err   { param($msg) Write-Host "[error] $msg" -ForegroundColor Red; exit 1 }
 
+function Create-SymlinkOrFallback {
+    param([string]$target, [string]$linkPath)
+    try {
+        New-Item -ItemType SymbolicLink -Path $linkPath -Target $target -Force | Out-Null
+    } catch {
+        try {
+            if (Test-Path $target -PathType Container) {
+                New-Item -ItemType Junction -Path $linkPath -Target $target -Force | Out-Null
+            } else {
+                Copy-Item -Path $target -Destination $linkPath -Force
+            }
+        } catch {
+            Copy-Item -Path $target -Destination $linkPath -Force
+        }
+    }
+}
+
 function Validate-Url {
     param([string]$url)
     if ($url -notmatch '^https://github\.com/') {
@@ -170,23 +187,6 @@ if (-not (Test-Path $InstallDir)) { New-Item -ItemType Directory -Path $InstallD
 $pkgDir = Join-Path $InstallDir ".$Package"
 $destPath = Join-Path $InstallDir "$binary.exe"
 
-function Create-SymlinkOrFallback {
-    param([string]$target, [string]$linkPath)
-    try {
-        New-Item -ItemType SymbolicLink -Path $linkPath -Target $target -Force | Out-Null
-    } catch {
-        try {
-            if (Test-Path $target -PathType Container) {
-                New-Item -ItemType Junction -Path $linkPath -Target $target -Force | Out-Null
-            } else {
-                Copy-Item -Path $target -Destination $linkPath -Force
-            }
-        } catch {
-            Copy-Item -Path $target -Destination $linkPath -Force
-        }
-    }
-}
-
 if ((Test-Path $destPath) -and (Test-Path $pkgDir)) {
     # New structure: check .version file
     $verFile = Join-Path $pkgDir "current\.version"
@@ -200,7 +200,7 @@ if ((Test-Path $destPath) -and (Test-Path $pkgDir)) {
         exit 0
     }
     Write-Info "Updating $currentVer -> v$version..."
-} elseif ((Test-Path $destPath) -and -not (Get-Item $destPath).Attributes.ToString().Contains("ReparsePoint")) {
+} elseif ((Test-Path $destPath) -and -not (Get-Item $destPath).LinkType) {
     # Legacy structure: real file — auto-migrate
     try { $oldVer = ((& $destPath --version 2>&1) -replace '[^0-9.]','').Trim() } catch { $oldVer = "legacy" }
     Write-Info "Detected legacy install (v$oldVer) — migrating to versioned structure..."
@@ -213,6 +213,10 @@ if ((Test-Path $destPath) -and (Test-Path $pkgDir)) {
     Rename-Item -Path $destPath -NewName "$binary.exe.bak"
     Create-SymlinkOrFallback -target (Join-Path $currentLink "$binary.exe") -linkPath $destPath
     Write-Ok "Migrated legacy v$oldVer. Old binary backed up as $binary.exe.bak"
+    if ($oldVer -eq $version) {
+        Write-Ok "Already up to date (v$version)."
+        exit 0
+    }
 }
 
 # Download
