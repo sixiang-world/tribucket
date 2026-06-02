@@ -14,6 +14,24 @@ if ($Mirror -eq "cn") {
     $TRIBUCKET_RAW = "https://gh.do.hunluan.space/https://raw.githubusercontent.com/$TRIBUCKET_REPO/main"
 }
 
+function Download-File {
+    param([string]$url, [string]$outFile)
+    if ($PSVersionTable.PSVersion.Major -ge 3) {
+        # PowerShell 3+ has built-in progress bar via Invoke-WebRequest
+        Invoke-WebRequest -Uri $url -OutFile $outFile -UseBasicParsing
+    } else {
+        # PowerShell 2.0 fallback — no progress bar
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $outFile)
+    }
+}
+
+function Download-String {
+    param([string]$url)
+    $wc = New-Object System.Net.WebClient
+    return $wc.DownloadString($url)
+}
+
 function Write-Info  { param($msg) Write-Host "[info]  $msg" -ForegroundColor Cyan }
 function Write-Ok    { param($msg) Write-Host "[ok]    $msg" -ForegroundColor Green }
 function Write-Warn  { param($msg) Write-Host "[warn]  $msg" -ForegroundColor Yellow }
@@ -51,8 +69,7 @@ function Verify-Checksum {
     foreach ($name in $candidates) {
         $cksumUrl = $downloadUrl -replace '/[^/]*$', "/$name"
         try {
-            $wc = New-Object System.Net.WebClient
-            $cksumContent = $wc.DownloadString($cksumUrl)
+            $cksumContent = Download-String $cksumUrl
         } catch { continue }
         if ([string]::IsNullOrEmpty($cksumContent)) { continue }
         $expected = ($cksumContent -split "`n" | Where-Object { $_ -match $basename } | Select-Object -First 1) -replace '\s+.*', ''
@@ -85,8 +102,7 @@ if (Test-Path $localPath) {
     $pkgJson = Get-Content $localPath -Raw
 } else {
     try {
-        $wc = New-Object System.Net.WebClient
-        $pkgJson = $wc.DownloadString("$TRIBUCKET_RAW/packages/$Package.json")
+        $pkgJson = Download-String "$TRIBUCKET_RAW/packages/$Package.json"
     } catch {
         Write-Err "Package '$Package' not found."
     }
@@ -130,8 +146,7 @@ if ($downloadUrlMap) {
                 $verRegex = $checkver.Value.regex
                 if ($verUrl) {
                     try {
-                        $wc2 = New-Object System.Net.WebClient
-                        $verContent = $wc2.DownloadString($verUrl)
+                        $verContent = Download-String $verUrl
                         if ($verRegex) {
                             $match = [regex]::Match($verContent, $verRegex)
                             if ($match.Success) {
@@ -231,8 +246,7 @@ $filename = Split-Path $url -Leaf
 $downloadPath = Join-Path $tmpDir $filename
 
 Write-Info "Downloading $filename..."
-$wc = New-Object System.Net.WebClient
-$wc.DownloadFile($url, $downloadPath)
+Download-File $url $downloadPath
 
 # Verify checksum
 Verify-Checksum $downloadPath $url
