@@ -28,6 +28,21 @@ case "$TRIBUCKET_REPO" in
 esac
 TRIBUCKET_RAW="https://raw.githubusercontent.com/${TRIBUCKET_REPO}/main"
 
+# Parse --mirror flag (cn = use gh.do.hunluan.space mirror)
+MIRROR_CN=false
+case "${1:-}" in
+  --mirror)
+    case "${2:-}" in
+      cn) MIRROR_CN=true; shift 2 ;;
+      *) err "Unknown mirror: ${2:-}. Usage: --mirror cn" ;;
+    esac
+    ;;
+esac
+
+if $MIRROR_CN; then
+  TRIBUCKET_RAW="https://gh.do.hunluan.space/https://raw.githubusercontent.com/${TRIBUCKET_REPO}/main"
+fi
+
 PKG_NAME="${1:-}"
 
 # Global temp directory — cleaned up on exit [#trap-late, #TMPDIR-shadow]

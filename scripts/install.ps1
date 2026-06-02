@@ -2,12 +2,17 @@
 # Usage: .\install.ps1 -Package <name> [-InstallDir <path>]
 param(
     [string]$Package = "",
-    [string]$InstallDir = ""
+    [string]$InstallDir = "",
+    [string]$Mirror = ""
 )
 
 $ErrorActionPreference = "Stop"
 $TRIBUCKET_REPO = if ($env:TRIBUCKET_REPO) { $env:TRIBUCKET_REPO } else { "sixiang-world/tribucket" }
 $TRIBUCKET_RAW = "https://raw.githubusercontent.com/$TRIBUCKET_REPO/main"
+
+if ($Mirror -eq "cn") {
+    $TRIBUCKET_RAW = "https://gh.do.hunluan.space/https://raw.githubusercontent.com/$TRIBUCKET_REPO/main"
+}
 
 function Write-Info  { param($msg) Write-Host "[info]  $msg" -ForegroundColor Cyan }
 function Write-Ok    { param($msg) Write-Host "[ok]    $msg" -ForegroundColor Green }
