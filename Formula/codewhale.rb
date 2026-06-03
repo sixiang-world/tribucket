@@ -7,22 +7,22 @@ class Codewhale < Formula
   on_macos do
     on_arm do
       url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.52/codewhale-macos-arm64"
-      sha256 "915c17e414eac0f816ce6aa0f90536a3673ed52ffb2f1775d037237f3a9d87b5"
+      sha256 "438bbda0a7e398f2b5cdb4c7bb5d1bed645d6429b959e24e0981be0e7b2f64e5"
     end
     on_intel do
       url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.52/codewhale-macos-x64"
-      sha256 "17fe1fe298db069928456c55c5caf4e236dec743375c8cb8ff9f72d61f867104"
+      sha256 "d2ada816c11f9e97a065e66bf9154e6f9537ddfaa60868113c16f66906a4d8e4"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.52/codewhale-linux-arm64"
-      sha256 "98930829de35b68251dd2e0e81cd352fc54e454486282a0f06d715204e905f64"
+      sha256 "1b610e746cc80c6b8caf3e62d3893fc8a6e7fcb98a05d95ae6b0b839bfe28bb0"
     end
     on_intel do
       url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.52/codewhale-linux-x64"
-      sha256 "13aeb0ef0d63288a09971363607660d22c512533111485e84c5a8a8f68e57a7e"
+      sha256 "9f47132906c588edc2365352c6be30b0c2ffdb8bf384e3ce08714c146c1dfc33"
     end
   end
 

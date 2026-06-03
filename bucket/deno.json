@@ -1,15 +1,15 @@
 {
-  "version": "2.8.1",
+  "version": "2.8.2",
   "description": "Modern runtime for JavaScript and TypeScript",
   "homepage": "https://github.com/denoland/deno",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/denoland/deno/releases/download/v2.8.1/deno-x86_64-pc-windows-msvc.zip",
+      "url": "https://github.com/denoland/deno/releases/download/v2.8.2/deno-x86_64-pc-windows-msvc.zip",
       "hash": "path"
     },
     "arm64": {
-      "url": "https://github.com/denoland/deno/releases/download/v2.8.1/deno-aarch64-pc-windows-msvc.zip",
+      "url": "https://github.com/denoland/deno/releases/download/v2.8.2/deno-aarch64-pc-windows-msvc.zip",
       "hash": "path"
     }
   },

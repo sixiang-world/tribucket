@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.52/codewhale-windows-x64.exe",
-      "hash": "a7a0afdf23212a018cd98fce2da78d380c3e227f795525ddbce5ec5964c74c72"
+      "hash": "72aec1789ba63d70f61e738aa7e7d5e645aff24665e7431cabf0801927d69e57"
     }
   },
   "bin": [
