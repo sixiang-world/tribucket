@@ -1,31 +1,31 @@
 {
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "AI video translation and dubbing tool powered by LLMs",
   "homepage": "https://github.com/KrillinAI/KrillinAI",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/krillinai/KrillinAI/releases/download/v2.0.2/KrillinAI-cli_2.0.2_Windows.exe",
-      "hash": "a05abd23498ff4013d111c08cf73310700b33e17cf4616abc430e067a915a305"
+      "url": "https://github.com/krillinai/KrillinAI/releases/download/v2.0.3/KrillinAI-cli_2.0.3_Windows.exe",
+      "hash": "ac4ad73902678dd440c8700df25af5b252d833ea5fe2e37df50d609f4fe15d13"
     },
     "arm64": {
-      "url": "https://github.com/krillinai/KrillinAI/releases/download/v2.0.2/KrillinAI-cli_2.0.2_Windows_arm64.exe",
-      "hash": "c1191f811be65ec34d053018f0c1b6faeb237a87ca9a3585bf41ab50d539c465"
+      "url": "https://github.com/krillinai/KrillinAI/releases/download/v2.0.3/KrillinAI-cli_2.0.3_Windows_arm64.exe",
+      "hash": "7dfc0f6dcb4d71348dd02c8affdf29d2cb199e02460bc7a669a821cd74a6dca2"
     }
   },
   "bin": [
     [
-      "KrillinAI-cli_2.0.2_Windows.exe",
+      "KrillinAI-cli_2.0.3_Windows.exe",
       "KrillinAI-cli"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/krillinai/KrillinAI/releases/download/v$version/KrillinAI-cli_2.0.2_Windows.exe"
+        "url": "https://github.com/krillinai/KrillinAI/releases/download/v$version/KrillinAI-cli_2.0.3_Windows.exe"
       },
       "arm64": {
-        "url": "https://github.com/krillinai/KrillinAI/releases/download/v$version/KrillinAI-cli_2.0.2_Windows_arm64.exe"
+        "url": "https://github.com/krillinai/KrillinAI/releases/download/v$version/KrillinAI-cli_2.0.3_Windows_arm64.exe"
       }
     }
   },
