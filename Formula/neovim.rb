@@ -1,28 +1,28 @@
 class Neovim < Formula
   desc "Hyperextensible Vim-based text editor"
   homepage "https://github.com/neovim/neovim"
-  version "0.12.2"
+  version "0.12.3"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-macos-arm64.tar.gz"
-      sha256 "eeddee1009734f9071266e6b1b8a70308cb60cbcc45f5e1c1023adc471450fee"
+      url "https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-macos-arm64.tar.gz"
+      sha256 "532da1d00e465a660fa01c3d4991333d09c52107dce7df937368545daca0a14e"
     end
     on_intel do
-      url "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-macos-x86_64.tar.gz"
-      sha256 "728321db960a9b6af6c03881892a6abfd743bf759bc62d233f52fa1be64ace3c"
+      url "https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-macos-x86_64.tar.gz"
+      sha256 "4b40e318eb7073321fa5fc06d7f60c3c0de1d7ea50ffbaa8b04286f5484d294f"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz"
-      sha256 "f697d4e4582b6e4b5c3c26e76e06ce26efa08ba1768e03fd2733fcc422bb0490"
+      url "https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-arm64.tar.gz"
+      sha256 "e055af73fa9c72b37456da8d204fa5c09850bc07e80e9176fe3b87d4afb7a3fc"
     end
     on_intel do
-      url "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz"
-      sha256 "31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260"
+      url "https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-x86_64.tar.gz"
+      sha256 "c441b547142860bf01bcce39e36cbed185c41112813e15443b16e5237750724d"
     end
   end
 
