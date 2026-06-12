@@ -3,9 +3,15 @@
 import argparse
 import json
 import os
+import platform
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from tribucket import __version__
+from tribucket.utils import (
+    EXIT_OK, EXIT_ERROR, EXIT_USAGE, EXIT_NOT_FOUND, EXIT_EXISTS,
+    EXIT_NOT_TRACKED, EXIT_UP_TO_DATE, EXIT_NO_NETWORK,
+)
 
 
 def main(argv=None):
@@ -13,7 +19,7 @@ def main(argv=None):
     if sys.version_info < (3, 8):
         print(f"Error: tribucket requires Python 3.8 or later (found {sys.version_info.major}.{sys.version_info.minor})",
               file=sys.stderr)
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
     if argv is None:
         argv = sys.argv[1:]
@@ -23,20 +29,22 @@ def main(argv=None):
 
     if not hasattr(args, "func"):
         parser.print_help()
-        sys.exit(0)
+        sys.exit(EXIT_OK)
 
     try:
         args.func(args)
     except KeyboardInterrupt:
         print("\nInterrupted.", file=sys.stderr)
         sys.exit(130)
+    except SystemExit:
+        raise
     except Exception as e:
         if os.environ.get("TRIBUCKET_VERBOSE") == "1":
             import traceback
             traceback.print_exc()
         else:
             print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
 
 def _build_parser():
@@ -45,6 +53,8 @@ def _build_parser():
         description="Lightweight portable package manager",
     )
     parser.add_argument("--version", action="version", version=f"tribucket {__version__}")
+    parser.add_argument("--no-color", action="store_true", default=False,
+                        help="Disable colored output")
 
     sub = parser.add_subparsers(dest="command")
 
@@ -104,6 +114,10 @@ def _build_parser():
     p.add_argument("name", help="Package name")
     p.set_defaults(func=_cmd_info)
 
+    # self-update
+    p = sub.add_parser("self-update", help="Update tribucket CLI itself")
+    p.set_defaults(func=_cmd_self_update)
+
     # config
     p = sub.add_parser("config", help="Manage configuration")
     config_sub = p.add_subparsers(dest="config_command")
@@ -120,9 +134,30 @@ def _build_parser():
     return parser
 
 
+# ── Helpers ──────────────────────────────────────────────────────
+
+NO_COLOR = False
+
+
+def _init_color(args):
+    global NO_COLOR
+    NO_COLOR = getattr(args, "no_color", False) or os.environ.get("NO_COLOR") or not sys.stdout.isatty()
+
+
+def _sym(name):
+    """Return symbol or plain fallback."""
+    if NO_COLOR:
+        return {"ok": "OK", "warn": "WARN", "err": "ERR", "skip": "SKIP",
+                "arrow": "->", "bullet": "*"}.get(name, "")
+    symbols = {"ok": "✓", "warn": "⚠", "err": "✗", "skip": "?",
+               "arrow": "→", "bullet": "•"}
+    return symbols.get(name, "")
+
+
 # ── Command implementations ──────────────────────────────────────
 
 def _cmd_install(args):
+    _init_color(args)
     from tribucket.install import install_package
     ok = install_package(
         args.name,
@@ -132,10 +167,11 @@ def _cmd_install(args):
         mirror_mode=args.mirror,
     )
     if not ok:
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
 
 def _cmd_uninstall(args):
+    _init_color(args)
     from tribucket.track import get_all_packages, untrack
     from tribucket.config import bin_dir
     import shutil
@@ -144,16 +180,14 @@ def _cmd_uninstall(args):
     info = packages.get(args.name)
     if not info:
         print(f"Error: '{args.name}' is not tracked.", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(EXIT_NOT_TRACKED)
 
     path = info.get("path", "")
 
-    # Delete package directory
     if os.path.exists(path):
         shutil.rmtree(path)
         print(f"Deleted: {path}")
 
-    # Delete symlink
     bd = bin_dir()
     for f in os.listdir(bd) if os.path.isdir(bd) else []:
         link = os.path.join(bd, f)
@@ -161,33 +195,34 @@ def _cmd_uninstall(args):
             os.unlink(link)
             print(f"Removed symlink: {link}")
 
-    # Delete backup
     from tribucket.config import backup_dir
     backup = os.path.join(backup_dir(), args.name)
     if os.path.exists(backup):
         shutil.rmtree(backup)
         print(f"Removed backup: {backup}")
 
-    # Untrack
     untrack(args.name)
 
 
 def _cmd_track(args):
+    _init_color(args)
     from tribucket.track import track
     path = args.path or os.getcwd()
     ok = track(args.name, path)
     if not ok:
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
 
 def _cmd_untrack(args):
+    _init_color(args)
     from tribucket.track import untrack
     ok = untrack(args.name)
     if not ok:
-        sys.exit(1)
+        sys.exit(EXIT_NOT_FOUND)
 
 
 def _cmd_list(args):
+    _init_color(args)
     from tribucket.track import list_packages, find_dangling_symlinks
 
     packages = list_packages()
@@ -201,15 +236,12 @@ def _cmd_list(args):
         print(json.dumps({"packages": result}, indent=2, ensure_ascii=False))
         return
 
-    # Sort
     if args.sort == "status":
-        # Packages with stale entries first, then by name
         packages.sort(key=lambda x: (os.path.exists(x[1].get("path", "")), x[0]))
-        packages.reverse()  # stale first
+        packages.reverse()
     else:
         packages.sort(key=lambda x: x[0])
 
-    # Header
     print(f"{'Name':20s}  {'Version':12s}  {'Path':40s}  {'Status'}")
     print("-" * 90)
 
@@ -217,18 +249,18 @@ def _cmd_list(args):
         path = info.get("path", "")
         version = info.get("version", "?")
         exists = os.path.exists(path)
-        status = "✓" if exists else "✗ not found"
+        status = f"{_sym('ok')} latest" if exists else f"{_sym('err')} not found"
         print(f"{name:20s}  {version:12s}  {path:40s}  {status}")
 
-    # Check for dangling symlinks
     dangling = find_dangling_symlinks()
     if dangling:
-        print(f"\n⚠ Found {len(dangling)} dangling symlink(s):")
+        print(f"\n{_sym('warn')} Found {len(dangling)} dangling symlink(s):")
         for name, path, target in dangling:
-            print(f"  {path} → {target}")
+            print(f"  {path} -> {target}")
 
 
 def _cmd_check(args):
+    _init_color(args)
     from tribucket.check import check_package, format_check_result
     from tribucket.track import get_all_packages
 
@@ -241,10 +273,12 @@ def _cmd_check(args):
         parser = argparse.ArgumentParser()
         parser.error("Specify package names or use --all")
 
-    results = []
-    for target in targets:
-        result = check_package(target, refresh=args.refresh, local_only=args.local_only)
-        results.append(result)
+    # Concurrent check for --all with multiple targets
+    if len(targets) > 1 and not args.local_only:
+        results = _concurrent_check(targets, args.refresh, args.local_only)
+    else:
+        results = [check_package(t, refresh=args.refresh, local_only=args.local_only)
+                   for t in targets]
 
     if args.json_output:
         output = {}
@@ -261,7 +295,7 @@ def _cmd_check(args):
 
     for r in results:
         if "error" in r:
-            print(f"{r['name']:20s}  ✗ {r['error']}")
+            print(f"{r['name']:20s}  {_sym('err')} {r['error']}")
         else:
             print(format_check_result(
                 r["name"], r["local"], r["local_source"],
@@ -269,7 +303,28 @@ def _cmd_check(args):
             ))
 
 
+def _concurrent_check(targets, refresh, local_only, workers=4):
+    """Check multiple packages concurrently."""
+    from tribucket.check import check_package
+    results = [None] * len(targets)
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_idx = {
+            executor.submit(check_package, t, refresh=refresh, local_only=local_only): i
+            for i, t in enumerate(targets)
+        }
+        for future in as_completed(future_to_idx):
+            idx = future_to_idx[future]
+            try:
+                results[idx] = future.result()
+            except Exception as e:
+                results[idx] = {"name": targets[idx], "error": str(e)}
+
+    return results
+
+
 def _cmd_update(args):
+    _init_color(args)
     if args.all:
         from tribucket.track import get_all_packages
         packages = get_all_packages()
@@ -277,17 +332,45 @@ def _cmd_update(args):
             print("No packages tracked.")
             return
 
-        from tribucket.update import update_package
-        success = 0
-        failed = 0
-        for name in packages:
-            ok = update_package(name, force=args.force, mirror_mode=args.mirror,
+        names = list(packages.keys())
+
+        # --all --dry-run: show what would be updated
+        if args.dry_run:
+            from tribucket.check import check_package
+            would_update = []
+            for name in names:
+                result = check_package(name, local_only=False)
+                remote = result.get("remote")
+                local = result.get("local")
+                if remote and local != remote:
+                    would_update.append((name, local, remote))
+                elif remote:
+                    print(f"{name:20s}  {local} — already up to date")
+
+            if would_update:
+                print(f"\n{_sym('warn')} {len(would_update)} package(s) would be updated:")
+                for name, local, remote in would_update:
+                    print(f"  {name}: {local} -> {remote}")
+            else:
+                print(f"\n{_sym('ok')} All packages up to date.")
+            return
+
+        # Concurrent update for --all
+        if len(names) > 1:
+            success, failed = _concurrent_update(names, args.force, args.mirror, args.no_backup)
+        else:
+            from tribucket.update import update_package
+            success = 0
+            failed = 0
+            ok = update_package(names[0], force=args.force, mirror_mode=args.mirror,
                                 no_backup=args.no_backup)
             if ok:
-                success += 1
+                success = 1
             else:
-                failed += 1
+                failed = 1
+
         print(f"\n{success} updated, {failed} failed.")
+        sys.exit(EXIT_OK if failed == 0 else EXIT_ERROR)
         return
 
     if not args.name:
@@ -299,35 +382,60 @@ def _cmd_update(args):
         result = check_package(args.name)
         if "error" in result:
             print(f"Error: {result['error']}")
-            sys.exit(1)
+            sys.exit(EXIT_NOT_FOUND)
         remote = result.get("remote")
         local = result.get("local")
         if remote and local != remote:
-            print(f"{args.name}: {local} → {remote} (would update)")
+            print(f"{args.name}: {local} -> {remote} (would update)")
         else:
             print(f"{args.name}: {local} — already up to date")
-        return
+        sys.exit(EXIT_OK)
 
     from tribucket.update import update_package
     ok = update_package(args.name, force=args.force, mirror_mode=args.mirror,
                         no_backup=args.no_backup)
     if not ok:
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
+
+
+def _concurrent_update(names, force, mirror_mode, no_backup, workers=4):
+    """Update multiple packages concurrently."""
+    from tribucket.update import update_package
+    success = 0
+    failed = 0
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_name = {
+            executor.submit(update_package, name, force=force,
+                           mirror_mode=mirror_mode, no_backup=no_backup): name
+            for name in names
+        }
+        for future in as_completed(future_to_name):
+            name = future_to_name[future]
+            try:
+                ok = future.result()
+                if ok:
+                    success += 1
+                else:
+                    failed += 1
+            except Exception:
+                failed += 1
+
+    return success, failed
 
 
 def _cmd_info(args):
+    _init_color(args)
     from tribucket.track import get_all_packages
-    import json
 
     packages = get_all_packages()
     info = packages.get(args.name)
     if not info:
         print(f"Error: '{args.name}' is not tracked.", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(EXIT_NOT_FOUND)
 
     path = info.get("path", "")
 
-    # Try to load tribucket.json
     tj = None
     tj_path = os.path.join(path, "tribucket.json")
     if os.path.isfile(tj_path):
@@ -351,7 +459,58 @@ def _cmd_info(args):
     print(f"Tracked at:  {info.get('installed_at', '?')}")
 
 
+def _cmd_self_update(args):
+    _init_color(args)
+    import urllib.request
+
+    print("Checking for updates...")
+
+    # Get latest version from GitHub
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/sixiang-world/tribucket/releases/latest",
+            headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "tribucket/2.0"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+            latest = data["tag_name"].lstrip("v")
+    except Exception as e:
+        print(f"Error: Cannot check for updates: {e}", file=sys.stderr)
+        sys.exit(EXIT_NO_NETWORK)
+
+    if latest == __version__:
+        print(f"Already up to date ({__version__})")
+        sys.exit(EXIT_OK)
+
+    print(f"Current: {__version__}  Latest: {latest}")
+
+    # Download new version
+    script_path = os.path.abspath(sys.argv[0])
+    try:
+        url = "https://raw.githubusercontent.com/sixiang-world/tribucket/main/bin/tribucket"
+        req = urllib.request.Request(url, headers={"User-Agent": "tribucket/2.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            new_content = resp.read()
+
+        # Backup current
+        backup_path = script_path + ".bak"
+        import shutil
+        shutil.copy2(script_path, backup_path)
+
+        # Write new version
+        with open(script_path, "wb") as f:
+            f.write(new_content)
+
+        print(f"Updated: {__version__} -> {latest}")
+        print(f"Backup saved to: {backup_path}")
+
+    except Exception as e:
+        print(f"Error: Update failed: {e}", file=sys.stderr)
+        sys.exit(EXIT_ERROR)
+
+
 def _cmd_config(args):
+    _init_color(args)
     from tribucket.config import load_config, save_config
 
     config = load_config()

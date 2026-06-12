@@ -155,21 +155,46 @@ def find_tribucket_json(path):
 # ── Download ────────────────────────────────────────────────────
 
 def download_file(url, dest_dir):
-    """Download a file to dest_dir with progress. Returns file path or None."""
+    """Download a file to dest_dir with progress and resume support. Returns file path or None."""
     filename = url.split("/")[-1].split("?")[0]
     dest_path = os.path.join(dest_dir, filename)
 
     log(f"Downloading {filename}...")
+
+    # Check for partial download (resume support)
+    existing_size = 0
+    if os.path.exists(dest_path):
+        existing_size = os.path.getsize(dest_path)
+
     try:
         req = urllib.request.Request(url, headers={
             "User-Agent": "Mozilla/5.0 (compatible; tribucket/2.0)",
         })
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            total = int(resp.headers.get("Content-Length", 0))
-            downloaded = 0
-            chunk_size = 8192
+        if existing_size > 0:
+            req.add_header("Range", f"bytes={existing_size}-")
 
-            with open(dest_path, "wb") as f:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            # Check if server supports range requests
+            code = resp.getcode()
+            if code == 206:
+                # Partial content — resume
+                mode = "ab"
+                downloaded = existing_size
+                total = int(resp.headers.get("Content-Length", 0)) + existing_size
+                log(f"Resuming from {existing_size} bytes")
+            elif code == 200 and existing_size > 0:
+                # Server doesn't support range — restart
+                mode = "wb"
+                downloaded = 0
+                total = int(resp.headers.get("Content-Length", 0))
+                log("Server doesn't support resume, restarting download")
+            else:
+                mode = "wb"
+                downloaded = 0
+                total = int(resp.headers.get("Content-Length", 0))
+
+            chunk_size = 8192
+            with open(dest_path, mode) as f:
                 while True:
                     chunk = resp.read(chunk_size)
                     if not chunk:

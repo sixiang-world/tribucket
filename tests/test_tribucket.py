@@ -264,6 +264,8 @@ class TestUtilsShared:
             called = [False]
             class MockResp:
                 headers = {"Content-Length": str(len(data))}
+                def getcode(self):
+                    return 200
                 def read(self, size=-1):
                     if called[0]:
                         return b""
