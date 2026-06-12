@@ -4,11 +4,14 @@ import os
 import re
 import subprocess
 import sys
+import threading
 
 from tribucket.config import load_json, versions_cache_path
 from tribucket.utils import (
     http_get_json, log, find_tribucket_json, save_json_file,
 )
+
+_cache_lock = threading.Lock()
 
 
 def detect_version(binary_path, tribucket_json, config_info=None):
@@ -286,12 +289,13 @@ def _get_cached_remote_version(repo):
 
 
 def _save_remote_version_cache(repo, version):
-    """Cache a remote version result."""
+    """Cache a remote version result (thread-safe)."""
     from datetime import datetime, timezone
-    cache = load_json(versions_cache_path(), {})
-    cache[repo] = {
-        "remote_version": version,
-        "checked_at": datetime.now(timezone.utc).isoformat(),
-        "ttl_seconds": 3600,
-    }
-    save_json_file(versions_cache_path(), cache)
+    with _cache_lock:
+        cache = load_json(versions_cache_path(), {})
+        cache[repo] = {
+            "remote_version": version,
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "ttl_seconds": 3600,
+        }
+        save_json_file(versions_cache_path(), cache)

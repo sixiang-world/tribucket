@@ -27,8 +27,20 @@ def main(argv=None):
     parser = _build_parser()
     args = parser.parse_args(argv)
 
-    if not hasattr(args, "func"):
+    if not hasattr(args, "func") and not args.show_version:
         parser.print_help()
+        sys.exit(EXIT_OK)
+
+    # Handle --version (with optional --json)
+    if args.show_version:
+        if args.json_output:
+            print(json.dumps({
+                "version": __version__,
+                "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+                "platform": _detect_platform_str(),
+            }))
+        else:
+            print(f"tribucket {__version__}")
         sys.exit(EXIT_OK)
 
     try:
@@ -52,7 +64,10 @@ def _build_parser():
         prog="tribucket",
         description="Lightweight portable package manager",
     )
-    parser.add_argument("--version", action="version", version=f"tribucket {__version__}")
+    parser.add_argument("--version", "-V", action="store_true", dest="show_version",
+                        help="Show version")
+    parser.add_argument("--json", dest="json_output", action="store_true",
+                        help="JSON output (with --version)")
     parser.add_argument("--no-color", action="store_true", default=False,
                         help="Disable colored output")
 
@@ -137,6 +152,18 @@ def _build_parser():
 # ── Helpers ──────────────────────────────────────────────────────
 
 NO_COLOR = False
+
+
+def _detect_platform_str():
+    """Detect platform as linux_amd64 etc."""
+    import platform as _platform
+    sys_name = _platform.system().lower()
+    machine = _platform.machine().lower()
+    os_map = {"linux": "linux", "darwin": "darwin", "windows": "windows"}
+    arch_map = {"x86_64": "amd64", "amd64": "amd64", "aarch64": "arm64", "arm64": "arm64"}
+    os_key = os_map.get(sys_name, sys_name)
+    arch_key = arch_map.get(machine, machine)
+    return f"{os_key}_{arch_key}"
 
 
 def _init_color(args):
@@ -401,25 +428,30 @@ def _cmd_update(args):
 def _concurrent_update(names, force, mirror_mode, no_backup, workers=4):
     """Update multiple packages concurrently."""
     from tribucket.update import update_package
+    import threading
+
     success = 0
     failed = 0
+    lock = threading.Lock()
 
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_name = {
-            executor.submit(update_package, name, force=force,
-                           mirror_mode=mirror_mode, no_backup=no_backup): name
-            for name in names
-        }
-        for future in as_completed(future_to_name):
-            name = future_to_name[future]
-            try:
-                ok = future.result()
+    def _do_update(name):
+        nonlocal success, failed
+        try:
+            ok = update_package(name, force=force,
+                               mirror_mode=mirror_mode, no_backup=no_backup)
+            with lock:
                 if ok:
                     success += 1
                 else:
                     failed += 1
-            except Exception:
+        except Exception:
+            with lock:
                 failed += 1
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [executor.submit(_do_update, name) for name in names]
+        for future in as_completed(futures):
+            pass  # Results captured via lock
 
     return success, failed
 
