@@ -9,7 +9,7 @@ import tempfile
 from tribucket.utils import (
     compute_sha256, detect_platform, extract_archive, download_file,
     http_get, http_get_json, log, error, infer_asset_format,
-    find_tribucket_json,
+    find_tribucket_json, find_sha256_from_release,
 )
 from tribucket.mirror import resolve_download_url
 from tribucket.track import track, get_all_packages
@@ -237,7 +237,7 @@ def _verify_download(archive_path, repo, version):
             token=token,
         )
         filename = os.path.basename(archive_path)
-        expected = _find_sha256_from_release(data, filename)
+        expected = find_sha256_from_release(data, filename)
         if expected:
             actual = compute_sha256(archive_path)
             if actual != expected:
@@ -247,26 +247,6 @@ def _verify_download(archive_path, repo, version):
                 log("SHA256 verification OK")
     except Exception:
         log("SHA256 verification skipped (no checksum available)")
-
-
-def _find_sha256_from_release(release_json, target_filename):
-    """Find SHA256 hash for target_filename from release checksum assets."""
-    CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
-    assets = release_json.get("assets", [])
-    for asset in assets:
-        name_lower = asset["name"].lower()
-        if not any(p.lower() in name_lower for p in CHECKSUM_PATTERNS):
-            continue
-        try:
-            body = http_get(asset["browser_download_url"], timeout=15)
-            content = body.decode("utf-8", errors="replace")
-            for line in content.strip().splitlines():
-                parts = line.strip().split()
-                if len(parts) >= 2 and target_filename in parts[-1]:
-                    return parts[0].lower()
-        except Exception:
-            continue
-    return None
 
 
 def _install_files(extract_dir, target_dir, binary_name, install_type):

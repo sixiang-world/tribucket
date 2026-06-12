@@ -10,7 +10,7 @@ import fcntl  # Unix only; graceful fallback on Windows
 from tribucket.config import backup_dir, lock_dir
 from tribucket.utils import (
     compute_sha256, detect_platform, extract_archive, download_file,
-    find_tribucket_json, log, error,
+    find_tribucket_json, log, error, find_sha256_from_release,
 )
 from tribucket.mirror import resolve_download_url
 from tribucket.check import check_remote_version
@@ -159,7 +159,6 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
 
 def _verify_sha256(archive_path, repo, version, tj, platform):
     """Verify SHA256 checksum. Returns True if OK, False if mismatch, None if no checksum."""
-    # Try to find expected SHA256 from checksum file in release
     try:
         token = os.environ.get("GITHUB_TOKEN")
         from tribucket.utils import http_get_json
@@ -168,7 +167,7 @@ def _verify_sha256(archive_path, repo, version, tj, platform):
             token=token,
         )
         filename = os.path.basename(archive_path)
-        expected = _find_sha256_from_release(data, filename)
+        expected = find_sha256_from_release(data, filename)
         if expected:
             actual = compute_sha256(archive_path)
             if actual != expected:
@@ -179,29 +178,6 @@ def _verify_sha256(archive_path, repo, version, tj, platform):
             return True
     except Exception:
         pass
-    return None
-
-
-def _find_sha256_from_release(release_json, target_filename):
-    """Find SHA256 hash for target_filename from release checksum assets."""
-    CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
-
-    assets = release_json.get("assets", [])
-    for asset in assets:
-        name_lower = asset["name"].lower()
-        if not any(p.lower() in name_lower for p in CHECKSUM_PATTERNS):
-            continue
-
-        try:
-            from tribucket.utils import http_get
-            body = http_get(asset["browser_download_url"], timeout=15)
-            content = body.decode("utf-8", errors="replace")
-            for line in content.strip().splitlines():
-                parts = line.strip().split()
-                if len(parts) >= 2 and target_filename in parts[-1]:
-                    return parts[0].lower()
-        except Exception:
-            continue
     return None
 
 

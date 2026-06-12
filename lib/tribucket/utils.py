@@ -262,6 +262,28 @@ def infer_asset_format(asset_pattern):
     return formats
 
 
+# ── Checksum verification ───────────────────────────────────────
+
+def find_sha256_from_release(release_json, target_filename):
+    """Find SHA256 hash for target_filename from release checksum assets."""
+    CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
+    assets = release_json.get("assets", [])
+    for asset in assets:
+        name_lower = asset["name"].lower()
+        if not any(p.lower() in name_lower for p in CHECKSUM_PATTERNS):
+            continue
+        try:
+            body = http_get(asset["browser_download_url"], timeout=15)
+            content = body.decode("utf-8", errors="replace")
+            for line in content.strip().splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 2 and target_filename in parts[-1]:
+                    return parts[0].lower()
+        except Exception:
+            continue
+    return None
+
+
 # ── Cleanup ─────────────────────────────────────────────────────
 
 def cleanup_old_tmp():

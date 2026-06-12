@@ -214,10 +214,16 @@ def _check_with_tribucket_json(name, path, tj, info, refresh, local_only):
     if not local_only:
         token = os.environ.get("GITHUB_TOKEN")
         include_prerelease = tj.get("version_check", {}).get("include_prerelease", False)
-        remote_ver = check_remote_version(
-            tj.get("repo", ""), token=token, cache=not refresh,
-            include_prerelease=include_prerelease,
-        )
+        repo = tj.get("repo", "")
+
+        if repo:
+            remote_ver = check_remote_version(
+                repo, token=token, cache=not refresh,
+                include_prerelease=include_prerelease,
+            )
+        elif tj.get("download_url"):
+            # download_url packages: try HEAD request to check if URL is reachable
+            remote_ver = _check_download_url_reachable(tj, local_ver)
 
     return {
         "name": name,
@@ -228,6 +234,38 @@ def _check_with_tribucket_json(name, path, tj, info, refresh, local_only):
         "remote": remote_ver,
         "status": _compute_status(local_ver, remote_ver),
     }
+
+
+def _check_download_url_reachable(tj, local_ver):
+    """For download_url packages: try HEAD request to check if download URL is reachable.
+
+    Returns local_ver (to indicate 'cannot determine remote version')
+    or a version string if URL contains version info.
+    """
+    import urllib.request
+    download_url = tj.get("download_url", {})
+    plat = detect_platform()
+    url = download_url.get(plat, "")
+    if not url:
+        # Try any platform
+        for v in download_url.values():
+            if v and v != "NO_MATCH":
+                url = v
+                break
+    if not url:
+        return None
+
+    try:
+        req = urllib.request.Request(url, method="HEAD")
+        req.add_header("User-Agent", "tribucket/2.0")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            if resp.status < 400:
+                # URL is reachable, but we can't determine version from HEAD
+                # Return local_ver to indicate "download available, same version"
+                return local_ver
+    except Exception:
+        pass
+    return None
 
 
 def _check_path(path):

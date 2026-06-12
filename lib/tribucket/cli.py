@@ -537,6 +537,29 @@ def _cmd_self_update(args):
         with urllib.request.urlopen(req, timeout=30) as resp:
             new_cli = resp.read()
 
+        # SHA256 verification (best-effort)
+        try:
+            from tribucket.utils import find_sha256_from_release, compute_sha256
+            cksum_url = "https://api.github.com/repos/sixiang-world/tribucket/releases/latest"
+            req_ck = urllib.request.Request(cksum_url,
+                headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "tribucket/2.0"})
+            with urllib.request.urlopen(req_ck, timeout=10) as resp_ck:
+                release_data = json.loads(resp_ck.read())
+            expected = find_sha256_from_release(release_data, "tribucket")
+            if expected:
+                import tempfile
+                with tempfile.NamedTemporaryFile(delete=False, suffix="_tribucket") as tmp:
+                    tmp.write(new_cli)
+                    tmp.flush()
+                    actual = compute_sha256(tmp.name)
+                os.unlink(tmp.name)
+                if actual != expected:
+                    print(f"Error: SHA256 mismatch — download may be corrupted", file=sys.stderr)
+                    sys.exit(EXIT_ERROR)
+                log("SHA256 verification OK")
+        except Exception:
+            log("SHA256 verification skipped")
+
         backup_path = script_path + ".bak"
         shutil.copy2(script_path, backup_path)
         with open(script_path, "wb") as f:
