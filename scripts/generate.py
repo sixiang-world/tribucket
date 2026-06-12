@@ -532,27 +532,15 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
 
     return formula, bucket, \
            (latest_version if version_changed else None), \
-           new_download_urls_for_writeback
+            new_download_urls_for_writeback
 
 
-def infer_asset_format(asset_pattern):
-    """Infer archive format from asset filename patterns.
-
-    Returns dict of platform_key -> format string.
-    """
-    formats = {}
-    for platform, pattern in asset_pattern.items():
-        if pattern == "NO_MATCH" or not pattern:
-            continue
-        if pattern.endswith(".tar.gz"):
-            formats[platform] = "tar.gz"
-        elif pattern.endswith(".zip"):
-            formats[platform] = "zip"
-        elif pattern.endswith(".exe"):
-            formats[platform] = "exe"
-        else:
-            formats[platform] = "binary"
-    return formats
+# infer_asset_format imported from tribucket.utils (avoids duplication)
+import sys as _sys
+_lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")
+if _lib_dir not in _sys.path:
+    _sys.path.insert(0, _lib_dir)
+from tribucket.utils import infer_asset_format
 
 
 def infer_install_type(pkg):

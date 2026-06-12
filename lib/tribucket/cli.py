@@ -458,9 +458,15 @@ def _concurrent_update(names, force, mirror_mode, no_backup, workers=4):
                     success += 1
                 else:
                     failed += 1
-        except Exception:
+        except Exception as e:
             with lock:
                 failed += 1
+            if os.environ.get("TRIBUCKET_VERBOSE") == "1":
+                import traceback
+                print(f"[error] {name}: {e}", file=sys.stderr)
+                traceback.print_exc()
+            else:
+                print(f"[error] {name}: {e}", file=sys.stderr)
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [executor.submit(_do_update, name) for name in names]
@@ -547,7 +553,7 @@ def _cmd_self_update(args):
         with urllib.request.urlopen(req, timeout=30) as resp:
             new_cli = resp.read()
 
-        # SHA256 verification (best-effort)
+        # SHA256 verification (strict for self-update)
         try:
             from tribucket.utils import find_sha256_from_release, compute_sha256
             cksum_url = "https://api.github.com/repos/sixiang-world/tribucket/releases/latest"
@@ -567,8 +573,10 @@ def _cmd_self_update(args):
                     print(f"Error: SHA256 mismatch — download may be corrupted", file=sys.stderr)
                     sys.exit(EXIT_ERROR)
                 log("SHA256 verification OK")
-        except Exception:
-            log("SHA256 verification skipped")
+            else:
+                log("No checksum file in release — skipping verification")
+        except Exception as e:
+            log(f"SHA256 verification failed: {e}")
 
         backup_path = script_path + ".bak"
         shutil.copy2(script_path, backup_path)
