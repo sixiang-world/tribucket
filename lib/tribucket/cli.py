@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tribucket import __version__
 from tribucket.utils import (
     EXIT_OK, EXIT_ERROR, EXIT_USAGE, EXIT_NOT_FOUND, EXIT_EXISTS,
-    EXIT_NOT_TRACKED, EXIT_UP_TO_DATE, EXIT_NO_NETWORK,
+    EXIT_NOT_TRACKED, EXIT_UP_TO_DATE, EXIT_NO_NETWORK, log,
 )
 
 
