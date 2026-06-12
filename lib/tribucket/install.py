@@ -87,6 +87,9 @@ def install_package(name, target_dir=None, link=False, force=False, mirror_mode=
             error("network", "Download failed")
             return False
 
+        # SHA256 verification (best-effort)
+        _verify_download(archive_path, repo, version)
+
         # Extract
         extract_dir = os.path.join(tmp_dir, "extracted")
         os.makedirs(extract_dir)
@@ -200,12 +203,15 @@ def _generate_template_files(pkg, target_dir):
 
     # install.sh — use generate.py's render function if available
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        scripts_dir = os.path.join(repo_root, "scripts")
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
         from generate import render_install_sh, render_bat
         install_sh = render_install_sh(pkg, tribucket_json)
         bat_content = render_bat(pkg)
     except ImportError:
-        install_sh = _fallback_install_sh(pkg)
+        install_sh = _fallback_install_sh(pkg, tribucket_json)
         bat_content = _fallback_bat(pkg)
 
     path = os.path.join(target_dir, "install.sh")
@@ -218,6 +224,49 @@ def _generate_template_files(pkg, target_dir):
     path = os.path.join(cmd_dir, "tribucket-update.bat")
     with open(path, "w") as f:
         f.write(bat_content)
+
+
+def _verify_download(archive_path, repo, version):
+    """Verify SHA256 checksum of downloaded archive (best-effort)."""
+    if not repo:
+        return
+    try:
+        token = os.environ.get("GITHUB_TOKEN")
+        data = http_get_json(
+            f"https://api.github.com/repos/{repo}/releases/latest",
+            token=token,
+        )
+        filename = os.path.basename(archive_path)
+        expected = _find_sha256_from_release(data, filename)
+        if expected:
+            actual = compute_sha256(archive_path)
+            if actual != expected:
+                error("integrity", f"SHA256 mismatch for {filename}",
+                      f"Expected: {expected}\n  Got:      {actual}")
+            else:
+                log("SHA256 verification OK")
+    except Exception:
+        log("SHA256 verification skipped (no checksum available)")
+
+
+def _find_sha256_from_release(release_json, target_filename):
+    """Find SHA256 hash for target_filename from release checksum assets."""
+    CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
+    assets = release_json.get("assets", [])
+    for asset in assets:
+        name_lower = asset["name"].lower()
+        if not any(p.lower() in name_lower for p in CHECKSUM_PATTERNS):
+            continue
+        try:
+            body = http_get(asset["browser_download_url"], timeout=15)
+            content = body.decode("utf-8", errors="replace")
+            for line in content.strip().splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 2 and target_filename in parts[-1]:
+                    return parts[0].lower()
+        except Exception:
+            continue
+    return None
 
 
 def _install_files(extract_dir, target_dir, binary_name, install_type):
@@ -274,15 +323,74 @@ def _create_symlink(name, binary_path):
     log(f"Symlink: {link_path} → {binary_path}")
 
 
-def _fallback_install_sh(pkg):
+def _fallback_install_sh(pkg, tribucket_json):
     """Fallback install.sh when generate.py is not available."""
     name = pkg["name"]
     repo = pkg.get("repo", "")
+    binary = tribucket_json.get("binary", name)
+    fallback_version = tribucket_json.get("version", "0.0.0")
+
     return f"""#!/usr/bin/env bash
 set -euo pipefail
 # tribucket auto-generated install.sh — Package: {name}
-echo "tribucket CLI not found. Install tribucket for full features."
-echo "  curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/install.sh | bash"
+# Repo: {repo}
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BINARY="$SCRIPT_DIR/{binary}"
+REPO="{repo}"
+NAME="{name}"
+
+# --- If tribucket CLI is available, delegate ---
+if command -v tribucket &>/dev/null; then
+    case "${{1:-check}}" in
+        check|status)  tribucket check "$NAME" ;;
+        update|upgrade) tribucket update "$NAME" ;;
+        install)       tribucket install "$NAME" --dir "$SCRIPT_DIR" --force ;;
+        *)             echo "Usage: $0 [check|update|install]"; exit 1 ;;
+    esac
+    exit $?
+fi
+
+# --- Standalone fallback ---
+echo "tribucket CLI not found. Running in standalone mode."
+echo "Install tribucket for full features (backup, resume, mirror):"
+echo "  curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash"
+echo ""
+
+detect_version() {{
+    if [ -x "$BINARY" ]; then
+        "$BINARY" --version 2>&1 | grep -oP 'v?\\d+\\.\\d+(?:\\.\\d+)?' | head -1
+    fi
+}}
+
+check_remote() {{
+    curl -sf "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \\
+        | grep -oP '"tag_name":\\s*"\\K[^"]+' | sed 's/^v//' || echo ""
+}}
+
+LOCAL=$(detect_version)
+REMOTE=$(check_remote)
+
+echo "Package: $NAME"
+echo "Local:   ${{LOCAL:-not installed}}"
+echo "Remote:  ${{REMOTE:-unknown}}"
+
+if [ -z "$LOCAL" ]; then
+    echo "Binary not found. Install tribucket for automatic setup."
+    exit 1
+fi
+
+if [ -z "$REMOTE" ]; then
+    echo "Status:  ? unable to check remote"
+    exit 0
+fi
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Status:  ✓ up to date"
+else
+    echo "Status:  ⚠ update available ($LOCAL → $REMOTE)"
+    echo "For backup-safe updates, install tribucket CLI."
+fi
 """
 
 

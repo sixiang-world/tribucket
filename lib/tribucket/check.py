@@ -8,8 +8,9 @@ import threading
 
 from tribucket.config import load_json, versions_cache_path
 from tribucket.utils import (
-    http_get_json, log, find_tribucket_json, save_json_file,
+    http_get_json, log, find_tribucket_json,
 )
+from tribucket.config import save_json
 
 _cache_lock = threading.Lock()
 
@@ -68,7 +69,7 @@ def _run_version_command(binary_path, flag, parse_regex, output_stream, timeout)
     return None
 
 
-def check_remote_version(repo, token=None, cache=True):
+def check_remote_version(repo, token=None, cache=True, include_prerelease=False):
     """Get the latest remote version from GitHub API.
 
     Returns version string or None if unavailable.
@@ -84,11 +85,23 @@ def check_remote_version(repo, token=None, cache=True):
         return None
 
     try:
-        data = http_get_json(
-            f"https://api.github.com/repos/{repo}/releases/latest",
-            token=token,
-        )
-        tag = data.get("tag_name", "")
+        if include_prerelease:
+            # /releases/latest excludes prereleases; use /releases and pick first
+            data = http_get_json(
+                f"https://api.github.com/repos/{repo}/releases",
+                token=token,
+            )
+            if data and isinstance(data, list) and len(data) > 0:
+                tag = data[0].get("tag_name", "")
+            else:
+                return None
+        else:
+            data = http_get_json(
+                f"https://api.github.com/repos/{repo}/releases/latest",
+                token=token,
+            )
+            tag = data.get("tag_name", "")
+
         version = tag.lstrip("v")
         if version and cache:
             _save_remote_version_cache(repo, version)
@@ -200,7 +213,11 @@ def _check_with_tribucket_json(name, path, tj, info, refresh, local_only):
     remote_ver = None
     if not local_only:
         token = os.environ.get("GITHUB_TOKEN")
-        remote_ver = check_remote_version(tj.get("repo", ""), token=token, cache=not refresh)
+        include_prerelease = tj.get("version_check", {}).get("include_prerelease", False)
+        remote_ver = check_remote_version(
+            tj.get("repo", ""), token=token, cache=not refresh,
+            include_prerelease=include_prerelease,
+        )
 
     return {
         "name": name,
@@ -298,4 +315,4 @@ def _save_remote_version_cache(repo, version):
             "checked_at": datetime.now(timezone.utc).isoformat(),
             "ttl_seconds": 3600,
         }
-        save_json_file(versions_cache_path(), cache)
+        save_json(versions_cache_path(), cache)

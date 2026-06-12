@@ -39,11 +39,16 @@ EXIT_NO_NETWORK = 7
 # ── HTTP ────────────────────────────────────────────────────────
 
 def http_get(url, token=None, retries=3, timeout=30):
-    """Fetch a URL with optional GitHub token, retry with exponential backoff."""
+    """Fetch a URL with optional token, retry with exponential backoff.
+
+    Sets GitHub Accept header only for github.com/api.github.com URLs.
+    """
     headers = {
-        "Accept": "application/vnd.github.v3+json",
         "User-Agent": "Mozilla/5.0 (compatible; tribucket/2.0)",
     }
+    # Only set GitHub-specific header for GitHub URLs
+    if "github.com" in url:
+        headers["Accept"] = "application/vnd.github.v3+json"
     if token:
         headers["Authorization"] = f"token {token}"
 
@@ -112,30 +117,47 @@ def detect_platform():
 # ── Archive ─────────────────────────────────────────────────────
 
 def extract_archive(archive_path, dest_dir):
-    """Extract a tar.gz or zip archive to dest_dir."""
+    """Extract an archive to dest_dir with zip-slip protection."""
     import tarfile
     import zipfile
 
-    if archive_path.endswith(".tar.gz") or archive_path.endswith(".tgz"):
+    dest_dir = os.path.realpath(dest_dir)
+
+    if archive_path.endswith((".tar.gz", ".tgz")):
         with tarfile.open(archive_path, "r:gz") as tar:
+            # Zip-slip protection: validate all members
+            for member in tar.getmembers():
+                member_path = os.path.realpath(os.path.join(dest_dir, member.name))
+                if not member_path.startswith(dest_dir + os.sep) and member_path != dest_dir:
+                    raise ValueError(f"Archive contains path traversal: {member.name}")
             tar.extractall(dest_dir)
+
+    elif archive_path.endswith((".tar.bz2", ".tbz2")):
+        with tarfile.open(archive_path, "r:bz2") as tar:
+            for member in tar.getmembers():
+                member_path = os.path.realpath(os.path.join(dest_dir, member.name))
+                if not member_path.startswith(dest_dir + os.sep) and member_path != dest_dir:
+                    raise ValueError(f"Archive contains path traversal: {member.name}")
+            tar.extractall(dest_dir)
+
+    elif archive_path.endswith((".tar.xz", ".txz")):
+        with tarfile.open(archive_path, "r:xz") as tar:
+            for member in tar.getmembers():
+                member_path = os.path.realpath(os.path.join(dest_dir, member.name))
+                if not member_path.startswith(dest_dir + os.sep) and member_path != dest_dir:
+                    raise ValueError(f"Archive contains path traversal: {member.name}")
+            tar.extractall(dest_dir)
+
     elif archive_path.endswith(".zip"):
         with zipfile.ZipFile(archive_path, "r") as zf:
+            for info in zf.infolist():
+                member_path = os.path.realpath(os.path.join(dest_dir, info.filename))
+                if not member_path.startswith(dest_dir + os.sep) and member_path != dest_dir:
+                    raise ValueError(f"Archive contains path traversal: {info.filename}")
             zf.extractall(dest_dir)
+
     else:
         raise ValueError(f"Unsupported archive format: {archive_path}")
-
-
-# ── JSON ────────────────────────────────────────────────────────
-
-def save_json_file(path, data):
-    """Save JSON file atomically."""
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, path)
 
 
 # ── tribucket.json ──────────────────────────────────────────────
@@ -161,7 +183,6 @@ def download_file(url, dest_dir):
 
     log(f"Downloading {filename}...")
 
-    # Check for partial download (resume support)
     existing_size = 0
     if os.path.exists(dest_path):
         existing_size = os.path.getsize(dest_path)
@@ -174,16 +195,13 @@ def download_file(url, dest_dir):
             req.add_header("Range", f"bytes={existing_size}-")
 
         with urllib.request.urlopen(req, timeout=120) as resp:
-            # Check if server supports range requests
             code = resp.getcode()
             if code == 206:
-                # Partial content — resume
                 mode = "ab"
                 downloaded = existing_size
                 total = int(resp.headers.get("Content-Length", 0)) + existing_size
                 log(f"Resuming from {existing_size} bytes")
             elif code == 200 and existing_size > 0:
-                # Server doesn't support range — restart
                 mode = "wb"
                 downloaded = 0
                 total = int(resp.headers.get("Content-Length", 0))
@@ -231,6 +249,10 @@ def infer_asset_format(asset_pattern):
             continue
         if pattern.endswith(".tar.gz"):
             formats[platform] = "tar.gz"
+        elif pattern.endswith(".tar.bz2"):
+            formats[platform] = "tar.bz2"
+        elif pattern.endswith(".tar.xz"):
+            formats[platform] = "tar.xz"
         elif pattern.endswith(".zip"):
             formats[platform] = "zip"
         elif pattern.endswith(".exe"):

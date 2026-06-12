@@ -56,10 +56,6 @@ def list_packages():
     """List all tracked packages. Returns list of (name, info) tuples."""
     config = load_config()
     packages = config.get("packages", {})
-    if not packages:
-        print("No packages tracked.")
-        return []
-
     result = []
     for repo_key, info in packages.items():
         result.append((info.get("name", repo_key), info))

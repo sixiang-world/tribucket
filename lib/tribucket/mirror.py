@@ -52,6 +52,20 @@ def select_provider(mirror_mode="auto"):
     if mirror_mode == "direct":
         return "direct", None
 
+    # cn mode: force mirror, skip direct test
+    if mirror_mode == "cn":
+        user_config = load_json(mirror_config_path(), {})
+        providers = user_config.get("providers", DEFAULT_PROVIDERS)
+        # Pick first available provider
+        for p in providers:
+            ok, _ = test_provider(p)
+            if ok:
+                return p["name"], p.get("template")
+        # Fallback to first provider even if not tested
+        if providers:
+            return providers[0]["name"], providers[0].get("template")
+        return "direct", None
+
     # Load user config
     user_config = load_json(mirror_config_path(), {})
     force = user_config.get("force")

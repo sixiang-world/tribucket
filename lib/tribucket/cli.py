@@ -133,6 +133,10 @@ def _build_parser():
     p = sub.add_parser("self-update", help="Update tribucket CLI itself")
     p.set_defaults(func=_cmd_self_update)
 
+    # clean
+    p = sub.add_parser("clean", help="Remove stale entries and dangling symlinks")
+    p.set_defaults(func=_cmd_clean)
+
     # config
     p = sub.add_parser("config", help="Manage configuration")
     config_sub = p.add_subparsers(dest="config_command")
@@ -494,6 +498,7 @@ def _cmd_info(args):
 def _cmd_self_update(args):
     _init_color(args)
     import urllib.request
+    import shutil
 
     print("Checking for updates...")
 
@@ -516,29 +521,82 @@ def _cmd_self_update(args):
 
     print(f"Current: {__version__}  Latest: {latest}")
 
-    # Download new version
+    # Determine install location
     script_path = os.path.abspath(sys.argv[0])
+    lib_dir = os.path.join(os.path.dirname(script_path), "..", "lib", "tribucket")
+    if not os.path.isdir(lib_dir):
+        # Try relative to script
+        lib_dir = os.path.join(os.path.dirname(script_path), "lib", "tribucket")
+
+    base_url = "https://raw.githubusercontent.com/sixiang-world/tribucket/main"
+
     try:
-        url = "https://raw.githubusercontent.com/sixiang-world/tribucket/main/bin/tribucket"
+        # 1. Download and update bin/tribucket
+        url = f"{base_url}/bin/tribucket"
         req = urllib.request.Request(url, headers={"User-Agent": "tribucket/2.0"})
         with urllib.request.urlopen(req, timeout=30) as resp:
-            new_content = resp.read()
+            new_cli = resp.read()
 
-        # Backup current
         backup_path = script_path + ".bak"
-        import shutil
         shutil.copy2(script_path, backup_path)
-
-        # Write new version
         with open(script_path, "wb") as f:
-            f.write(new_content)
+            f.write(new_cli)
+        print(f"Updated: {script_path}")
+
+        # 2. Download and update lib/tribucket/*.py
+        LIB_MODULES = [
+            "__init__.py", "cli.py", "config.py", "utils.py",
+            "check.py", "update.py", "mirror.py", "track.py", "install.py",
+        ]
+        if os.path.isdir(lib_dir):
+            updated_lib = 0
+            for module in LIB_MODULES:
+                module_url = f"{base_url}/lib/tribucket/{module}"
+                module_path = os.path.join(lib_dir, module)
+                try:
+                    req = urllib.request.Request(module_url, headers={"User-Agent": "tribucket/2.0"})
+                    with urllib.request.urlopen(req, timeout=15) as resp:
+                        content = resp.read()
+                    with open(module_path, "wb") as f:
+                        f.write(content)
+                    updated_lib += 1
+                except Exception:
+                    pass
+            if updated_lib:
+                print(f"Updated: {updated_lib} engine modules in {lib_dir}")
 
         print(f"Updated: {__version__} -> {latest}")
-        print(f"Backup saved to: {backup_path}")
 
     except Exception as e:
         print(f"Error: Update failed: {e}", file=sys.stderr)
         sys.exit(EXIT_ERROR)
+
+
+def _cmd_clean(args):
+    _init_color(args)
+    from tribucket.track import remove_stale_entries, find_dangling_symlinks
+    from tribucket.config import bin_dir
+    import os
+
+    # Remove stale entries
+    removed = remove_stale_entries()
+    if removed:
+        print(f"Removed {len(removed)} stale entry(ies):")
+        for name in removed:
+            print(f"  {_sym('ok')} {name}")
+    else:
+        print("No stale entries found.")
+
+    # Remove dangling symlinks
+    bd = bin_dir()
+    dangling = find_dangling_symlinks()
+    if dangling:
+        print(f"\nRemoving {len(dangling)} dangling symlink(s):")
+        for name, path, target in dangling:
+            os.unlink(path)
+            print(f"  {_sym('ok')} {path} -> {target}")
+    elif not removed:
+        print("Nothing to clean.")
 
 
 def _cmd_config(args):

@@ -235,16 +235,17 @@ class TestUtilsShared:
         assert result is None
 
     def test_save_json_file(self, tmp_path):
+        from tribucket.config import save_json
         path = str(tmp_path / "out.json")
-        utils.save_json_file(path, {"a": 1, "b": [2, 3]})
+        save_json(path, {"a": 1, "b": [2, 3]})
         with open(path) as f:
             data = json.load(f)
         assert data == {"a": 1, "b": [2, 3]}
 
     def test_save_json_file_atomic(self, tmp_path):
+        from tribucket.config import save_json
         path = str(tmp_path / "out.json")
-        utils.save_json_file(path, {"x": 1})
-        # No .tmp file should remain
+        save_json(path, {"x": 1})
         assert not os.path.exists(path + ".tmp")
 
     def test_infer_asset_format(self):

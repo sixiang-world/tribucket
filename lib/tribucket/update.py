@@ -1,10 +1,11 @@
 """Download, verify, and replace engine."""
-import fcntl
 import json
 import os
 import shutil
 import sys
 import tempfile
+
+import fcntl  # Unix only; graceful fallback on Windows
 
 from tribucket.config import backup_dir, lock_dir
 from tribucket.utils import (
@@ -287,7 +288,7 @@ def _replace_files(target_dir, source_files, install_type, binary):
 
 
 class _lock_package:
-    """Context manager for package-level file locking."""
+    """Context manager for package-level file locking (cross-platform)."""
     def __init__(self, name):
         self.name = name
         self.lock_path = os.path.join(lock_dir(), f"{name}.lock")
@@ -297,11 +298,16 @@ class _lock_package:
         os.makedirs(os.path.dirname(self.lock_path), exist_ok=True)
         self.fd = open(self.lock_path, "w")
         try:
-            fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if sys.platform == "win32":
+                # Windows: use msvcrt for file locking
+                import msvcrt
+                msvcrt.locking(self.fd.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.fd.write(str(os.getpid()))
             self.fd.flush()
             return self
-        except BlockingIOError:
+        except (BlockingIOError, OSError):
             self.fd.close()
             self.fd = None
             error("locked", f"Another update for '{self.name}' is in progress.")
@@ -309,5 +315,12 @@ class _lock_package:
 
     def __exit__(self, *args):
         if self.fd:
-            fcntl.flock(self.fd, fcntl.LOCK_UN)
+            try:
+                if sys.platform == "win32":
+                    import msvcrt
+                    msvcrt.locking(self.fd.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(self.fd, fcntl.LOCK_UN)
+            except OSError:
+                pass
             self.fd.close()

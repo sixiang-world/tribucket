@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+import threading
 
 
 def tribucket_home():
@@ -41,6 +42,9 @@ def mirror_config_path():
     return os.path.join(tribucket_home(), "mirror.json")
 
 
+_config_lock = threading.Lock()
+
+
 def load_config():
     """Load config.json, creating defaults if missing."""
     path = config_path()
@@ -60,14 +64,26 @@ def load_config():
 
 
 def save_config(config):
-    """Write config.json atomically."""
-    path = config_path()
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(config, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, path)
+    """Write config.json atomically (thread-safe)."""
+    with _config_lock:
+        path = config_path()
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp, path)
+
+
+def save_json(path, data):
+    """Write JSON file atomically (thread-safe)."""
+    with _config_lock:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp, path)
 
 
 def load_json(path, default=None):
@@ -79,13 +95,3 @@ def load_json(path, default=None):
             return json.load(f)
     except (json.JSONDecodeError, OSError):
         return default if default is not None else {}
-
-
-def save_json(path, data):
-    """Write JSON file atomically."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, path)
