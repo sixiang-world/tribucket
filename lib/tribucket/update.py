@@ -22,14 +22,22 @@ def _handle_sigint(signum, frame):
           file=sys.stderr)
     sys.exit(130)
 
-signal.signal(signal.SIGINT, _handle_sigint)
-
 
 def update_package(name, force=False, mirror_mode="auto", no_backup=False):
     """Update a tracked package to the latest version.
 
     Returns True on success, False on failure.
     """
+    # Temporarily install SIGINT handler for resume-friendly interrupt
+    old_handler = signal.signal(signal.SIGINT, _handle_sigint)
+    try:
+        return _update_package_inner(name, force, mirror_mode, no_backup)
+    finally:
+        signal.signal(signal.SIGINT, old_handler)
+
+
+def _update_package_inner(name, force, mirror_mode, no_backup):
+    """Inner update logic (separated for clean signal handler restore)."""
     from tribucket.track import get_all_packages, update_package_version
 
     packages = get_all_packages()
