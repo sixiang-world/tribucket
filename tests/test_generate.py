@@ -455,7 +455,7 @@ class TestCheckverIntegration:
         """Full pipeline: download_url package with checkver detects new version."""
         fake_checkver_response = json.dumps({"version": "2.0.0"})
 
-        def mock_http_get(url, token=None, retries=3):
+        def mock_http_get(url, token=None, retries=3, timeout=None):
             if "api.example.com" in url:
                 return fake_checkver_response.encode()
             # For SHA256 download, return a small binary
@@ -497,7 +497,7 @@ class TestCheckverIntegration:
 
     def test_download_url_package_zero_config(self, tmp_path, monkeypatch):
         """Zero-config: extracts version from URL, uses in-place replace."""
-        def mock_http_get(url, token=None, retries=3):
+        def mock_http_get(url, token=None, retries=3, timeout=None):
             return b"fake-binary-content"
 
         monkeypatch.setattr(generate, "http_get", mock_http_get)

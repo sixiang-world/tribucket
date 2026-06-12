@@ -1,4 +1,4 @@
-"""Shared utilities: HTTP, SHA256, platform detection, verbose logging."""
+"""Shared utilities: HTTP, SHA256, platform detection, verbose logging, common helpers."""
 import hashlib
 import json
 import os
@@ -24,8 +24,22 @@ def error(category, message, suggestion=None):
         print(f"  → {suggestion}", file=sys.stderr)
 
 
+# ── Exit codes ──────────────────────────────────────────────────
+
+EXIT_OK = 0
+EXIT_ERROR = 1
+EXIT_USAGE = 2
+EXIT_NOT_FOUND = 3
+EXIT_EXISTS = 4
+EXIT_NOT_TRACKED = 5
+EXIT_UP_TO_DATE = 6
+EXIT_NO_NETWORK = 7
+
+
+# ── HTTP ────────────────────────────────────────────────────────
+
 def http_get(url, token=None, retries=3, timeout=30):
-    """Fetch a URL with optional GitHub token and retry logic."""
+    """Fetch a URL with optional GitHub token, retry with exponential backoff."""
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "Mozilla/5.0 (compatible; tribucket/2.0)",
@@ -44,12 +58,14 @@ def http_get(url, token=None, retries=3, timeout=30):
             if e.code == 403:
                 raise
             if e.code >= 500 and attempt < retries - 1:
+                log(f"HTTP {e.code}, retrying ({attempt + 1}/{retries})...")
                 time.sleep(2 ** attempt)
                 continue
             raise
         except urllib.error.URLError as e:
             last_err = e
             if attempt < retries - 1:
+                log(f"Network error, retrying ({attempt + 1}/{retries})...")
                 time.sleep(2 ** attempt)
                 continue
             raise
@@ -62,6 +78,8 @@ def http_get_json(url, token=None, retries=3, timeout=30):
     return json.loads(body)
 
 
+# ── SHA256 ──────────────────────────────────────────────────────
+
 def compute_sha256(filepath):
     """Compute SHA256 hex digest of a file."""
     h = hashlib.sha256()
@@ -70,6 +88,8 @@ def compute_sha256(filepath):
             h.update(chunk)
     return h.hexdigest()
 
+
+# ── Platform ────────────────────────────────────────────────────
 
 def detect_platform():
     """Detect current platform as linux_amd64, darwin_arm64, etc."""
@@ -89,6 +109,8 @@ def detect_platform():
     return f"{os_key}_{arch_key}"
 
 
+# ── Archive ─────────────────────────────────────────────────────
+
 def extract_archive(archive_path, dest_dir):
     """Extract a tar.gz or zip archive to dest_dir."""
     import tarfile
@@ -104,10 +126,101 @@ def extract_archive(archive_path, dest_dir):
         raise ValueError(f"Unsupported archive format: {archive_path}")
 
 
+# ── JSON ────────────────────────────────────────────────────────
+
+def save_json_file(path, data):
+    """Save JSON file atomically."""
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    os.replace(tmp, path)
+
+
+# ── tribucket.json ──────────────────────────────────────────────
+
+def find_tribucket_json(path):
+    """Find and load tribucket.json in a directory."""
+    tj_path = os.path.join(path, "tribucket.json")
+    if os.path.isfile(tj_path):
+        try:
+            with open(tj_path, encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return None
+
+
+# ── Download ────────────────────────────────────────────────────
+
+def download_file(url, dest_dir):
+    """Download a file to dest_dir with progress. Returns file path or None."""
+    filename = url.split("/")[-1].split("?")[0]
+    dest_path = os.path.join(dest_dir, filename)
+
+    log(f"Downloading {filename}...")
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (compatible; tribucket/2.0)",
+        })
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            total = int(resp.headers.get("Content-Length", 0))
+            downloaded = 0
+            chunk_size = 8192
+
+            with open(dest_path, "wb") as f:
+                while True:
+                    chunk = resp.read(chunk_size)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    downloaded += len(chunk)
+
+                    if total > 0 and sys.stdout.isatty():
+                        pct = downloaded * 100 // total
+                        mb = downloaded / (1024 * 1024)
+                        total_mb = total / (1024 * 1024)
+                        sys.stdout.write(f"\r  {pct:3d}% ({mb:.1f}/{total_mb:.1f} MB)")
+                        sys.stdout.flush()
+
+            if total > 0 and sys.stdout.isatty():
+                sys.stdout.write("\r" + " " * 50 + "\r")
+                sys.stdout.flush()
+
+        size_mb = os.path.getsize(dest_path) / (1024 * 1024)
+        log(f"Download complete: {size_mb:.1f} MB")
+        return dest_path
+    except Exception as e:
+        log(f"Download failed: {e}")
+        return None
+
+
+# ── Asset format inference ──────────────────────────────────────
+
+def infer_asset_format(asset_pattern):
+    """Infer archive format from asset filename patterns."""
+    formats = {}
+    for platform, pattern in asset_pattern.items():
+        if pattern == "NO_MATCH" or not pattern:
+            continue
+        if pattern.endswith(".tar.gz"):
+            formats[platform] = "tar.gz"
+        elif pattern.endswith(".zip"):
+            formats[platform] = "zip"
+        elif pattern.endswith(".exe"):
+            formats[platform] = "exe"
+        else:
+            formats[platform] = "binary"
+    return formats
+
+
+# ── Cleanup ─────────────────────────────────────────────────────
+
 def cleanup_old_tmp():
     """Remove temp dirs older than 24 hours."""
-    import tempfile
     import shutil
+    import tempfile
 
     tmp_base = tempfile.gettempdir()
     now = time.time()

@@ -5,8 +5,10 @@ import re
 import subprocess
 import sys
 
-from tribucket.config import load_json, versions_cache_path, load_config, cache_dir
-from tribucket.utils import http_get_json, log
+from tribucket.config import load_json, versions_cache_path
+from tribucket.utils import (
+    http_get_json, log, find_tribucket_json, save_json_file,
+)
 
 
 def detect_version(binary_path, tribucket_json, config_info=None):
@@ -111,7 +113,7 @@ def format_check_result(name, local_ver, local_source, remote_ver, path_exists=T
 
 def check_package(name_or_path, refresh=False, local_only=False):
     """Check a single package. Returns dict with check results."""
-    from tribucket.track import get_package, get_all_packages
+    from tribucket.track import get_all_packages
 
     # If it's a path
     if os.path.sep in name_or_path or name_or_path.startswith("."):
@@ -148,7 +150,7 @@ def _check_tracked(name, info, refresh=False, local_only=False):
         }
 
     # Find tribucket.json
-    tj = _find_tribucket_json(path)
+    tj = find_tribucket_json(path)
     if not tj:
         # Try to detect version directly from binary
         binary = info.get("name", name)
@@ -159,7 +161,7 @@ def _check_tracked(name, info, refresh=False, local_only=False):
         local_ver, source = _detect_simple(binary_path)
         remote_ver = None
         if not local_only:
-            repo = info.get("repo") or _repo_from_config_key(info)
+            repo = info.get("repo", "")
             if repo:
                 token = os.environ.get("GITHUB_TOKEN")
                 remote_ver = check_remote_version(repo, token=token, cache=not refresh)
@@ -183,7 +185,6 @@ def _check_with_tribucket_json(name, path, tj, info, refresh, local_only):
     install_type = tj.get("install_type", "binary")
 
     if install_type == "directory":
-        # Find binary recursively
         binary_path = _find_binary_in_dir(path, binary_name)
     else:
         binary_path = os.path.join(path, binary_name)
@@ -214,8 +215,6 @@ def _check_path(path):
     if not os.path.exists(path):
         return {"name": os.path.basename(path), "path": path, "error": "Path not found"}
 
-    # Try to run --version
-    from tribucket.utils import detect_platform
     tj = {
         "version_check": {
             "cli_flags": ["--version", "-v", "-V"],
@@ -249,38 +248,14 @@ def _detect_simple(binary_path):
     return detect_version(binary_path, tj)
 
 
-def _find_tribucket_json(path):
-    """Find tribucket.json in a directory."""
-    candidates = [
-        os.path.join(path, "tribucket.json"),
-    ]
-    for c in candidates:
-        if os.path.isfile(c):
-            try:
-                with open(c, encoding="utf-8") as f:
-                    return json.load(f)
-            except (json.JSONDecodeError, OSError):
-                continue
-    return None
-
-
 def _find_binary_in_dir(path, binary_pattern):
     """Find a binary file in a directory tree."""
     import glob
-    # Try direct path first
     direct = os.path.join(path, binary_pattern)
     if os.path.exists(direct):
         return direct
-
-    # Try glob
     matches = glob.glob(os.path.join(path, "**", binary_pattern), recursive=True)
     return matches[0] if matches else None
-
-
-def _repo_from_config_key(info):
-    """Extract repo from config key (owner/repo format)."""
-    # info might have a repo field or the key might be owner/repo
-    return info.get("repo", "")
 
 
 def _compute_status(local_ver, remote_ver):
@@ -319,16 +294,4 @@ def _save_remote_version_cache(repo, version):
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "ttl_seconds": 3600,
     }
-    os.makedirs(os.path.dirname(versions_cache_path()), exist_ok=True)
-    from tribucket.utils import save_json_file
     save_json_file(versions_cache_path(), cache)
-
-
-def save_json_file(path, data):
-    """Save JSON file atomically."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, path)

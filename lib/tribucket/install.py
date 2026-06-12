@@ -7,8 +7,9 @@ import sys
 import tempfile
 
 from tribucket.utils import (
-    compute_sha256, detect_platform, extract_archive,
-    http_get, http_get_json, log, error,
+    compute_sha256, detect_platform, extract_archive, download_file,
+    http_get, http_get_json, log, error, infer_asset_format,
+    find_tribucket_json,
 )
 from tribucket.mirror import resolve_download_url
 from tribucket.track import track, get_all_packages
@@ -81,7 +82,7 @@ def install_package(name, target_dir=None, link=False, force=False, mirror_mode=
     # Download
     tmp_dir = tempfile.mkdtemp(prefix="tribucket-install-")
     try:
-        archive_path = _download_file(url, tmp_dir)
+        archive_path = download_file(url, tmp_dir)
         if not archive_path:
             error("network", "Download failed")
             return False
@@ -187,7 +188,7 @@ def _generate_template_files(pkg, target_dir):
             "fallback_version": version,
         },
         "asset_pattern": pkg.get("asset_pattern", {}),
-        "asset_format": _infer_asset_format(pkg.get("asset_pattern", {})),
+        "asset_format": infer_asset_format(pkg.get("asset_pattern", {})),
         "install_type": pkg.get("install_type", "binary"),
         "mirror": {"enabled": True},
     }
@@ -217,41 +218,6 @@ def _generate_template_files(pkg, target_dir):
     path = os.path.join(cmd_dir, "tribucket-update.bat")
     with open(path, "w") as f:
         f.write(bat_content)
-
-
-def _infer_asset_format(asset_pattern):
-    """Infer archive format from asset filename patterns."""
-    formats = {}
-    for platform, pattern in asset_pattern.items():
-        if pattern == "NO_MATCH" or not pattern:
-            continue
-        if pattern.endswith(".tar.gz"):
-            formats[platform] = "tar.gz"
-        elif pattern.endswith(".zip"):
-            formats[platform] = "zip"
-        elif pattern.endswith(".exe"):
-            formats[platform] = "exe"
-        else:
-            formats[platform] = "binary"
-    return formats
-
-
-def _download_file(url, dest_dir):
-    """Download a file. Returns file path."""
-    filename = url.split("/")[-1].split("?")[0]
-    dest_path = os.path.join(dest_dir, filename)
-
-    log(f"Downloading {filename}...")
-    try:
-        body = http_get(url, timeout=120)
-        with open(dest_path, "wb") as f:
-            f.write(body)
-        size_mb = len(body) / (1024 * 1024)
-        log(f"Download complete: {size_mb:.1f} MB")
-        return dest_path
-    except Exception as e:
-        log(f"Download failed: {e}")
-        return None
 
 
 def _install_files(extract_dir, target_dir, binary_name, install_type):

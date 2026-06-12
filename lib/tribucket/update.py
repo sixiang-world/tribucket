@@ -5,12 +5,11 @@ import os
 import shutil
 import sys
 import tempfile
-import time
 
 from tribucket.config import backup_dir, lock_dir
 from tribucket.utils import (
-    compute_sha256, detect_platform, extract_archive, http_get,
-    log, error, cleanup_old_tmp,
+    compute_sha256, detect_platform, extract_archive, download_file,
+    find_tribucket_json, log, error,
 )
 from tribucket.mirror import resolve_download_url
 from tribucket.check import check_remote_version
@@ -36,7 +35,7 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
         return False
 
     # Find tribucket.json
-    tj = _find_tribucket_json(path)
+    tj = find_tribucket_json(path)
     if not tj:
         error("config", f"tribucket.json not found in {path}")
         return False
@@ -67,16 +66,16 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
         return True
 
     # Determine platform
-    platform = detect_platform()
-    if not platform:
+    plat = detect_platform()
+    if not plat:
         error("platform", "Unsupported platform")
         return False
 
     # Find asset pattern
     asset_pattern = tj.get("asset_pattern", {})
-    pattern = asset_pattern.get(platform)
+    pattern = asset_pattern.get(plat)
     if not pattern or pattern == "NO_MATCH":
-        error("platform", f"No asset available for {platform}")
+        error("platform", f"No asset available for {plat}")
         return False
 
     # Resolve download URL
@@ -88,20 +87,15 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
         # Download to temp dir
         tmp_dir = tempfile.mkdtemp(prefix="tribucket-")
         try:
-            archive_path = _download_file(url, tmp_dir)
+            archive_path = download_file(url, tmp_dir)
             if not archive_path:
                 error("network", "Download failed")
                 return False
 
-            # Verify SHA256 if available
-            expected_sha = _find_expected_sha256(tj, platform)
-            if expected_sha:
-                actual_sha = compute_sha256(archive_path)
-                if actual_sha != expected_sha:
-                    error("integrity", f"SHA256 mismatch for {os.path.basename(archive_path)}",
-                          f"Expected: {expected_sha}\n  Got:      {actual_sha}")
-                    return False
-                log("SHA256 verification OK")
+            # Verify SHA256 if checksum file available
+            sha_ok = _verify_sha256(archive_path, repo, remote_ver, tj, plat)
+            if sha_ok is False:
+                return False
 
             # Extract to temp dir
             extract_dir = os.path.join(tmp_dir, "extracted")
@@ -130,7 +124,6 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
             )
 
             if new_ver == local_ver and not force:
-                # Version didn't change but files were updated (e.g., force update)
                 new_ver = remote_ver
 
             # Update config
@@ -145,8 +138,8 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
             print(f"{name}: {local_ver} → {remote_ver} ✓")
             return True
 
-        except Exception as e:
-            error("update", f"Update failed: {e}")
+        except Exception as exc:
+            error("update", f"Update failed: {exc}")
             # Try to restore from backup
             if not no_backup:
                 backup_path = os.path.join(backup_dir(), name, local_ver)
@@ -155,42 +148,65 @@ def update_package(name, force=False, mirror_mode="auto", no_backup=False):
                     try:
                         _restore_from_backup(path, backup_path)
                         log("Restore successful")
-                    except Exception as re:
-                        error("restore", f"Restore also failed: {re}")
+                    except Exception as restore_err:
+                        error("restore", f"Restore also failed: {restore_err}")
             return False
 
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def _download_file(url, dest_dir):
-    """Download a file to dest_dir. Returns the downloaded file path."""
-    filename = url.split("/")[-1].split("?")[0]
-    dest_path = os.path.join(dest_dir, filename)
-
-    log(f"Downloading {filename}...")
+def _verify_sha256(archive_path, repo, version, tj, platform):
+    """Verify SHA256 checksum. Returns True if OK, False if mismatch, None if no checksum."""
+    # Try to find expected SHA256 from checksum file in release
     try:
-        body = http_get(url, timeout=120)
-        with open(dest_path, "wb") as f:
-            f.write(body)
-        size_mb = len(body) / (1024 * 1024)
-        log(f"Download complete: {size_mb:.1f} MB")
-        return dest_path
-    except Exception as e:
-        log(f"Download failed: {e}")
-        return None
+        token = os.environ.get("GITHUB_TOKEN")
+        from tribucket.utils import http_get_json
+        data = http_get_json(
+            f"https://api.github.com/repos/{repo}/releases/latest",
+            token=token,
+        )
+        filename = os.path.basename(archive_path)
+        expected = _find_sha256_from_release(data, filename)
+        if expected:
+            actual = compute_sha256(archive_path)
+            if actual != expected:
+                error("integrity", f"SHA256 mismatch for {filename}",
+                      f"Expected: {expected}\n  Got:      {actual}")
+                return False
+            log("SHA256 verification OK")
+            return True
+    except Exception:
+        pass
+    return None
 
 
-def _find_expected_sha256(tj, platform):
-    """Find expected SHA256 from tribucket.json or checksum file."""
-    # For now, return None (checksum verification optional)
+def _find_sha256_from_release(release_json, target_filename):
+    """Find SHA256 hash for target_filename from release checksum assets."""
+    CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
+
+    assets = release_json.get("assets", [])
+    for asset in assets:
+        name_lower = asset["name"].lower()
+        if not any(p.lower() in name_lower for p in CHECKSUM_PATTERNS):
+            continue
+
+        try:
+            from tribucket.utils import http_get
+            body = http_get(asset["browser_download_url"], timeout=15)
+            content = body.decode("utf-8", errors="replace")
+            for line in content.strip().splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 2 and target_filename in parts[-1]:
+                    return parts[0].lower()
+        except Exception:
+            continue
     return None
 
 
 def _find_installable_files(extract_dir, binary, install_type):
     """Find files to install from extracted archive."""
     if install_type == "directory":
-        # For directory installs, return the extracted directory itself
         entries = os.listdir(extract_dir)
         if len(entries) == 1:
             single = os.path.join(extract_dir, entries[0])
@@ -198,25 +214,20 @@ def _find_installable_files(extract_dir, binary, install_type):
                 return [single]
         return [extract_dir]
     else:
-        # For binary installs, find the specific binary
         import glob
-        # Try exact name first
         direct = os.path.join(extract_dir, binary)
         if os.path.exists(direct):
             return [direct]
 
-        # Try glob
         matches = glob.glob(os.path.join(extract_dir, "**", binary), recursive=True)
         if matches:
             return matches
 
-        # Try with common variations
-        for ext in ("", ".exe", ".exe"):
+        for ext in ("", ".exe"):
             matches = glob.glob(os.path.join(extract_dir, f"**/*{binary}{ext}"), recursive=True)
             if matches:
                 return matches
 
-        # Last resort: all files in the top level
         files = [os.path.join(extract_dir, f) for f in os.listdir(extract_dir)
                  if os.path.isfile(os.path.join(extract_dir, f))]
         return files[:1] if files else []
@@ -239,16 +250,13 @@ def _restore_from_backup(path, backup_path):
 def _replace_files(target_dir, source_files, install_type, binary):
     """Replace files in target_dir with source_files."""
     if install_type == "directory":
-        # Replace entire directory contents
         if os.path.exists(target_dir):
-            # Keep tribucket.json, install.sh, cmd/
             keep = set()
             for name in ("tribucket.json", "install.sh", "cmd"):
                 p = os.path.join(target_dir, name)
                 if os.path.exists(p):
                     keep.add(p)
 
-            # Remove everything except kept files
             for entry in os.listdir(target_dir):
                 entry_path = os.path.join(target_dir, entry)
                 if entry_path not in keep:
@@ -257,7 +265,6 @@ def _replace_files(target_dir, source_files, install_type, binary):
                     else:
                         os.unlink(entry_path)
 
-        # Copy new files
         for src in source_files:
             if os.path.isdir(src):
                 for entry in os.listdir(src):
@@ -272,7 +279,6 @@ def _replace_files(target_dir, source_files, install_type, binary):
             else:
                 shutil.copy2(src, target_dir)
     else:
-        # Single binary replacement
         for src in source_files:
             dest = os.path.join(target_dir, os.path.basename(src))
             shutil.copy2(src, dest)
@@ -305,15 +311,3 @@ class _lock_package:
         if self.fd:
             fcntl.flock(self.fd, fcntl.LOCK_UN)
             self.fd.close()
-
-
-def _find_tribucket_json(path):
-    """Find tribucket.json in a directory."""
-    tj_path = os.path.join(path, "tribucket.json")
-    if os.path.isfile(tj_path):
-        try:
-            with open(tj_path, encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return None

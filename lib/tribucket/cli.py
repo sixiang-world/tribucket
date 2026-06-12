@@ -9,6 +9,12 @@ from tribucket import __version__
 
 
 def main(argv=None):
+    # Python version check
+    if sys.version_info < (3, 8):
+        print(f"Error: tribucket requires Python 3.8 or later (found {sys.version_info.major}.{sys.version_info.minor})",
+              file=sys.stderr)
+        sys.exit(1)
+
     if argv is None:
         argv = sys.argv[1:]
 
@@ -194,6 +200,14 @@ def _cmd_list(args):
             result[name] = info
         print(json.dumps({"packages": result}, indent=2, ensure_ascii=False))
         return
+
+    # Sort
+    if args.sort == "status":
+        # Packages with stale entries first, then by name
+        packages.sort(key=lambda x: (os.path.exists(x[1].get("path", "")), x[0]))
+        packages.reverse()  # stale first
+    else:
+        packages.sort(key=lambda x: x[0])
 
     # Header
     print(f"{'Name':20s}  {'Version':12s}  {'Path':40s}  {'Status'}")

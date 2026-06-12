@@ -213,3 +213,148 @@ class TestCheck:
     def test_format_check_result_offline(self):
         result = check.format_check_result("tool", "1.0", "cli", None)
         assert "offline" in result
+
+
+class TestUtilsShared:
+    """Tests for shared utility functions consolidated in utils.py."""
+
+    def test_find_tribucket_json(self, tmp_path):
+        tj = {"name": "test", "version": "1.0.0"}
+        with open(tmp_path / "tribucket.json", "w") as f:
+            json.dump(tj, f)
+        result = utils.find_tribucket_json(str(tmp_path))
+        assert result["name"] == "test"
+
+    def test_find_tribucket_json_missing(self, tmp_path):
+        result = utils.find_tribucket_json(str(tmp_path))
+        assert result is None
+
+    def test_find_tribucket_json_corrupt(self, tmp_path):
+        (tmp_path / "tribucket.json").write_text("not json")
+        result = utils.find_tribucket_json(str(tmp_path))
+        assert result is None
+
+    def test_save_json_file(self, tmp_path):
+        path = str(tmp_path / "out.json")
+        utils.save_json_file(path, {"a": 1, "b": [2, 3]})
+        with open(path) as f:
+            data = json.load(f)
+        assert data == {"a": 1, "b": [2, 3]}
+
+    def test_save_json_file_atomic(self, tmp_path):
+        path = str(tmp_path / "out.json")
+        utils.save_json_file(path, {"x": 1})
+        # No .tmp file should remain
+        assert not os.path.exists(path + ".tmp")
+
+    def test_infer_asset_format(self):
+        pat = {
+            "linux_amd64": "foo_1.0_linux_amd64.tar.gz",
+            "windows_amd64": "foo_1.0_windows_amd64.zip",
+            "darwin_arm64": "NO_MATCH",
+        }
+        result = utils.infer_asset_format(pat)
+        assert result["linux_amd64"] == "tar.gz"
+        assert result["windows_amd64"] == "zip"
+        assert "darwin_arm64" not in result
+
+    def test_download_file(self, tmp_path, monkeypatch):
+        def mock_urlopen(req, timeout=None):
+            data = b"fake-content"
+            called = [False]
+            class MockResp:
+                headers = {"Content-Length": str(len(data))}
+                def read(self, size=-1):
+                    if called[0]:
+                        return b""
+                    called[0] = True
+                    return data
+                def __enter__(self):
+                    return self
+                def __exit__(self, *args):
+                    pass
+            return MockResp()
+
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+        result = utils.download_file("https://example.com/test.tar.gz", str(tmp_path))
+        assert result is not None
+        assert os.path.exists(result)
+        assert os.path.getsize(result) == len(b"fake-content")
+
+    def test_exit_code_constants(self):
+        assert utils.EXIT_OK == 0
+        assert utils.EXIT_ERROR == 1
+        assert utils.EXIT_USAGE == 2
+        assert utils.EXIT_NOT_FOUND == 3
+        assert utils.EXIT_EXISTS == 4
+        assert utils.EXIT_NOT_TRACKED == 5
+        assert utils.EXIT_UP_TO_DATE == 6
+        assert utils.EXIT_NO_NETWORK == 7
+
+
+class TestMirror:
+    def test_build_direct_url(self):
+        from tribucket.mirror import build_direct_url
+        url = build_direct_url("owner/repo", "1.0.0", "foo-1.0.0-linux.tar.gz")
+        assert url == "https://github.com/owner/repo/releases/download/v1.0.0/foo-1.0.0-linux.tar.gz"
+
+    def test_build_mirror_url(self):
+        from tribucket.mirror import build_mirror_url
+        template = "https://mirror.example.com/https://github.com/{repo}/releases/download/v{version}/{asset}"
+        url = build_mirror_url(template, "owner/repo", "1.0.0", "foo.tar.gz")
+        assert "mirror.example.com" in url
+        assert "owner/repo" in url
+        assert "1.0.0" in url
+
+    def test_select_provider_direct_forced(self, monkeypatch):
+        from tribucket.mirror import select_provider
+        monkeypatch.setattr("tribucket.mirror.load_json", lambda path, default={}: {"force": "direct"})
+        name, template = select_provider()
+        assert name == "direct"
+        assert template is None
+
+    def test_select_provider_direct_fallback(self, monkeypatch):
+        from tribucket.mirror import select_provider
+        # All providers fail
+        monkeypatch.setattr("tribucket.mirror.test_provider", lambda p, timeout=3: (False, 0))
+        monkeypatch.setattr("tribucket.mirror._test_direct", lambda timeout=3: (False, 0))
+        monkeypatch.setattr("tribucket.mirror.load_json", lambda path, default={}: default)
+        name, template = select_provider()
+        assert name == "direct"
+
+    def test_resolve_download_url_direct(self, monkeypatch):
+        from tribucket.mirror import resolve_download_url
+        monkeypatch.setattr("tribucket.mirror.select_provider", lambda mode="auto": ("direct", None))
+        url, provider = resolve_download_url("owner/repo", "1.0.0", "foo.tar.gz")
+        assert "github.com" in url
+        assert provider == "direct"
+
+    def test_resolve_download_url_mirror(self, monkeypatch):
+        from tribucket.mirror import resolve_download_url
+        template = "https://mirror.example.com/{repo}/v{version}/{asset}"
+        monkeypatch.setattr("tribucket.mirror.select_provider", lambda mode="auto": ("mymirror", template))
+        url, provider = resolve_download_url("owner/repo", "1.0.0", "foo.tar.gz")
+        assert "mirror.example.com" in url
+        assert provider == "mymirror"
+
+
+class TestUpdate:
+    def test_update_not_tracked(self, monkeypatch):
+        from tribucket.update import update_package
+        monkeypatch.setattr("tribucket.track.get_all_packages", lambda: {})
+        ok = update_package("nonexistent")
+        assert ok is False
+
+    def test_update_stale_path(self, tmp_path, monkeypatch):
+        from tribucket.update import update_package
+        monkeypatch.setattr("tribucket.track.get_all_packages",
+                            lambda: {"pkg": {"name": "pkg", "path": str(tmp_path / "gone"), "version": "1.0"}})
+        ok = update_package("pkg")
+        assert ok is False
+
+    def test_lock_package(self, tmp_path, monkeypatch):
+        from tribucket.update import _lock_package
+        monkeypatch.setattr("tribucket.update.lock_dir", lambda: str(tmp_path / "locks"))
+        with _lock_package("test-pkg"):
+            # Lock acquired successfully
+            assert os.path.exists(tmp_path / "locks" / "test-pkg.lock")
