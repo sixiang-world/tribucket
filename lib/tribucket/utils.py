@@ -41,22 +41,26 @@ EXIT_NO_NETWORK = 7
 def http_get(url, token=None, retries=3, timeout=30):
     """Fetch a URL with optional token, retry with exponential backoff.
 
-    Sets GitHub Accept header only for github.com/api.github.com URLs.
+    Respects HTTP_PROXY/HTTPS_PROXY/ALL_PROXY environment variables.
+    Sets GitHub Accept header only for github.com URLs.
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; tribucket/2.0)",
     }
-    # Only set GitHub-specific header for GitHub URLs
     if "github.com" in url:
         headers["Accept"] = "application/vnd.github.v3+json"
     if token:
         headers["Authorization"] = f"token {token}"
 
+    # Build opener with proxy support
+    proxy_handler = urllib.request.ProxyHandler()
+    opener = urllib.request.build_opener(proxy_handler)
+
     req = urllib.request.Request(url, headers=headers)
     last_err = None
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with opener.open(req, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as e:
             last_err = e

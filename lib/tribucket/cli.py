@@ -24,6 +24,10 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
 
+    # Cleanup old temp dirs on startup
+    from tribucket.utils import cleanup_old_tmp
+    cleanup_old_tmp()
+
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -288,6 +292,12 @@ def _cmd_list(args):
         print(f"\n{_sym('warn')} Found {len(dangling)} dangling symlink(s):")
         for name, path, target in dangling:
             print(f"  {path} -> {target}")
+
+    # Check for stale entries
+    stale = [name for name, info in packages if not os.path.exists(info.get("path", ""))]
+    if stale and not args.json_output:
+        print(f"\n{_sym('warn')} Found {len(stale)} stale entry(ies): {', '.join(stale)}")
+        print(f"  → Run 'tribucket clean' to remove them.")
 
 
 def _cmd_check(args):
@@ -622,6 +632,23 @@ def _cmd_clean(args):
         print("Nothing to clean.")
 
 
+def _coerce_value(s):
+    """Auto-coerce string value to appropriate type."""
+    if s.lower() in ("true", "yes", "on"):
+        return True
+    if s.lower() in ("false", "no", "off"):
+        return False
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    try:
+        return float(s)
+    except ValueError:
+        pass
+    return s
+
+
 def _cmd_config(args):
     _init_color(args)
     from tribucket.config import load_config, save_config
@@ -644,9 +671,9 @@ def _cmd_config(args):
             print(value)
 
     elif args.config_command == "set":
-        config.setdefault("settings", {})[args.key] = args.value
+        config.setdefault("settings", {})[args.key] = _coerce_value(args.value)
         save_config(config)
-        print(f"Set {args.key} = {args.value}")
+        print(f"Set {args.key} = {_coerce_value(args.value)}")
 
     elif args.config_command == "unset":
         settings = config.get("settings", {})

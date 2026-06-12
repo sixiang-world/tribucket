@@ -2,6 +2,7 @@
 import json
 import os
 import shutil
+import signal
 import sys
 import tempfile
 
@@ -14,6 +15,14 @@ from tribucket.utils import (
 )
 from tribucket.mirror import resolve_download_url
 from tribucket.check import check_remote_version
+
+
+def _handle_sigint(signum, frame):
+    print("\nInterrupted. Partial download saved. Run the same command again to resume.",
+          file=sys.stderr)
+    sys.exit(130)
+
+signal.signal(signal.SIGINT, _handle_sigint)
 
 
 def update_package(name, force=False, mirror_mode="auto", no_backup=False):

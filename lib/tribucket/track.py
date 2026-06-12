@@ -9,21 +9,22 @@ from tribucket.config import load_config, save_config, bin_dir
 def track(name, path, version=None, linked=False):
     """Add a package to the tracked list."""
     config = load_config()
-    repo_key = _find_repo_key(config, name)
-
-    if repo_key and repo_key in config["packages"]:
-        existing = config["packages"][repo_key]
-        if os.path.exists(existing.get("path", "")):
-            print(f"Error: [{name}] is already tracked at {existing['path']}")
-            print(f"  → Use 'tribucket update {name}' to update, or 'tribucket uninstall {name}' first.")
-            return False
 
     if not os.path.exists(path):
         print(f"Error: [{name}] path does not exist: {path}")
         return False
 
     # Use owner/repo as key if available, otherwise just name
-    repo_key = name
+    repo = _detect_repo(path, name)
+    repo_key = repo if repo else name
+
+    # Check for duplicate
+    if repo_key in config["packages"]:
+        existing = config["packages"][repo_key]
+        if os.path.exists(existing.get("path", "")):
+            print(f"Error: [{name}] is already tracked at {existing['path']}")
+            print(f"  → Use 'tribucket update {name}' to update, or 'tribucket uninstall {name}' first.")
+            return False
 
     config["packages"][repo_key] = {
         "name": name,
@@ -65,7 +66,15 @@ def list_packages():
 def get_package(name):
     """Get info for a tracked package by name. Returns dict or None."""
     config = load_config()
-    return config["packages"].get(name)
+    # Try direct key lookup first
+    result = config["packages"].get(name)
+    if result:
+        return result
+    # Search by name field
+    for key, info in config["packages"].items():
+        if info.get("name") == name:
+            return info
+    return None
 
 
 def get_all_packages():
@@ -121,9 +130,17 @@ def _find_repo_key(config, name):
     for repo_key, info in config["packages"].items():
         if info.get("name") == name:
             return repo_key
-    # Also check if the key itself matches
     if name in config["packages"]:
         return name
+    return None
+
+
+def _detect_repo(path, name):
+    """Try to detect owner/repo from tribucket.json in the package path."""
+    from tribucket.utils import find_tribucket_json
+    tj = find_tribucket_json(path)
+    if tj and tj.get("repo"):
+        return tj["repo"]
     return None
 
 
