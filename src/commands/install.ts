@@ -13,10 +13,6 @@ import { loadConfig, saveConfig } from '../config/store';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
-function sanitizePath(path: string): string {
-  return resolve(path).replace(/[;&|`$()]/g, '');
-}
-
 export async function installPackage(
   name: string,
   options: { dir?: string; link?: boolean; force?: boolean; mirror?: string }
