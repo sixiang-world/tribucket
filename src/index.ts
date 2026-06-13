@@ -12,14 +12,32 @@ const program = new Command();
 program
   .name('tribucket')
   .description('Lightweight portable package manager')
-  .version(VERSION)
   .option('--no-color', 'Disable colored output')
+  .option('--json', 'JSON output (with --version)')
   .hook('preAction', (thisCommand) => {
     const opts = thisCommand.opts();
     if (opts.noColor || process.env.NO_COLOR) {
       NO_COLOR = true;
     }
   });
+
+// Handle --version separately to support --json
+const args = process.argv.slice(2);
+if (args.includes('--version') || args.includes('-V')) {
+  const jsonOutput = args.includes('--json');
+  if (jsonOutput) {
+    console.log(JSON.stringify({
+      version: VERSION,
+      python: `${process.version}`,
+      platform: detectPlatform(),
+    }));
+  } else {
+    console.log(`tribucket ${VERSION}`);
+  }
+  process.exit(0);
+}
+
+program.version(VERSION);
 
 // install
 program
