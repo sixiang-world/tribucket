@@ -139,7 +139,14 @@ program
     }
     if (names.length === 0) { console.error('Specify package names or use --all'); process.exit(2); }
 
-    const results = await Promise.all(names.map(t => checkPackage(t, opts)));
+    // Concurrent check with 4 workers
+    const WORKERS = 4;
+    const results: any[] = [];
+    for (let i = 0; i < names.length; i += WORKERS) {
+      const batch = names.slice(i, i + WORKERS);
+      const batchResults = await Promise.all(batch.map(t => checkPackage(t, opts)));
+      results.push(...batchResults);
+    }
 
     if (opts.json) {
       const output: Record<string, any> = {};
@@ -181,11 +188,19 @@ program
         return;
       }
 
+      // Concurrent update with 4 workers
+      const WORKERS = 4;
       let success = 0, failed = 0;
-      for (const n of names) {
+      const updateOne = async (n: string) => {
         const { updatePackage } = await import('./commands/update');
         try { if (await updatePackage(n, opts)) success++; else failed++; } catch { failed++; }
+      };
+
+      for (let i = 0; i < names.length; i += WORKERS) {
+        const batch = names.slice(i, i + WORKERS);
+        await Promise.all(batch.map(updateOne));
       }
+
       console.log(`\n${success} updated, ${failed} failed.`);
       process.exit(failed > 0 ? 1 : 0);
       return;
