@@ -226,7 +226,8 @@ export async function installPackage(
       name: pkg.name, version, repo: pkg.repo, description: pkg.description || '',
       binary: pkg.binary || name, homepage: pkg.homepage || '', license: pkg.license || 'Unknown',
       version_check: { cli_flags: ['--version'], parse_regex: 'v?(\\d+\\.\\d+(?:\\.\\d+)?)', output_stream: 'stdout', timeout: 5, fallback_version: version },
-      asset_pattern: pkg.asset_pattern || {}, install_type: installType, mirror: { enabled: true },
+      asset_pattern: pkg.asset_pattern || {}, asset_format: inferAssetFormat(pkg.asset_pattern || {}),
+      install_type: installType, mirror: { enabled: true },
     };
     writeFileSync(join(targetDir, 'tribucket.json'), JSON.stringify(tributableJson, null, 2) + '\n');
 
@@ -353,4 +354,18 @@ if not exist "%BINARY%" (
 echo.
 echo To update, run: tribucket update ${name}
 `;
+}
+
+function inferAssetFormat(assetPattern: Record<string, string>): Record<string, string> {
+  const formats: Record<string, string> = {};
+  for (const [platform, pattern] of Object.entries(assetPattern)) {
+    if (pattern === 'NO_MATCH' || !pattern) continue;
+    if (pattern.endsWith('.tar.gz')) formats[platform] = 'tar.gz';
+    else if (pattern.endsWith('.tar.bz2')) formats[platform] = 'tar.bz2';
+    else if (pattern.endsWith('.tar.xz')) formats[platform] = 'tar.xz';
+    else if (pattern.endsWith('.zip')) formats[platform] = 'zip';
+    else if (pattern.endsWith('.exe')) formats[platform] = 'exe';
+    else formats[platform] = 'binary';
+  }
+  return formats;
 }
