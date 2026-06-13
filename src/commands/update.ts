@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, chmodSync, readFileSync } from 'fs';
-import { join } from 'path';
-import { execSync } from 'child_process';
+import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync } from 'fs';
+import { join, resolve } from 'path';
+import { execFileSync } from 'child_process';
 import { loadConfig, saveConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { resolveDownloadUrl } from '../engine/mirror';
@@ -60,7 +60,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   lock.acquire();
 
   try {
-    const tmpDir = join(Bun.TEMP_DIR, `tributable-${Date.now()}`);
+    const { tmpdir } = await import('os');
+    const tmpDir = join(tmpdir(), `tribucket-update-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
 
     try {
@@ -70,7 +71,18 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       if (!options.noBackup) {
         const bkPath = join(backupDir(), name, localVer);
         mkdirSync(bkPath, { recursive: true });
-        execSync(`cp -r "${path}"/* "${bkPath}"/`, { stdio: 'pipe' });
+        // Copy directory safely
+        const entries = readdirSync(path);
+        for (const entry of entries) {
+          const srcPath = join(path, entry);
+          const destPath = join(bkPath, entry);
+          const stat = statSync(srcPath);
+          if (stat.isDirectory()) {
+            execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
+          } else {
+            copyFileSync(srcPath, destPath);
+          }
+        }
         log(`Backed up to ${bkPath}`);
       }
 
@@ -78,12 +90,29 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       extractArchive(archivePath, extractDir);
 
       if (installType === 'directory') {
-        execSync(`rsync -a --exclude='tributable.json' --exclude='install.sh' --exclude='cmd' "${extractDir}"/ "${path}"/`, { stdio: 'pipe' });
+        // Copy directory contents safely, excluding certain files
+        const excludeFiles = ['tributable.json', 'install.sh', 'cmd'];
+        const entries = readdirSync(extractDir);
+        for (const entry of entries) {
+          if (excludeFiles.includes(entry)) continue;
+          const srcPath = join(extractDir, entry);
+          const destPath = join(path, entry);
+          const stat = statSync(srcPath);
+          if (stat.isDirectory()) {
+            execFileSync('rsync', ['-a', `${srcPath}/`, `${destPath}/`], { stdio: 'pipe' });
+          } else {
+            copyFileSync(srcPath, destPath);
+          }
+        }
       } else {
-        const found = execSync(`find "${extractDir}" -name "${binary}" -type f | head -1`, { encoding: 'utf-8' }).trim();
+        const found = execFileSync('find', [extractDir, '-name', binary, '-type', 'f'], {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
         if (found) {
+          const firstFile = found.split('\n')[0];
           const dest = join(path, binary);
-          execSync(`cp "${found}" "${dest}"`, { stdio: 'pipe' });
+          copyFileSync(firstFile, dest);
           chmodSync(dest, 0o755);
         }
       }
@@ -93,13 +122,13 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
       if (!options.noBackup) {
         const bkPath = join(backupDir(), name, localVer);
-        if (existsSync(bkPath)) execSync(`rm -rf "${bkPath}"`, { stdio: 'pipe' });
+        if (existsSync(bkPath)) rmSync(bkPath, { recursive: true, force: true });
       }
 
       console.log(`${name}: ${localVer} → ${remoteVer} ✓`);
       return true;
     } finally {
-      try { execSync(`rm -rf "${tmpDir}"`, { stdio: 'pipe' }); } catch {}
+      try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
     }
   } finally {
     lock.release();

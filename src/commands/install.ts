@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync } from 'fs';
+import { join, resolve } from 'path';
 import { tmpdir } from 'os';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
 import { detectPlatform } from '../utils/platform';
@@ -12,6 +12,10 @@ import { resolveDownloadUrl } from '../engine/mirror';
 import { loadConfig, saveConfig } from '../config/store';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
+
+function sanitizePath(path: string): string {
+  return resolve(path).replace(/[;&|`$()]/g, '');
+}
 
 export async function installPackage(
   name: string,
@@ -36,6 +40,24 @@ export async function installPackage(
 
   let targetDir = options.dir || process.cwd();
   targetDir = join(targetDir, name);
+
+  // Path traversal protection
+  const resolvedTarget = resolve(targetDir);
+  const resolvedBase = resolve(options.dir || process.cwd());
+  if (!resolvedTarget.startsWith(resolvedBase + '/') && resolvedTarget !== resolvedBase) {
+    error('security', `Path traversal detected: ${name} resolves outside base directory`);
+    return false;
+  }
+
+  // System directory protection
+  const FORBIDDEN = ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
+  for (const forbidden of FORBIDDEN) {
+    if (resolvedTarget === forbidden || resolvedTarget.startsWith(forbidden + '/')) {
+      error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`);
+      return false;
+    }
+  }
+
   mkdirSync(targetDir, { recursive: true });
 
   const platform = detectPlatform();
@@ -84,30 +106,64 @@ export async function installPackage(
     if (isArchive) {
       extractArchive(archivePath, extractDir);
     } else {
-      // Raw binary - copy directly
+      // Raw binary - copy directly using Node.js fs
       mkdirSync(extractDir, { recursive: true });
-      execSync(`cp "${archivePath}" "${extractDir}/"`, { stdio: 'pipe' });
+      copyFileSync(archivePath, join(extractDir, 'binary'));
     }
 
     const binary = pkg.binary || name;
     const installType = pkg.install_type || 'binary';
 
     if (installType === 'directory') {
-      execSync(`cp -r "${extractDir}"/* "${targetDir}"/`, { stdio: 'pipe' });
+      // Copy directory contents safely
+      const entries = readdirSync(extractDir);
+      for (const entry of entries) {
+        const srcPath = join(extractDir, entry);
+        const destPath = join(targetDir, entry);
+        const stat = statSync(srcPath);
+        if (stat.isDirectory()) {
+          execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
+        } else {
+          copyFileSync(srcPath, destPath);
+        }
+      }
     } else {
-      // Try to find binary by name first, then by pattern
-      let found = execSync(`find "${extractDir}" -name "${binary}" -type f | head -1`, { encoding: 'utf-8' }).trim();
-      if (!found) {
-        // Try to find any file that matches the binary name pattern
-        found = execSync(`find "${extractDir}" -name "${binary}*" -type f | head -1`, { encoding: 'utf-8' }).trim();
+      // Try to find binary by name first
+      let found = '';
+      const tryPaths = [
+        join(extractDir, binary),
+        join(extractDir, `${binary}*`),
+      ];
+
+      for (const pattern of tryPaths) {
+        try {
+          const result = execFileSync('find', [extractDir, '-name', pattern.replace('*', '*'), '-type', 'f'], {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          }).trim();
+          if (result) {
+            found = result.split('\n')[0];
+            break;
+          }
+        } catch {}
       }
+
+      // Fallback to any executable file
       if (!found) {
-        // Try to find any executable file
-        found = execSync(`find "${extractDir}" -type f -executable | head -1`, { encoding: 'utf-8' }).trim();
+        try {
+          const result = execFileSync('find', [extractDir, '-type', 'f', '-executable'], {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          }).trim();
+          if (result) {
+            found = result.split('\n')[0];
+          }
+        } catch {}
       }
+
       if (found) {
         const dest = join(targetDir, binary);
-        execSync(`cp "${found}" "${dest}"`, { stdio: 'pipe' });
+        copyFileSync(found, dest);
         chmodSync(dest, 0o755);
       }
     }
@@ -138,7 +194,7 @@ export async function installPackage(
     console.log(`Installed: ${targetDir}`);
     return true;
   } finally {
-    try { execSync(`rm -rf "${tmpDir}"`, { stdio: 'pipe' }); } catch {}
+    try { execFileSync('rm', ['-rf', tmpDir], { stdio: 'pipe' }); } catch {}
   }
 }
 

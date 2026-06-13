@@ -1,28 +1,28 @@
 import { homedir } from 'os';
 import { join } from 'path';
 
-export function tributableHome(): string {
-  return process.env.TRIBUTABLE_HOME || join(homedir(), '.tributable');
+export function tribucketHome(): string {
+  return process.env.TRIBUCKET_HOME || join(homedir(), '.tribucket');
 }
 
 export function configPath(): string {
-  return join(tributableHome(), 'config.json');
+  return join(tribucketHome(), 'config.json');
 }
 
 export function cacheDir(): string {
-  return join(tributableHome(), 'cache');
+  return join(tribucketHome(), 'cache');
 }
 
 export function backupDir(): string {
-  return join(tributableHome(), 'backup');
+  return join(tribucketHome(), 'backup');
 }
 
 export function lockDir(): string {
-  return join(tributableHome(), 'locks');
+  return join(tribucketHome(), 'locks');
 }
 
 export function binDir(): string {
-  return join(tributableHome(), 'bin');
+  return join(tribucketHome(), 'bin');
 }
 
 export function versionsCachePath(): string {
@@ -34,5 +34,5 @@ export function mirrorCachePath(): string {
 }
 
 export function mirrorConfigPath(): string {
-  return join(tributableHome(), 'mirror.json');
+  return join(tribucketHome(), 'mirror.json');
 }
