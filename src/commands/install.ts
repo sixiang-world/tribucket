@@ -10,6 +10,7 @@ import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
 import { resolveDownloadUrl } from '../engine/mirror';
 import { loadConfig, saveConfig } from '../config/store';
+import { computeSha256 } from '../utils/sha256';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
@@ -90,6 +91,24 @@ export async function installPackage(
   try {
     const archivePath = await downloadFile(url, tmpDir);
     if (!archivePath) { error('network', 'Download failed'); return false; }
+
+    // SHA256 verification (best-effort)
+    try {
+      const checksumUrl = `${url}.sha256`;
+      const checksumData = await httpGetJson<string>(checksumUrl);
+      if (checksumData) {
+        const expectedHash = checksumData.split(' ')[0];
+        const actualHash = await computeSha256(archivePath);
+        if (actualHash !== expectedHash) {
+          error('integrity', `SHA256 mismatch for ${archivePath}`,
+                `Expected: ${expectedHash}\nGot: ${actualHash}`);
+          return false;
+        }
+        log('SHA256 verification OK');
+      }
+    } catch {
+      log('SHA256 verification skipped (no checksum file)');
+    }
 
     const extractDir = join(tmpDir, 'extracted');
 
