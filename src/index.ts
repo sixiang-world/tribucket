@@ -5,11 +5,21 @@ import { detectPlatform } from './utils/platform';
 
 const VERSION = '2.0.0';
 
+// Color support
+let NO_COLOR = false;
+
 const program = new Command();
 program
   .name('tribucket')
   .description('Lightweight portable package manager')
-  .version(VERSION);
+  .version(VERSION)
+  .option('--no-color', 'Disable colored output')
+  .hook('preAction', (thisCommand) => {
+    const opts = thisCommand.opts();
+    if (opts.noColor || process.env.NO_COLOR) {
+      NO_COLOR = true;
+    }
+  });
 
 // install
 program
