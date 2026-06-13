@@ -85,9 +85,10 @@ program
   .description('List tracked packages')
   .option('--json', 'JSON output')
   .option('--sort <key>', 'Sort by: name / status', 'name')
+  .option('--check', 'Run version detection for all packages')
   .action(async (opts) => {
     const { listPackages } = await import('./commands/list');
-    listPackages(opts);
+    await listPackages(opts);
   });
 
 // check
