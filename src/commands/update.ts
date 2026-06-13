@@ -13,6 +13,14 @@ import { detectPlatform } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
 import type { PackageMeta } from '../types';
 
+// SIGINT handler for graceful interrupt
+let sigintHandler: NodeJS.SignalsHandler | null = null;
+
+function handleSigint() {
+  console.log('\nInterrupted. Partial download saved. Run the same command again to resume.');
+  process.exit(130);
+}
+
 export async function updatePackage(name: string, options: { force?: boolean; mirror?: string; noBackup?: boolean }): Promise<boolean> {
   const config = loadConfig();
   const info = config.packages[name];
@@ -55,6 +63,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
   const [url, provider] = await resolveDownloadUrl(repo, remoteVer, pattern, options.mirror as any);
   log(`Download URL (${provider}): ${url}`);
+
+  // Install SIGINT handler
+  sigintHandler = handleSigint;
+  process.on('SIGINT', sigintHandler);
 
   const lock = new PackageLock(name);
   lock.acquire();
@@ -168,5 +180,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
     }
   } finally {
     lock.release();
+    // Remove SIGINT handler
+    if (sigintHandler) {
+      process.removeListener('SIGINT', sigintHandler);
+      sigintHandler = null;
+    }
   }
 }
