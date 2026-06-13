@@ -1,28 +1,28 @@
 class Codewhale < Formula
   desc "DeepSeek + MiMo coding agent in terminal"
   homepage "https://github.com/Hmbown/CodeWhale"
-  version "0.8.58"
+  version "0.8.59"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.58/codewhale-macos-arm64"
-      sha256 "848beba882808e33e414289349e5e1eb0c150ac488ef23cf15e21a643d389364"
+      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.59/codewhale-macos-arm64"
+      sha256 "bf577561991207a04a91721be6c3f6ec52765b411072d69e8a8a5b6ee7a40122"
     end
     on_intel do
-      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.58/codewhale-macos-x64"
-      sha256 "a7f259296f48d7631847e42478b64226e07c289774ed95497a12f3fba0e59e6a"
+      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.59/codewhale-macos-x64"
+      sha256 "ac48165591fd02faefe25788dd2026eb73a9bf8ef312a35384f9db5f3a46e171"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.58/codewhale-linux-arm64"
-      sha256 "c360c176b8cd3d1d909ef0136a97458f100803aea47054197ad62c2b29cfe5aa"
+      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.59/codewhale-linux-arm64"
+      sha256 "354ef85b184b7531fac9601d6c696f901fb4da0df69f81a3c0b82490356d6403"
     end
     on_intel do
-      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.58/codewhale-linux-x64"
-      sha256 "011f63259cc1d553547bbc9a2378e949426c5eece0bea93969678b59efcbfef0"
+      url "https://github.com/Hmbown/CodeWhale/releases/download/v0.8.59/codewhale-linux-x64"
+      sha256 "b62fc804f65525d68bbd0d3439ebf34df70c4345c710bbce29372e978fa2060f"
     end
   end
 
