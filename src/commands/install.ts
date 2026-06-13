@@ -11,7 +11,7 @@ import { downloadFile } from '../engine/download';
 import { resolveDownloadUrl } from '../engine/mirror';
 import { loadConfig, saveConfig } from '../config/store';
 import { binDir } from '../config/paths';
-import { computeSha256 } from '../utils/sha256';
+import { computeSha256, findSha256FromRelease } from '../utils/sha256';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
@@ -101,22 +101,30 @@ export async function installPackage(
     const archivePath = await downloadFile(url, tmpDir);
     if (!archivePath) { error('network', 'Download failed'); return false; }
 
-    // SHA256 verification (best-effort)
-    try {
-      const checksumUrl = `${url}.sha256`;
-      const checksumData = await httpGetJson<string>(checksumUrl);
-      if (checksumData) {
-        const expectedHash = checksumData.split(' ')[0];
-        const actualHash = await computeSha256(archivePath);
-        if (actualHash !== expectedHash) {
-          error('integrity', `SHA256 mismatch for ${archivePath}`,
-                `Expected: ${expectedHash}\nGot: ${actualHash}`);
-          return false;
+    // SHA256 verification (best-effort) — searches release assets for checksum files
+    if (repo) {
+      try {
+        const token = process.env.GITHUB_TOKEN;
+        const releaseData = await httpGetJson<any>(
+          `https://api.github.com/repos/${repo}/releases/latest`,
+          { token }
+        );
+        const archiveName = archivePath.split('/').pop() || '';
+        const expectedHash = await findSha256FromRelease(releaseData, archiveName);
+        if (expectedHash) {
+          const actualHash = await computeSha256(archivePath);
+          if (actualHash !== expectedHash) {
+            error('integrity', `SHA256 mismatch for ${archiveName}`,
+                  `Expected: ${expectedHash}\nGot: ${actualHash}`);
+            return false;
+          }
+          log('SHA256 verification OK');
+        } else {
+          log('SHA256 verification skipped (no checksum in release)');
         }
-        log('SHA256 verification OK');
+      } catch {
+        log('SHA256 verification skipped (could not fetch release info)');
       }
-    } catch {
-      log('SHA256 verification skipped (no checksum file)');
     }
 
     const extractDir = join(tmpDir, 'extracted');
