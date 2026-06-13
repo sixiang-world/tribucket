@@ -4,6 +4,7 @@ import { execFileSync } from 'child_process';
 import { loadConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { httpGetJson } from '../utils/http';
+import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import type { CheckResult, PackageMeta } from '../types';
 
 export async function checkPackage(nameOrPath: string, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
@@ -43,11 +44,18 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
 
     let remoteVer: string | null = null;
     if (!options.localOnly && info.repo) {
-      try {
-        const token = process.env.GITHUB_TOKEN;
-        const data = await httpGetJson<any>(`https://api.github.com/repos/${info.repo}/releases/latest`, { token });
-        remoteVer = data.tag_name?.replace(/^v/, '') || null;
-      } catch {}
+      if (!options.refresh) {
+        const cached = getCachedRemoteVersion(info.repo);
+        if (cached) remoteVer = cached;
+      }
+      if (!remoteVer) {
+        try {
+          const token = process.env.GITHUB_TOKEN;
+          const data = await httpGetJson<any>(`https://api.github.com/repos/${info.repo}/releases/latest`, { token });
+          remoteVer = data.tag_name?.replace(/^v/, '') || null;
+          if (remoteVer) saveRemoteVersionCache(info.repo, remoteVer);
+        } catch {}
+      }
     }
 
     return { name, path, path_exists: true, local: localVer, local_source: source as any, remote: remoteVer, status: computeStatus(localVer, remoteVer) };
@@ -84,10 +92,17 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
     const token = process.env.GITHUB_TOKEN;
     const repo = tj.repo || '';
     if (repo) {
-      try {
-        const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-        remoteVer = data.tag_name?.replace(/^v/, '') || null;
-      } catch {}
+      if (!options.refresh) {
+        const cached = getCachedRemoteVersion(repo);
+        if (cached) { remoteVer = cached; }
+      }
+      if (!remoteVer) {
+        try {
+          const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
+          remoteVer = data.tag_name?.replace(/^v/, '') || null;
+          if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
+        } catch {}
+      }
     }
   }
 

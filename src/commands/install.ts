@@ -10,6 +10,7 @@ import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
 import { resolveDownloadUrl } from '../engine/mirror';
 import { loadConfig, saveConfig } from '../config/store';
+import { binDir } from '../config/paths';
 import { computeSha256 } from '../utils/sha256';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
@@ -211,10 +212,31 @@ export async function installPackage(
     const batContent = generateBat(pkg.name, pkg.binary || name);
     writeFileSync(join(cmdDir, 'tribucket-update.bat'), batContent);
 
-    config.packages[name] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked: false };
+    // Create symlink if requested
+    let linked = false;
+    if (options.link) {
+      const bd = binDir();
+      mkdirSync(bd, { recursive: true });
+      const binary = pkg.binary || name;
+      const linkPath = join(bd, binary);
+      const binaryPath = join(targetDir, binary);
+      if (existsSync(linkPath)) { try { execFileSync('rm', ['-f', linkPath], { stdio: 'pipe' }); } catch {} }
+      try {
+        execFileSync('ln', ['-s', binaryPath, linkPath], { stdio: 'pipe' });
+        log(`Symlink: ${linkPath} → ${binaryPath}`);
+        linked = true;
+      } catch {
+        log('Failed to create symlink');
+      }
+    }
+
+    config.packages[name] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked };
     saveConfig(config);
 
     console.log(`Installed: ${targetDir}`);
+    if (!linked && !options.link) {
+      console.log(`  Tip: Create symlink for easy access: tribucket install ${name} --link`);
+    }
     return true;
   } finally {
     try { execFileSync('rm', ['-rf', tmpDir], { stdio: 'pipe' }); } catch {}
