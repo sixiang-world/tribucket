@@ -23,3 +23,11 @@ portable/
 
 # Agent working files
 .hermes/
+
+# Bun/Node
+node_modules/
+bun.lock
+tsconfig.json
+
+# Compiled binary
+tributable

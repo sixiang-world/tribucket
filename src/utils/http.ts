@@ -1,0 +1,49 @@
+import { log } from './log';
+
+export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number }): Promise<Uint8Array> {
+  const { token, retries = 3, timeout = 30000 } = options || {};
+  const headers: Record<string, string> = {
+    'User-Agent': 'Mozilla/5.0 (compatible; tributable/2.0)',
+  };
+  if (url.includes('github.com')) {
+    headers['Accept'] = 'application/vnd.github.v3+json';
+  }
+  if (token) {
+    headers['Authorization'] = `token ${token}`;
+  }
+
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      const response = await fetch(url, { headers, signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
+        if (response.status >= 500 && attempt < retries - 1) {
+          log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
+          await new Promise(r => setTimeout(r, 2 ** attempt * 1000));
+          continue;
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return new Uint8Array(await response.arrayBuffer());
+    } catch (e: any) {
+      lastError = e;
+      if (attempt < retries - 1) {
+        log(`Network error, retrying (${attempt + 1}/${retries})...`);
+        await new Promise(r => setTimeout(r, 2 ** attempt * 1000));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastError!;
+}
+
+export async function httpGetJson<T = any>(url: string, options?: { token?: string; retries?: number; timeout?: number }): Promise<T> {
+  const body = await httpGet(url, options);
+  return JSON.parse(new TextDecoder().decode(body));
+}
