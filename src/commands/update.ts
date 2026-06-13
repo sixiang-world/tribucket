@@ -80,6 +80,33 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       const archivePath = await downloadFile(url, tmpDir);
       if (!archivePath) { error('network', 'Download failed'); return false; }
 
+      // SHA256 verification (best-effort)
+      if (repo) {
+        try {
+          const { findSha256FromRelease, computeSha256 } = await import('../utils/sha256');
+          const token = process.env.GITHUB_TOKEN;
+          const releaseData = await httpGetJson<any>(
+            `https://api.github.com/repos/${repo}/releases/latest`,
+            { token }
+          );
+          const archiveName = archivePath.split('/').pop() || '';
+          const expectedHash = await findSha256FromRelease(releaseData, archiveName);
+          if (expectedHash) {
+            const actualHash = await computeSha256(archivePath);
+            if (actualHash !== expectedHash) {
+              error('integrity', `SHA256 mismatch for ${archiveName}`,
+                    `Expected: ${expectedHash}\nGot: ${actualHash}`);
+              return false;
+            }
+            log('SHA256 verification OK');
+          } else {
+            log('SHA256 verification skipped (no checksum in release)');
+          }
+        } catch {
+          log('SHA256 verification skipped (could not fetch release info)');
+        }
+      }
+
       let backupPath: string | null = null;
       if (!options.noBackup) {
         backupPath = join(backupDir(), name, localVer);
