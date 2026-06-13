@@ -38,7 +38,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   const binary = tj.binary || name;
   const installType = tj.install_type || 'binary';
 
-  const [localVer] = detectVersion(join(path, binary), tj, info);
+  const [localVer] = detectVersion(
+    installType === 'directory' ? path : join(path, binary),
+    tj, info
+  );
   log(`Local version: ${localVer}`);
 
   const token = process.env.GITHUB_TOKEN;
@@ -139,7 +142,20 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       }
 
       const extractDir = join(tmpDir, 'extracted');
-      extractArchive(archivePath, extractDir);
+
+      // Check if it's an archive or a raw binary
+      const isArchive = archivePath.endsWith('.tar.gz') || archivePath.endsWith('.tgz') ||
+                        archivePath.endsWith('.tar.bz2') || archivePath.endsWith('.tbz2') ||
+                        archivePath.endsWith('.tar.xz') || archivePath.endsWith('.txz') ||
+                        archivePath.endsWith('.zip');
+
+      if (isArchive) {
+        extractArchive(archivePath, extractDir);
+      } else {
+        // Raw binary - copy directly
+        mkdirSync(extractDir, { recursive: true });
+        copyFileSync(archivePath, join(extractDir, 'binary'));
+      }
 
       try {
         if (installType === 'directory') {
@@ -208,7 +224,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       }
 
       // Verify version after update
-      const [newVer] = detectVersion(join(path, binary), tj, info);
+      const [newVer] = detectVersion(
+        installType === 'directory' ? path : join(path, binary),
+        tj, info
+      );
       if (newVer !== remoteVer && newVer !== 'unknown') {
         log(`Version mismatch: expected ${remoteVer}, got ${newVer}`);
         // Don't fail, just warn — binary might report version differently

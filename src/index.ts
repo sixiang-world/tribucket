@@ -28,7 +28,7 @@ if (args.includes('--version') || args.includes('-V')) {
   if (jsonOutput) {
     console.log(JSON.stringify({
       version: VERSION,
-      python: `${process.version}`,
+      runtime: `${process.version}`,
       platform: detectPlatform(),
     }));
   } else {
@@ -270,6 +270,7 @@ program
         console.log(`Install:     ${tj.install_type || 'binary'}`);
       } catch {}
     }
+    console.log(``);
     console.log(`Installed:   ${info.path}`);
     console.log(`Version:     ${info.version || '?'}`);
     console.log(`Tracked at:  ${info.installed_at || '?'}`);

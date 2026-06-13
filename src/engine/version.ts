@@ -1,5 +1,5 @@
 import { existsSync, accessSync, constants } from 'fs';
-import { execFileSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import type { PackageMeta, TrackedPackage } from '../types';
 import { log } from '../utils/log';
 
@@ -42,12 +42,19 @@ function runVersionCommand(
   timeout: number
 ): string | null {
   try {
-    const result = execFileSync(binaryPath, [flag], {
+    const result = spawnSync(binaryPath, [flag], {
       timeout: timeout * 1000,
-      encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    const text = outputStream === 'stderr' ? result.stderr : result;
+    if (result.error) return null;
+    let text: string;
+    if (outputStream === 'stderr') {
+      text = result.stderr ? result.stderr.toString() : '';
+    } else if (outputStream === 'both') {
+      text = (result.stdout ? result.stdout.toString() : '') + (result.stderr ? result.stderr.toString() : '');
+    } else {
+      text = result.stdout ? result.stdout.toString() : '';
+    }
     const match = text.match(new RegExp(parseRegex));
     if (match) return match[1] || match[0];
   } catch {}

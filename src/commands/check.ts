@@ -70,17 +70,13 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
   let binaryPath = join(path, binary);
   if (installType === 'directory' && !existsSync(binaryPath)) {
     try {
-      // Safe binary search using Node.js fs
-      const entries = readdirSync(path);
-      for (const entry of entries) {
-        const entryPath = join(path, entry);
-        try {
-          const stat = statSync(entryPath);
-          if (stat.isFile() && entry === binary) {
-            binaryPath = entryPath;
-            break;
-          }
-        } catch {}
+      // Recursive binary search using find command
+      const result = execFileSync('find', [path, '-name', binary, '-type', 'f'], {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      if (result) {
+        binaryPath = result.split('\n')[0];
       }
     } catch {}
   }

@@ -117,7 +117,7 @@ export async function installPackage(
     log(`Download URL (${provider}): ${url}`);
   }
 
-  const tmpDir = join(tmpdir(), `tributable-install-${Date.now()}`);
+  const tmpDir = join(tmpdir(), `tribucket-install-${Date.now()}`);
   mkdirSync(tmpDir, { recursive: true });
 
   try {
