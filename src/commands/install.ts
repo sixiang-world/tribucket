@@ -23,7 +23,8 @@ export async function installPackage(
   if (config.packages[name] && !options.force) {
     const info = config.packages[name];
     if (existsSync(info.path)) {
-      error('exists', `'${name}' is already installed at ${info.path}`);
+      error('exists', `'${name}' is already installed at ${info.path}`,
+            `Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
       return false;
     }
   }

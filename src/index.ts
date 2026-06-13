@@ -73,9 +73,18 @@ program
 
     const bd = binDir();
     if (existsSync(bd)) {
+      const { readlinkSync, lstatSync } = await import('fs');
       for (const f of readdirSync(bd)) {
         const link = join(bd, f);
-        try { if (link.startsWith(info.path)) { unlinkSync(link); console.log(`Removed symlink: ${link}`); } } catch {}
+        try {
+          if (lstatSync(link).isSymbolicLink()) {
+            const target = readlinkSync(link);
+            if (target.startsWith(info.path)) {
+              unlinkSync(link);
+              console.log(`Removed symlink: ${link}`);
+            }
+          }
+        } catch {}
       }
     }
 
@@ -223,8 +232,10 @@ program
     if (opts.dry) {
       const { checkPackage } = await import('./commands/check');
       const r = await checkPackage(name);
+      if (r.error) { console.error(`Error: ${r.error}`); process.exit(3); }
       if (r.remote && r.local !== r.remote) console.log(`${name}: ${r.local} → ${r.remote} (would update)`);
       else console.log(`${name}: ${r.local} — already up to date`);
+      process.exit(0);
       return;
     }
 
