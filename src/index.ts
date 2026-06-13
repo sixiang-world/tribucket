@@ -180,10 +180,22 @@ program
 
       if (opts.dry) {
         const { checkPackage } = await import('./commands/check');
+        const wouldUpdate: Array<{n: string; local: string; remote: string}> = [];
         for (const n of names) {
           const r = await checkPackage(n, { localOnly: false });
-          if (r.remote && r.local !== r.remote) console.log(`${n}: ${r.local} → ${r.remote} (would update)`);
-          else console.log(`${n}: ${r.local} — already up to date`);
+          if (r.remote && r.local !== r.remote) {
+            wouldUpdate.push({ n, local: r.local!, remote: r.remote });
+          } else {
+            console.log(`${n.padEnd(20)}  ${r.local} — already up to date`);
+          }
+        }
+        if (wouldUpdate.length > 0) {
+          console.log(`\n⚠ ${wouldUpdate.length} package(s) would be updated:`);
+          for (const { n, local, remote } of wouldUpdate) {
+            console.log(`  ${n}: ${local} → ${remote}`);
+          }
+        } else {
+          console.log(`\n✓ All packages up to date.`);
         }
         return;
       }

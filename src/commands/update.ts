@@ -152,7 +152,9 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             const destPath = join(path, entry);
             const stat = statSync(srcPath);
             if (stat.isDirectory()) {
-              execFileSync('rsync', ['-a', `${srcPath}/`, `${destPath}/`], { stdio: 'pipe' });
+              // Remove existing directory first, then copy
+              if (existsSync(destPath)) rmSync(destPath, { recursive: true, force: true });
+              execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
             } else {
               copyFileSync(srcPath, destPath);
             }

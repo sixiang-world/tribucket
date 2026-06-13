@@ -266,7 +266,9 @@ export async function installPackage(
 
     console.log(`Installed: ${targetDir}`);
     if (!linked && !options.link) {
-      console.log(`  Tip: Create symlink for easy access: tribucket install ${name} --link`);
+      console.log(`Not in PATH. Options:`);
+      console.log(`  1. Add to PATH:  export PATH="${targetDir}:$PATH"`);
+      console.log(`  2. Reinstall with symlink:  tribucket install ${name} --link`);
     }
     return true;
   } finally {
