@@ -64,6 +64,16 @@ export async function installPackage(
     return false;
   }
 
+  // Non-empty directory check
+  if (existsSync(targetDir)) {
+    const { readdirSync } = await import('fs');
+    if (readdirSync(targetDir).length > 0 && !options.force) {
+      error('exists', `Directory not empty: ${targetDir}`);
+      console.log(`  → Use --force to overwrite.`);
+      return false;
+    }
+  }
+
   mkdirSync(targetDir, { recursive: true });
 
   const platform = detectPlatform();
