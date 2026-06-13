@@ -242,21 +242,8 @@ program
   .command('self-update')
   .description('Update tribucket CLI itself')
   .action(async () => {
-    console.log('Checking for updates...');
-    const { httpGetJson } = await import('./utils/http');
-
-    let latest: string;
-    try {
-      const data = await httpGetJson<any>('https://api.github.com/repos/sixiang-world/tribucket/releases/latest');
-      latest = data.tag_name?.replace(/^v/, '');
-    } catch (e: any) {
-      console.error(`Error: Cannot check for updates: ${e.message}`);
-      process.exit(7);
-    }
-
-    if (latest === VERSION) { console.log(`Already up to date (${VERSION})`); process.exit(0); }
-    console.log(`Current: ${VERSION}  Latest: ${latest}`);
-    console.log('Self-update is not yet implemented for the Bun build.');
+    const { selfUpdate } = await import('./commands/self-update');
+    await selfUpdate();
   });
 
 // clean
