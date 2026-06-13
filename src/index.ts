@@ -211,6 +211,7 @@ program
         console.log(`Binary:      ${tj.binary || '?'}`);
         console.log(`License:     ${tj.license || '?'}`);
         console.log(`Homepage:    ${tj.homepage || '?'}`);
+        console.log(`Install:     ${tj.install_type || 'binary'}`);
       } catch {}
     }
     console.log(`Installed:   ${info.path}`);
