@@ -68,14 +68,15 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       const archivePath = await downloadFile(url, tmpDir);
       if (!archivePath) { error('network', 'Download failed'); return false; }
 
+      let backupPath: string | null = null;
       if (!options.noBackup) {
-        const bkPath = join(backupDir(), name, localVer);
-        mkdirSync(bkPath, { recursive: true });
+        backupPath = join(backupDir(), name, localVer);
+        mkdirSync(backupPath, { recursive: true });
         // Copy directory safely
         const entries = readdirSync(path);
         for (const entry of entries) {
           const srcPath = join(path, entry);
-          const destPath = join(bkPath, entry);
+          const destPath = join(backupPath, entry);
           const stat = statSync(srcPath);
           if (stat.isDirectory()) {
             execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
@@ -83,46 +84,81 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             copyFileSync(srcPath, destPath);
           }
         }
-        log(`Backed up to ${bkPath}`);
+        log(`Backed up to ${backupPath}`);
       }
 
       const extractDir = join(tmpDir, 'extracted');
       extractArchive(archivePath, extractDir);
 
-      if (installType === 'directory') {
-        // Copy directory contents safely, excluding certain files
-        const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
-        const entries = readdirSync(extractDir);
-        for (const entry of entries) {
-          if (excludeFiles.includes(entry)) continue;
-          const srcPath = join(extractDir, entry);
-          const destPath = join(path, entry);
-          const stat = statSync(srcPath);
-          if (stat.isDirectory()) {
-            execFileSync('rsync', ['-a', `${srcPath}/`, `${destPath}/`], { stdio: 'pipe' });
-          } else {
-            copyFileSync(srcPath, destPath);
+      try {
+        if (installType === 'directory') {
+          // Copy directory contents safely, excluding certain files
+          const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
+          const entries = readdirSync(extractDir);
+          for (const entry of entries) {
+            if (excludeFiles.includes(entry)) continue;
+            const srcPath = join(extractDir, entry);
+            const destPath = join(path, entry);
+            const stat = statSync(srcPath);
+            if (stat.isDirectory()) {
+              execFileSync('rsync', ['-a', `${srcPath}/`, `${destPath}/`], { stdio: 'pipe' });
+            } else {
+              copyFileSync(srcPath, destPath);
+            }
+          }
+        } else {
+          const found = execFileSync('find', [extractDir, '-name', binary, '-type', 'f'], {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          }).trim();
+          if (found) {
+            const firstFile = found.split('\n')[0];
+            const dest = join(path, binary);
+            copyFileSync(firstFile, dest);
+            chmodSync(dest, 0o755);
           }
         }
-      } else {
-        const found = execFileSync('find', [extractDir, '-name', binary, '-type', 'f'], {
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'pipe'],
-        }).trim();
-        if (found) {
-          const firstFile = found.split('\n')[0];
-          const dest = join(path, binary);
-          copyFileSync(firstFile, dest);
-          chmodSync(dest, 0o755);
+      } catch (updateError) {
+        // Restore from backup on failure
+        if (backupPath && existsSync(backupPath)) {
+          log('Update failed, restoring from backup...');
+          try {
+            // Remove current files
+            const currentEntries = readdirSync(path);
+            for (const entry of currentEntries) {
+              const entryPath = join(path, entry);
+              const stat = statSync(entryPath);
+              if (stat.isDirectory()) {
+                rmSync(entryPath, { recursive: true, force: true });
+              } else {
+                rmSync(entryPath, { force: true });
+              }
+            }
+            // Restore from backup
+            const backupEntries = readdirSync(backupPath);
+            for (const entry of backupEntries) {
+              const srcPath = join(backupPath, entry);
+              const destPath = join(path, entry);
+              const stat = statSync(srcPath);
+              if (stat.isDirectory()) {
+                execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
+              } else {
+                copyFileSync(srcPath, destPath);
+              }
+            }
+            log('Restore successful');
+          } catch (restoreError) {
+            error('restore', `Restore also failed: ${restoreError}`);
+          }
         }
+        throw updateError;
       }
 
       config.packages[name].version = remoteVer;
       saveConfig(config);
 
-      if (!options.noBackup) {
-        const bkPath = join(backupDir(), name, localVer);
-        if (existsSync(bkPath)) rmSync(bkPath, { recursive: true, force: true });
+      if (!options.noBackup && backupPath && existsSync(backupPath)) {
+        rmSync(backupPath, { recursive: true, force: true });
       }
 
       console.log(`${name}: ${localVer} → ${remoteVer} ✓`);
