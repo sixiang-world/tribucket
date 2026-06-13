@@ -1,5 +1,5 @@
 import { existsSync, accessSync, constants } from 'fs';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import type { PackageMeta, TrackedPackage } from '../types';
 import { log } from '../utils/log';
 
@@ -42,7 +42,7 @@ function runVersionCommand(
   timeout: number
 ): string | null {
   try {
-    const result = execSync(`"${binaryPath}" ${flag}`, {
+    const result = execFileSync(binaryPath, [flag], {
       timeout: timeout * 1000,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
