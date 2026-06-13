@@ -45,20 +45,29 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
     if (p) return [p.name, p.template];
   }
 
-  // Check cache
+  const providers = userConfig.providers || DEFAULT_PROVIDERS;
+
+  // cn mode: force mirror, skip direct, fallback to first provider
+  if (mirrorMode === 'cn') {
+    for (const p of providers) {
+      const [ok] = await testProvider(p);
+      if (ok) return [p.name, p.template];
+    }
+    return providers.length > 0 ? [providers[0].name, providers[0].template] : ['direct', null];
+  }
+
+  // auto mode: check cache, then probe
   const cache = loadJson<any>(mirrorCachePath(), null);
   if (cache?.selected) {
     const checkedAt = new Date(cache.checked_at);
     if (Date.now() - checkedAt.getTime() < (cache.ttl_seconds || 3600) * 1000) {
       if (cache.selected === 'direct') return ['direct', null];
-      const providers = userConfig.providers || DEFAULT_PROVIDERS;
       const p = providers.find((x: any) => x.name === cache.selected);
       if (p) return [p.name, p.template];
     }
   }
 
-  // Probe providers
-  const providers = userConfig.providers || DEFAULT_PROVIDERS;
+  // Probe all providers
   const results: Record<string, { ok: boolean; latency_ms: number }> = {};
 
   for (const p of providers) {

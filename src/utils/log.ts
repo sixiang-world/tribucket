@@ -1,4 +1,4 @@
-export const VERBOSE = process.env.TRIBUTABLE_VERBOSE === '1';
+export const VERBOSE = process.env.TRIBUCKET_VERBOSE === '1';
 
 export function log(msg: string): void {
   if (VERBOSE) {

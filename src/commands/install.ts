@@ -55,6 +55,14 @@ export async function installPackage(
     }
   }
 
+  // Self-directory protection
+  const { tribucketHome } = await import('../config/paths');
+  const homeDir = resolve(tribucketHome());
+  if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + '/')) {
+    error('forbidden', `Refusing to install into tribucket home directory: ${resolvedTarget}`);
+    return false;
+  }
+
   mkdirSync(targetDir, { recursive: true });
 
   const platform = detectPlatform();

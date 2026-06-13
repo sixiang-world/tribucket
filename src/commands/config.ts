@@ -19,14 +19,14 @@ export function configCommand(subcommand: string, key?: string, value?: string):
       break;
     }
     case 'get': {
-      if (!key) { console.error('Usage: tributable config get <key>'); return; }
+      if (!key) { console.error('Usage: tribucket config get <key>'); return; }
       const val = config.settings?.[key];
       if (val === undefined) console.log(`Setting '${key}' is not set.`);
       else console.log(val);
       break;
     }
     case 'set': {
-      if (!key || !value) { console.error('Usage: tributable config set <key> <value>'); return; }
+      if (!key || !value) { console.error('Usage: tribucket config set <key> <value>'); return; }
       config.settings = config.settings || {};
       config.settings[key] = coerceValue(value);
       saveConfig(config);
@@ -34,12 +34,12 @@ export function configCommand(subcommand: string, key?: string, value?: string):
       break;
     }
     case 'unset': {
-      if (!key) { console.error('Usage: tributable config unset <key>'); return; }
+      if (!key) { console.error('Usage: tribucket config unset <key>'); return; }
       if (config.settings && key in config.settings) { delete config.settings[key]; saveConfig(config); console.log(`Unset ${key}`); }
       else console.log(`Setting '${key}' is not set.`);
       break;
     }
     default:
-      console.log('Usage: tributable config [list|get|set|unset]');
+      console.log('Usage: tribucket config [list|get|set|unset]');
   }
 }

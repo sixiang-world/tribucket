@@ -6,7 +6,7 @@ import { detectPlatform } from './utils/platform';
 const VERSION = '2.0.0';
 
 // Color support
-let NO_COLOR = false;
+let NO_COLOR = !process.stdout.isTTY;
 
 const program = new Command();
 program
