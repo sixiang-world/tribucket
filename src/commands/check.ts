@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import { execFileSync } from 'child_process';
 import { loadConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { httpGetJson } from '../utils/http';
@@ -61,9 +62,18 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
   let binaryPath = join(path, binary);
   if (installType === 'directory' && !existsSync(binaryPath)) {
     try {
-      const { execSync } = require('child_process');
-      const found = execSync(`find "${path}" -name "${binary}" -type f | head -1`, { encoding: 'utf-8' }).trim();
-      if (found) binaryPath = found;
+      // Safe binary search using Node.js fs
+      const entries = readdirSync(path);
+      for (const entry of entries) {
+        const entryPath = join(path, entry);
+        try {
+          const stat = statSync(entryPath);
+          if (stat.isFile() && entry === binary) {
+            binaryPath = entryPath;
+            break;
+          }
+        } catch {}
+      }
     } catch {}
   }
 
