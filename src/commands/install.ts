@@ -69,30 +69,42 @@ export async function installPackage(
   const platform = detectPlatform();
   if (!platform) { error('platform', 'Unsupported platform'); return false; }
 
-  const pattern = pkg.asset_pattern?.[platform];
-  if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
-
   const version = pkg.version || '0.0.0';
   const repo = pkg.repo || '';
 
-  // If no version, fetch latest from GitHub
-  let actualVersion = version;
-  if (actualVersion === '0.0.0' && repo) {
-    try {
-      const token = process.env.GITHUB_TOKEN;
-      const data = await httpGetJson<any>(
-        `https://api.github.com/repos/${repo}/releases/latest`,
-        { token }
-      );
-      actualVersion = data.tag_name?.replace(/^v/, '') || version;
-      log(`Latest version: ${actualVersion}`);
-    } catch {
-      log(`Could not fetch latest version, using ${version}`);
-    }
-  }
+  // Determine download URL: download_url takes precedence over asset_pattern
+  let url: string;
+  let provider: string;
+  const directUrl = pkg.download_url?.[platform];
+  if (directUrl && directUrl !== 'NO_MATCH') {
+    url = directUrl;
+    provider = 'direct';
+    log(`Download URL (download_url): ${url}`);
+  } else {
+    const pattern = pkg.asset_pattern?.[platform];
+    if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
 
-  const [url, provider] = await resolveDownloadUrl(repo, actualVersion, pattern, options.mirror as any);
-  log(`Download URL (${provider}): ${url}`);
+    // If no version, fetch latest from GitHub
+    let actualVersion = version;
+    if (actualVersion === '0.0.0' && repo) {
+      try {
+        const token = process.env.GITHUB_TOKEN;
+        const data = await httpGetJson<any>(
+          `https://api.github.com/repos/${repo}/releases/latest`,
+          { token }
+        );
+        actualVersion = data.tag_name?.replace(/^v/, '') || version;
+        log(`Latest version: ${actualVersion}`);
+      } catch {
+        log(`Could not fetch latest version, using ${version}`);
+      }
+    }
+
+    const resolved = await resolveDownloadUrl(repo, actualVersion, pattern, options.mirror as any);
+    url = resolved[0];
+    provider = resolved[1];
+    log(`Download URL (${provider}): ${url}`);
+  }
 
   const tmpDir = join(tmpdir(), `tributable-install-${Date.now()}`);
   mkdirSync(tmpDir, { recursive: true });
