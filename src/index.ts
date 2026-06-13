@@ -7,7 +7,7 @@ const VERSION = '2.0.0';
 
 const program = new Command();
 program
-  .name('tributable')
+  .name('tribucket')
   .description('Lightweight portable package manager')
   .version(VERSION);
 
@@ -17,7 +17,7 @@ program
   .description('Install a package')
   .argument('<name>', 'Package name')
   .option('-d, --dir <path>', 'Install directory (default: cwd)')
-  .option('--link', 'Create symlink in ~/.tributable/bin/')
+  .option('--link', 'Create symlink in ~/.tribucket/bin/')
   .option('--force', 'Overwrite existing installation')
   .option('--mirror <mode>', 'Mirror mode: auto / cn / direct', 'auto')
   .action(async (name, opts) => {
@@ -191,7 +191,7 @@ program
     if (!info) { console.error(`Error: '${name}' is not tracked.`); process.exit(3); }
 
     console.log(`Name:        ${name}`);
-    const tjPath = join(info.path, 'tributable.json');
+    const tjPath = join(info.path, 'tribucket.json');
     if (existsSync(tjPath)) {
       try {
         const tj = JSON.parse(readFileSync(tjPath, 'utf-8'));
@@ -210,14 +210,14 @@ program
 // self-update
 program
   .command('self-update')
-  .description('Update tributable CLI itself')
+  .description('Update tribucket CLI itself')
   .action(async () => {
     console.log('Checking for updates...');
     const { httpGetJson } = await import('./utils/http');
 
     let latest: string;
     try {
-      const data = await httpGetJson<any>('https://api.github.com/repos/sixiang-world/tributable/releases/latest');
+      const data = await httpGetJson<any>('https://api.github.com/repos/sixiang-world/tribucket/releases/latest');
       latest = data.tag_name?.replace(/^v/, '');
     } catch (e: any) {
       console.error(`Error: Cannot check for updates: ${e.message}`);
