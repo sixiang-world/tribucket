@@ -47,7 +47,7 @@ function runVersionCommand(
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    const text = outputStream === 'stderr' ? '' : result;
+    const text = outputStream === 'stderr' ? result.stderr : result;
     const match = text.match(new RegExp(parseRegex));
     if (match) return match[1] || match[0];
   } catch {}

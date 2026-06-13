@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, lstatSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, lstatSync, readFileSync, readlinkSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { binDir } from '../config/paths';
@@ -112,7 +112,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       const linkPath = join(bd, f);
       try {
         if (lstatSync(linkPath).isSymbolicLink()) {
-          const target = require('fs').readlinkSync(linkPath);
+          const target = readlinkSync(linkPath);
           if (!existsSync(linkPath)) dangling.push(`${linkPath} → ${target}`);
         }
       } catch {}

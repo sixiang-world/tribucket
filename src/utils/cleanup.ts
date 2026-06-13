@@ -6,7 +6,7 @@ export function cleanupOldTmp(): void {
   const now = Date.now();
   try {
     for (const name of readdirSync(tmpdir())) {
-      if (name.startsWith('tributable-')) {
+      if (name.startsWith('tribucket-')) {
         const path = join(tmpdir(), name);
         try {
           if (statSync(path).isDirectory()) {
