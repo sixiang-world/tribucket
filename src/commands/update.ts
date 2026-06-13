@@ -21,8 +21,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   const path = info.path;
   if (!existsSync(path)) { error('stale', `Package path does not exist: ${path}`); return false; }
 
-  const tjPath = join(path, 'tributable.json');
-  if (!existsSync(tjPath)) { error('config', `tributable.json not found in ${path}`); return false; }
+  const tjPath = join(path, 'tribucket.json');
+  if (!existsSync(tjPath)) { error('config', `tribucket.json not found in ${path}`); return false; }
   const tj: PackageMeta = JSON.parse(readFileSync(tjPath, 'utf-8'));
 
   const repo = tj.repo || '';
@@ -91,7 +91,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
       if (installType === 'directory') {
         // Copy directory contents safely, excluding certain files
-        const excludeFiles = ['tributable.json', 'install.sh', 'cmd'];
+        const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
         const entries = readdirSync(extractDir);
         for (const entry of entries) {
           if (excludeFiles.includes(entry)) continue;

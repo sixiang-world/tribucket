@@ -24,7 +24,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
 
       if (exists) {
         // Try to detect version from binary
-        const tjPath = join(path, 'tributable.json');
+        const tjPath = join(path, 'tribucket.json');
         let tj: PackageMeta | null = null;
         if (existsSync(tjPath)) {
           try { tj = JSON.parse(readFileSync(tjPath, 'utf-8')); } catch {}

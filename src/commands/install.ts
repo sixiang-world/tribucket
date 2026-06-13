@@ -170,7 +170,7 @@ export async function installPackage(
       version_check: { cli_flags: ['--version'], parse_regex: 'v?(\\d+\\.\\d+(?:\\.\\d+)?)', output_stream: 'stdout', timeout: 5, fallback_version: version },
       asset_pattern: pkg.asset_pattern || {}, install_type: installType, mirror: { enabled: true },
     };
-    writeFileSync(join(targetDir, 'tributable.json'), JSON.stringify(tributableJson, null, 2) + '\n');
+    writeFileSync(join(targetDir, 'tribucket.json'), JSON.stringify(tributableJson, null, 2) + '\n');
 
     // Generate install.sh
     const installSh = generateInstallSh(pkg.name, pkg.repo || '', pkg.binary || name, version);

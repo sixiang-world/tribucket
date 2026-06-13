@@ -30,7 +30,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
     return { name, path, path_exists: false, local: 'not found', local_source: 'none', remote: null, status: 'error' };
   }
 
-  const tjPath = join(path, 'tributable.json');
+  const tjPath = join(path, 'tribucket.json');
   let tj: PackageMeta | null = null;
   if (existsSync(tjPath)) {
     try { tj = JSON.parse(readFileSync(tjPath, 'utf-8')); } catch {}
