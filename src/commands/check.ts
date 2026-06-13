@@ -98,8 +98,15 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
       }
       if (!remoteVer) {
         try {
-          const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-          remoteVer = data.tag_name?.replace(/^v/, '') || null;
+          const includePrerelease = tj.version_check?.include_prerelease || false;
+          let data: any;
+          if (includePrerelease) {
+            const releases = await httpGetJson<any[]>(`https://api.github.com/repos/${repo}/releases`, { token });
+            data = Array.isArray(releases) && releases.length > 0 ? releases[0] : null;
+          } else {
+            data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
+          }
+          remoteVer = data?.tag_name?.replace(/^v/, '') || null;
           if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
         } catch {}
       }
