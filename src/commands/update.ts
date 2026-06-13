@@ -11,6 +11,7 @@ import { backupDir } from '../config/paths';
 import { PackageLock } from '../engine/lock';
 import { detectPlatform } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
+import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import type { PackageMeta } from '../types';
 
 // SIGINT handler for graceful interrupt
@@ -42,10 +43,21 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
   const token = process.env.GITHUB_TOKEN;
   let remoteVer: string | null = null;
-  try {
-    const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-    remoteVer = data.tag_name?.replace(/^v/, '') || null;
-  } catch { error('network', `Cannot check remote version for ${repo}`); return false; }
+
+  // Try cache first (unless force)
+  if (!options.force) {
+    const cached = getCachedRemoteVersion(repo);
+    if (cached) remoteVer = cached;
+  }
+
+  // Fetch from API if not cached
+  if (!remoteVer) {
+    try {
+      const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
+      remoteVer = data.tag_name?.replace(/^v/, '') || null;
+      if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
+    } catch { error('network', `Cannot check remote version for ${repo}`); return false; }
+  }
 
   if (!remoteVer) { error('network', `Cannot check remote version for ${repo}`); return false; }
   log(`Remote version: ${remoteVer}`);
