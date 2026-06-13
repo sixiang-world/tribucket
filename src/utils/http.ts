@@ -6,10 +6,10 @@ function getProxyUrl(url: string): string | null {
   return process.env[envKey] || process.env['ALL_PROXY'] || null;
 }
 
-export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number }): Promise<Uint8Array> {
-  const { token, retries = 3, timeout = 30000 } = options || {};
+export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number; method?: string }): Promise<Uint8Array> {
+  const { token, retries = 3, timeout = 30000, method = 'GET' } = options || {};
   const headers: Record<string, string> = {
-    'User-Agent': 'Mozilla/5.0 (compatible; tributable/2.0)',
+    'User-Agent': 'Mozilla/5.0 (compatible; tribucket/2.0)',
   };
   if (url.includes('github.com')) {
     headers['Accept'] = 'application/vnd.github.v3+json';
@@ -27,6 +27,7 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       const fetchOptions: RequestInit = {
+        method,
         headers,
         signal: controller.signal,
       };

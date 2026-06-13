@@ -67,7 +67,7 @@ export function removeStaleEntries(): string[] {
   return removed;
 }
 
-function findRepoKey(config: any, name: string): string | null {
+export function findRepoKey(config: any, name: string): string | null {
   for (const [key, info] of Object.entries(config.packages)) {
     if ((info as any).name === name) return key;
   }

@@ -62,11 +62,13 @@ program
   .action(async (name) => {
     const { loadConfig, saveConfig } = await import('./config/store');
     const { binDir, backupDir } = await import('./config/paths');
+    const { findRepoKey } = await import('./commands/track');
     const { existsSync, readdirSync, unlinkSync, rmSync } = await import('fs');
     const { join } = await import('path');
 
     const config = loadConfig();
-    const info = config.packages[name];
+    const repoKey = findRepoKey(config, name) || name;
+    const info = config.packages[repoKey];
     if (!info) { console.error(`Error: '${name}' is not tracked.`); process.exit(5); }
 
     if (existsSync(info.path)) { rmSync(info.path, { recursive: true }); console.log(`Deleted: ${info.path}`); }
@@ -91,7 +93,7 @@ program
     const bk = join(backupDir(), name);
     if (existsSync(bk)) { rmSync(bk, { recursive: true }); console.log(`Removed backup: ${bk}`); }
 
-    delete config.packages[name];
+    delete config.packages[repoKey];
     saveConfig(config);
   });
 

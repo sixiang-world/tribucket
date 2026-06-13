@@ -12,6 +12,7 @@ import { PackageLock } from '../engine/lock';
 import { detectPlatform } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
+import { findRepoKey } from './track';
 import type { PackageMeta } from '../types';
 
 // SIGINT handler for graceful interrupt
@@ -176,14 +177,39 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             }
           }
         } else {
-          const found = execFileSync('find', [extractDir, '-name', binary, '-type', 'f'], {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
-          }).trim();
+          // Binary type - find the binary
+          let found = '';
+          const tryPatterns = [binary, `${binary}*`, `*${binary}*`];
+
+          for (const pattern of tryPatterns) {
+            try {
+              const result = execFileSync('find', [extractDir, '-name', pattern, '-type', 'f'], {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe'],
+              }).trim();
+              if (result) {
+                found = result.split('\n')[0];
+                break;
+              }
+            } catch {}
+          }
+
+          // Fallback to any executable file
+          if (!found) {
+            try {
+              const result = execFileSync('find', [extractDir, '-type', 'f', '-executable'], {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe'],
+              }).trim();
+              if (result) {
+                found = result.split('\n')[0];
+              }
+            } catch {}
+          }
+
           if (found) {
-            const firstFile = found.split('\n')[0];
             const dest = join(path, binary);
-            copyFileSync(firstFile, dest);
+            copyFileSync(found, dest);
             chmodSync(dest, 0o755);
           }
         }
@@ -233,7 +259,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
         // Don't fail, just warn — binary might report version differently
       }
 
-      config.packages[name].version = remoteVer;
+      const repoKey = findRepoKey(config, name) || name;
+      config.packages[repoKey].version = remoteVer;
       saveConfig(config);
 
       if (!options.noBackup && backupPath && existsSync(backupPath)) {

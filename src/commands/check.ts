@@ -120,7 +120,7 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
       if (url && url !== 'NO_MATCH') {
         try {
           const { httpGet } = await import('../utils/http');
-          await httpGet(url, { timeout: 5000 });
+          await httpGet(url, { timeout: 5000, method: 'HEAD' });
           // If HEAD succeeds, URL is reachable but we don't know the version
           remoteVer = localVer;
         } catch {}
