@@ -14,16 +14,13 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
 
   // If --check, run version detection for all packages
   if (options.check) {
-    const results: Array<{name: string; info: any; localVer: string; remoteVer: string | null}> = [];
-
-    for (const [_, info] of packages) {
+    const checkOne = async ([, info]: [string, any]): Promise<{name: string; info: any; localVer: string; remoteVer: string | null}> => {
       const path = info.path;
       const exists = existsSync(path);
       let localVer = info.version || '?';
       let remoteVer: string | null = null;
 
       if (exists) {
-        // Try to detect version from binary
         const tjPath = join(path, 'tribucket.json');
         let tj: PackageMeta | null = null;
         if (existsSync(tjPath)) {
@@ -37,7 +34,6 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
           localVer = ver;
         }
 
-        // Try to get remote version
         const repo = tj?.repo || info.repo;
         if (repo) {
           try {
@@ -48,7 +44,15 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
         }
       }
 
-      results.push({ name: info.name, info, localVer, remoteVer });
+      return { name: info.name, info, localVer, remoteVer };
+    };
+
+    const WORKERS = 4;
+    const results: Array<{name: string; info: any; localVer: string; remoteVer: string | null}> = [];
+    for (let i = 0; i < packages.length; i += WORKERS) {
+      const batch = packages.slice(i, i + WORKERS);
+      const batchResults = await Promise.all(batch.map(checkOne));
+      results.push(...batchResults);
     }
 
     if (options.json) {

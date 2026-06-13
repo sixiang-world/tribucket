@@ -114,7 +114,13 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
       // download_url packages: try HEAD request to check reachability
       const { detectPlatform } = await import('../utils/platform');
       const plat = detectPlatform();
-      const url = tj.download_url[plat || ''];
+      let url = tj.download_url[plat || ''];
+      if (!url || url === 'NO_MATCH') {
+        // Fallback: try any platform URL
+        for (const v of Object.values(tj.download_url)) {
+          if (v && v !== 'NO_MATCH') { url = v; break; }
+        }
+      }
       if (url && url !== 'NO_MATCH') {
         try {
           const { httpGet } = await import('../utils/http');

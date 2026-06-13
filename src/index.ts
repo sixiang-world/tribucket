@@ -285,4 +285,12 @@ program
 // Cleanup on startup
 cleanupOldTmp();
 
+// Handle uncaught rejections gracefully
+process.on('unhandledRejection', (reason) => {
+  if (process.env.TRIBUCKET_VERBOSE === '1') {
+    console.error('Unhandled rejection:', reason);
+  }
+  process.exit(1);
+});
+
 program.parse();

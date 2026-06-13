@@ -67,7 +67,7 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
     }
   }
 
-  // Probe all providers
+  // Probe all providers + direct
   const results: Record<string, { ok: boolean; latency_ms: number }> = {};
 
   for (const p of providers) {
@@ -75,6 +75,10 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
     results[p.name] = { ok, latency_ms: latency };
     log(`Mirror probe: ${p.name} = ${ok ? 'OK' : 'FAIL'} (${latency}ms)`);
   }
+
+  const [directOk, directLatency] = await testDirect();
+  results['direct'] = { ok: directOk, latency_ms: directLatency };
+  log(`Mirror probe: direct = ${directOk ? 'OK' : 'FAIL'} (${directLatency}ms)`);
 
   // Select fastest
   let bestName = 'direct';
@@ -96,6 +100,19 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
   if (bestName === 'direct') return ['direct', null];
   const p = providers.find((x: any) => x.name === bestName);
   return p ? [p.name, p.template] : ['direct', null];
+}
+
+async function testDirect(timeout = 3000): Promise<[boolean, number]> {
+  const start = Date.now();
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch('https://github.com', { method: 'HEAD', signal: controller.signal });
+    clearTimeout(timeoutId);
+    return [response.status < 400, Date.now() - start];
+  } catch {
+    return [false, Date.now() - start];
+  }
 }
 
 export async function resolveDownloadUrl(repo: string, version: string, asset: string, mirrorMode: MirrorMode = 'auto'): Promise<[string, string]> {
