@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""tribucket — lightweight portable package manager.
+
+Usage:
+    tribucket install <name>       Install a package
+    tribucket update <name>        Update a package
+    tribucket check [name...]      Check versions
+    tribucket list                 List tracked packages
+    tribucket info <name>          Show package details
+
+Run 'tribucket --help' for full usage.
+"""
+import os
+import sys
+
+# Add lib/ to path so we can import tribucket
+_lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")
+if os.path.isdir(_lib_dir):
+    sys.path.insert(0, os.path.abspath(_lib_dir))
+
+from tribucket.cli import main
+
+if __name__ == "__main__":
+    main()

@@ -455,7 +455,7 @@ class TestCheckverIntegration:
         """Full pipeline: download_url package with checkver detects new version."""
         fake_checkver_response = json.dumps({"version": "2.0.0"})
 
-        def mock_http_get(url, token=None, retries=3):
+        def mock_http_get(url, token=None, retries=3, timeout=None):
             if "api.example.com" in url:
                 return fake_checkver_response.encode()
             # For SHA256 download, return a small binary
@@ -497,7 +497,7 @@ class TestCheckverIntegration:
 
     def test_download_url_package_zero_config(self, tmp_path, monkeypatch):
         """Zero-config: extracts version from URL, uses in-place replace."""
-        def mock_http_get(url, token=None, retries=3):
+        def mock_http_get(url, token=None, retries=3, timeout=None):
             return b"fake-binary-content"
 
         monkeypatch.setattr(generate, "http_get", mock_http_get)
@@ -526,3 +526,214 @@ class TestCheckverIntegration:
         assert 'version "1.24.3"' in formula
         assert new_version is None  # no change
         assert new_urls is None
+
+
+# ── Portable generation tests ──────────────────────────────────────
+
+
+SAMPLE_PKG = {
+    "name": "go-wxpush",
+    "repo": "hezhizheng/go-wxpush",
+    "description": "WeChat push notification utility",
+    "binary": "go-wxpush",
+    "license": "MIT",
+    "homepage": "https://github.com/hezhizheng/go-wxpush",
+    "version": "1.5.2",
+    "asset_pattern": {
+        "linux_amd64": "go-wxpush_linux_amd64",
+        "linux_arm64": "go-wxpush_linux_arm64",
+        "darwin_amd64": "go-wxpush_darwin_amd64",
+        "darwin_arm64": "NO_MATCH",
+        "windows_amd64": "go-wxpush_windows_amd64.exe",
+        "windows_arm64": "NO_MATCH",
+    },
+}
+
+JDK_PKG = {
+    "name": "corretto-jdk17",
+    "repo": "corretto/corretto-17",
+    "description": "Amazon Corretto JDK 17",
+    "binary": "bin/java",
+    "license": "GPL-2.0",
+    "homepage": "https://aws.amazon.com/corretto/",
+    "version": "17.0.12",
+    "asset_pattern": {
+        "linux_amd64": "amazon-corretto-17_*-linux-x64.tar.gz",
+        "linux_arm64": "amazon-corretto-17_*-linux-aarch64.tar.gz",
+        "darwin_amd64": "amazon-corretto-17_*-macos-x64.tar.gz",
+        "darwin_arm64": "amazon-corretto-17_*-macos-aarch64.tar.gz",
+        "windows_amd64": "amazon-corretto-17_*-windows-x64.zip",
+        "windows_arm64": "NO_MATCH",
+    },
+}
+
+
+class TestInferAssetFormat:
+    def test_tar_gz(self):
+        pat = {"linux_amd64": "foo_1.0_linux_amd64.tar.gz"}
+        assert generate.infer_asset_format(pat) == {"linux_amd64": "tar.gz"}
+
+    def test_zip(self):
+        pat = {"windows_amd64": "foo_1.0_windows_amd64.zip"}
+        assert generate.infer_asset_format(pat) == {"windows_amd64": "zip"}
+
+    def test_exe(self):
+        pat = {"windows_amd64": "foo.exe"}
+        assert generate.infer_asset_format(pat) == {"windows_amd64": "exe"}
+
+    def test_binary(self):
+        pat = {"linux_amd64": "foo_linux_amd64"}
+        assert generate.infer_asset_format(pat) == {"linux_amd64": "binary"}
+
+    def test_no_match_excluded(self):
+        pat = {"linux_amd64": "foo.tar.gz", "darwin_arm64": "NO_MATCH"}
+        result = generate.infer_asset_format(pat)
+        assert "darwin_arm64" not in result
+        assert result["linux_amd64"] == "tar.gz"
+
+
+class TestInferInstallType:
+    def test_binary_default(self):
+        assert generate.infer_install_type(SAMPLE_PKG) == "binary"
+
+    def test_jdk_directory(self):
+        assert generate.infer_install_type(JDK_PKG) == "directory"
+
+    def test_various_jdk_names(self):
+        for prefix in ("corretto-jdk", "temurin-jdk", "zulu-jdk", "graalvm-ce-jdk"):
+            pkg = {"name": f"{prefix}17"}
+            assert generate.infer_install_type(pkg) == "directory"
+
+    def test_non_jdk_is_binary(self):
+        pkg = {"name": "not-a-jdk"}
+        assert generate.infer_install_type(pkg) == "binary"
+
+
+class TestDeriveTribucketJson:
+    def test_basic_fields(self):
+        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        assert tj["name"] == "go-wxpush"
+        assert tj["version"] == "1.5.2"
+        assert tj["repo"] == "hezhizheng/go-wxpush"
+        assert tj["binary"] == "go-wxpush"
+        assert tj["license"] == "MIT"
+
+    def test_version_check_defaults(self):
+        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        vc = tj["version_check"]
+        assert vc["cli_flags"] == ["--version"]
+        assert "parse_regex" in vc
+        assert vc["timeout"] == 5
+        assert vc["fallback_version"] == "1.5.2"
+
+    def test_install_type_inferred(self):
+        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        assert tj["install_type"] == "binary"
+
+        tj_jdk = generate.derive_tribucket_json(JDK_PKG, "17.0.12")
+        assert tj_jdk["install_type"] == "directory"
+
+    def test_asset_format_inferred(self):
+        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        assert tj["asset_format"]["linux_amd64"] == "binary"
+        assert tj["asset_format"]["windows_amd64"] == "exe"
+
+    def test_mirror_enabled(self):
+        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        assert tj["mirror"]["enabled"] is True
+
+    def test_optional_prerelease(self):
+        pkg = {**SAMPLE_PKG, "version_check": {"include_prerelease": True}}
+        tj = generate.derive_tribucket_json(pkg, "1.5.2")
+        assert tj["version_check"]["include_prerelease"] is True
+
+    def test_optional_download_url(self):
+        pkg = {**SAMPLE_PKG, "download_url": {"linux_amd64": "https://example.com/foo"}}
+        tj = generate.derive_tribucket_json(pkg, "1.5.2")
+        assert "download_url" in tj
+        assert tj["download_url"]["linux_amd64"] == "https://example.com/foo"
+
+
+class TestRenderInstallSh:
+    def test_has_shebang(self):
+        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        assert sh.startswith("#!/usr/bin/env bash")
+
+    def test_checks_for_tribucket_cli(self):
+        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        assert 'command -v tribucket' in sh
+
+    def test_has_standalone_fallback(self):
+        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        assert "standalone mode" in sh
+
+    def test_contains_package_name(self):
+        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        assert 'NAME="go-wxpush"' in sh
+        assert 'REPO="hezhizheng/go-wxpush"' in sh
+
+
+class TestRenderBat:
+    def test_has_package_name(self):
+        bat = generate.render_bat(SAMPLE_PKG)
+        assert "go-wxpush" in bat
+
+    def test_has_exe_extension(self):
+        bat = generate.render_bat(SAMPLE_PKG)
+        assert "go-wxpush.exe" in bat
+
+    def test_checks_binary_exists(self):
+        bat = generate.render_bat(SAMPLE_PKG)
+        assert "if not exist" in bat
+
+
+class TestGeneratePortable:
+    def test_creates_files(self, tmp_path):
+        ok = generate.generate_portable(SAMPLE_PKG, str(tmp_path), verbose=False)
+        assert ok is True
+
+        pkg_dir = tmp_path / "go-wxpush"
+        assert (pkg_dir / "tribucket.json").exists()
+        assert (pkg_dir / "install.sh").exists()
+        assert (pkg_dir / "cmd" / "tribucket-update.bat").exists()
+
+    def test_tribucket_json_valid(self, tmp_path):
+        generate.generate_portable(SAMPLE_PKG, str(tmp_path))
+        with open(tmp_path / "go-wxpush" / "tribucket.json") as f:
+            tj = json.load(f)
+        assert tj["name"] == "go-wxpush"
+        assert tj["version"] == "1.5.2"
+
+    def test_install_sh_executable(self, tmp_path):
+        generate.generate_portable(SAMPLE_PKG, str(tmp_path))
+        install_sh = tmp_path / "go-wxpush" / "install.sh"
+        assert os.access(str(install_sh), os.X_OK)
+
+    def test_dry_run_no_files(self, tmp_path):
+        ok = generate.generate_portable(SAMPLE_PKG, str(tmp_path), dry_run=True)
+        assert ok is True
+        # No files should be created in dry_run mode
+        assert not (tmp_path / "go-wxpush").exists()
+
+    def test_jdk_package(self, tmp_path):
+        generate.generate_portable(JDK_PKG, str(tmp_path))
+        with open(tmp_path / "corretto-jdk17" / "tribucket.json") as f:
+            tj = json.load(f)
+        assert tj["install_type"] == "directory"
+        assert tj["binary"] == "bin/java"
+
+
+class TestParseArgsPortable:
+    def test_portable_flag(self):
+        args = generate.parse_args(["--portable"])
+        assert args.portable is True
+
+    def test_portable_dir(self):
+        args = generate.parse_args(["--portable", "--portable-dir", "/tmp/out"])
+        assert args.portable is True
+        assert args.portable_dir == "/tmp/out"
+
+    def test_portable_default(self):
+        args = generate.parse_args([])
+        assert args.portable is False
+        assert args.portable_dir is None

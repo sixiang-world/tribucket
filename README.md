@@ -1,11 +1,56 @@
 # tribucket
 
-**tri** (三合一) + **bucket** (包仓库) = 三种安装方式，一个仓库。
+**tri** (三合一) + **bucket** (包仓库) = 多种安装方式，一个仓库。
 
 一个通用的跨平台软件包仓库，每个软件同时提供：
 - **Homebrew** (macOS / Linux)
 - **Scoop** (Windows)
 - **Shell 脚本** (任意平台兜底)
+- **便携包** (v2 — 自包含的可移植软件包)
+
+v2 新增轻量级 **tribucket CLI**，可跟踪、检测、更新所有通过它安装的便携软件。
+
+## 快速开始
+
+### 安装 tribucket CLI
+
+```bash
+# Homebrew (macOS / Linux)
+brew install sixiang-world/tribucket/tribucket
+
+# Scoop (Windows)
+scoop bucket add tribucket https://github.com/sixiang-world/tribucket
+scoop install tribucket
+
+# 一键安装
+curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash
+```
+
+### 安装软件包
+
+```bash
+# 通过 tribucket CLI
+tribucket install ripgrep
+tribucket install fzf
+
+# 通过 Homebrew
+brew tap sixiang-world/tribucket
+brew install ripgrep
+
+# 通过 Scoop
+scoop bucket add tribucket https://github.com/sixiang-world/tribucket
+scoop install ripgrep
+```
+
+### 管理已安装的包
+
+```bash
+tribucket list                    # 列出所有已跟踪的包
+tribucket check --all             # 检查是否有更新
+tribucket update ripgrep          # 更新指定包
+tribucket info ripgrep            # 查看包详情
+tribucket clean                   # 清理过期条目
+```
 
 ## 当前收录
 
@@ -64,11 +109,26 @@
 | zellij | Terminal multiplexer with batteries included | [zellij-org/zellij](https://github.com/zellij-org/zellij) |
 | zoxide | A smarter cd command — tracks your most used directories | [ajeetdsouza/zoxide](https://github.com/ajeetdsouza/zoxide) |
 
-## 安装方式
+## tribucket CLI 命令
+
+```
+tribucket install <name>       安装软件包
+tribucket uninstall <name>     卸载软件包
+tribucket update <name>        更新软件包
+tribucket update --all         更新所有包
+tribucket check [name...]      检查版本
+tribucket list                 列出已跟踪的包
+tribucket info <name>          查看包详情
+tribucket track <name> <path>  跟踪已有的安装
+tribucket clean                清理过期条目
+tribucket self-update          更新 tribucket 自身
+tribucket config list          查看配置
+tribucket --version --json     输出版本信息 (JSON)
+```
+
+## 安装方式 (v1)
 
 ### Homebrew (macOS / Linux)
-
-所有收录的软件包均有对应的 Homebrew Formula。
 
 ```bash
 brew tap sixiang-world/tribucket
@@ -77,8 +137,6 @@ brew install ccx
 
 ### Scoop (Windows)
 
-所有收录的软件包均有对应的 Scoop manifest。
-
 ```powershell
 scoop bucket add tribucket https://github.com/sixiang-world/tribucket
 scoop install ccx
@@ -86,188 +144,97 @@ scoop install ccx
 
 ### 脚本兜底 (任意平台)
 
-支持所有收录的软件包，将 `<package>` 替换为上方表格中的软件名（如 `bat`、`fzf`、`ollama` 等）。
-
-**Linux / macOS：**
 ```bash
-# 安装到当前目录
+# Linux / macOS
 curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/install.sh | bash -s <package>
 
-# 安装到指定目录
-curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/install.sh | INSTALL_DIR=/usr/local/bin bash -s <package>
-```
-
-**Windows (PowerShell)：**
-```powershell
+# Windows PowerShell
 irm https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/install.ps1 | iex -ArgumentList <package>
-```
-
-**Windows (CMD)：**
-```cmd
-install.bat <package>
-```
-
-### 更新 / 卸载
-
-脚本安装后会在安装目录**自动生成** `update.sh` / `update.ps1` 和 `uninstall.sh` / `uninstall.ps1`：
-```bash
-./update.sh ccx        # 更新到最新版
-./uninstall.sh ccx     # 卸载
 ```
 
 ### CNB 镜像仓库（中国大陆加速）
 
-本仓库已自动镜像到 [cnb.cool](https://cnb.cool/shisheng820/tribucket)（腾讯云代码托管平台），中国大陆用户可通过镜像获得更快的访问速度。
-
-> **注意**：cnb.cool 不支持匿名原始文件直链（`/-/raw/` 端点经 JS 动态加载，不可用于 `curl` 下载），因此脚本安装方式仍需使用 GitHub raw URL。
-> 但 **Scoop** 和 **Homebrew tap** 使用 `git clone` 获取仓库，可以正常使用 CNB 镜像。
-
-**Scoop (Windows)：**
+本仓库已自动镜像到 [cnb.cool](https://cnb.cool/shisheng820/tribucket)。
 
 ```powershell
-# 使用 CNB 镜像添加 bucket（中国大陆加速）
+# Scoop 使用 CNB 镜像
 scoop bucket add tribucket https://cnb.cool/shisheng820/tribucket.git
-scoop install ccx
 ```
 
-**Homebrew (macOS / Linux)：**
-
 ```bash
-# 使用 CNB 镜像添加 tap（中国大陆加速）
+# Homebrew 使用 CNB 镜像
 brew tap shisheng820/tribucket https://cnb.cool/shisheng820/tribucket.git
-brew install ccx
 ```
-
-**Git 克隆（浏览 / 贡献）：**
-
-```bash
-# 从 CNB 镜像克隆（中国大陆加速）
-git clone https://cnb.cool/shisheng820/tribucket.git
-```
-
-> **脚本安装用户**：Shell 脚本依赖 GitHub raw URL 下载包定义和安装脚本，CNB 镜像暂不适用。请继续使用上方 [脚本兜底](#脚本兜底-任意平台) 中的 GitHub 命令，如网络受限可先通过 `git clone` 镜像仓库后在本地运行脚本。
 
 ## 项目结构
 
 ```
 tribucket/
-├── README.md
-├── CONTRIBUTING.md        # 贡献指南
-├── VERSION                # 仓库版本
-├── Formula/               # Homebrew formulas (自动生成，共 99 个)
-│   ├── axonhub.rb
-│   ├── ccx.rb
-│   ├── ...
-│   └── zoxide.rb
-├── bucket/                # Scoop manifests (自动生成，共 99 个)
-│   ├── axonhub.json
-│   ├── ccx.json
-│   ├── ...
-│   └── zoxide.json
-├── packages/              # 软件包元数据 (核心，共 106 个)
-│   ├── axonhub.json
-│   ├── bat.json
-│   ├── ccx.json
-│   ├── ...
-│   └── zoxide.json
-├── scripts/               # 通用脚本
-│   ├── generate.py        # 自动生成 Formula 和 Bucket
-│   ├── install.sh         # Linux / macOS 安装
-│   ├── install.ps1        # Windows PowerShell 安装
-│   └── install.bat        # Windows CMD 入口 (调用 install.ps1)
-└── tests/                 # 单元测试
-    └── test_generate.py   # generate.py 的测试 (35 个)
+├── bin/
+│   └── tribucket               # CLI 入口 (Python)
+├── lib/tribucket/              # Python 引擎
+│   ├── cli.py                  # 命令路由 (argparse)
+│   ├── check.py                # 版本检测
+│   ├── update.py               # 安全更新 (备份/恢复)
+│   ├── install.py              # 首次安装
+│   ├── mirror.py               # 镜像加速
+│   ├── track.py                # 包跟踪
+│   ├── config.py               # 配置管理
+│   └── utils.py                # 工具函数
+├── packages/                   # 软件包元数据 (106 个)
+├── Formula/                    # Homebrew formulas (自动生成)
+├── bucket/                     # Scoop manifests (自动生成)
+├── portable/                   # 便携包模板 (generate.py --portable)
+├── scripts/
+│   ├── generate.py             # 生成器 (Formula/Bucket/Portable)
+│   ├── bootstrap.sh            # CLI 引导安装
+│   ├── checkver.py             # 版本检测
+│   └── install.sh              # v1 脚本安装
+├── tests/                      # 测试 (152 个)
+└── docs/
+    └── architecture-v2.md      # v2 架构文档
 ```
-
-> `update.sh` / `uninstall.sh` / `update.ps1` / `uninstall.ps1` 由安装脚本在安装目录自动生成，不在仓库中。
-> `Formula/`、`bucket/` 由 `scripts/generate.py` 自动生成，不要手动编辑。
 
 ## 添加新软件
 
-1. 在 `packages/` 下新建 `<name>.json`，填入 GitHub 仓库和 asset 匹配规则
-2. 运行 `python scripts/generate.py --only <name>` 自动生成 Formula 和 Bucket
-3. 提交 PR
-
-### 自动生成 Formula 和 Bucket
-
-`scripts/generate.py` 从 `packages/*.json` 自动读取元数据，调用 GitHub API 获取最新 release，生成 `Formula/*.rb` 和 `bucket/*.json`。
+1. 在 `packages/` 下新建 `<name>.json`
+2. 运行 `python3 scripts/generate.py --only <name>`
+3. 运行 `python3 -m pytest tests/ -v`
+4. 提交 PR
 
 ```bash
-# 生成全部
-python scripts/generate.py
+# 生成 Formula + Bucket + 便携包模板
+python3 scripts/generate.py --only <name> --portable
 
-# 只生成某个包
-python scripts/generate.py --only <name>
-
-# 预览（不写文件）
-python scripts/generate.py --dry-run
-
-# 跳过 SHA256 计算（快速预览模板）
-python scripts/generate.py --skip-hash
+# 预览
+python3 scripts/generate.py --only <name> --dry-run --skip-hash
 ```
 
-**代理设置**（中国大陆用户）：
+## 开发
 
+```bash
+# 运行所有测试 (152 个)
+python3 -m pytest tests/ -v
+
+# 运行特定测试
+python3 -m pytest tests/test_generate.py -v
+python3 -m pytest tests/test_tribucket.py -v
+python3 -m pytest tests/test_integration.py -v
+
+# CLI 开发
+python3 bin/tribucket --help
+python3 bin/tribucket list
+```
+
+**代理设置**：
 ```bash
 export HTTPS_PROXY=http://127.0.0.1:7897
 export HTTP_PROXY=http://127.0.0.1:7897
 ```
 
 **GitHub Token**（可选，提升 API 速率限制到 5000 次/小时）：
-
 ```bash
 export GITHUB_TOKEN=你的token
-```
-
-**运行测试**：
-
-```bash
-pip install pytest
-python -m pytest tests/ -v
-```
-
-`packages/<name>.json` 格式：
-
-**方式一：GitHub Release 源**（从 `repo` 的 release assets 自动匹配，无需 `version`）：
-```json
-{
-  "name": "tool-name",
-  "repo": "owner/repo",
-  "description": "一句话描述",
-  "binary": "binary-name",
-  "license": "MIT",
-  "homepage": "https://github.com/owner/repo",
-  "asset_pattern": {
-    "linux_amd64": "keyword-in-asset-filename",
-    "linux_arm64": "keyword-in-asset-filename",
-    "darwin_amd64": "keyword-in-asset-filename",
-    "darwin_arm64": "keyword-in-asset-filename",
-    "windows_amd64": "keyword-in-asset-filename.exe",
-    "windows_arm64": "keyword-in-asset-filename.exe"
-  }
-}
-```
-
-**方式二：自定义下载源**（从 `download_url` 直接下载，必须提供 `version`）：
-```json
-{
-  "name": "tool-name",
-  "repo": "owner/repo",
-  "version": "1.2.3",
-  "description": "一句话描述",
-  "binary": "binary-name",
-  "license": "MIT",
-  "homepage": "https://example.com/",
-  "asset_pattern": {
-    "linux_amd64": "NO_MATCH",
-    ...
-
-  },
-  "download_url": {
-    "linux_amd64": "https://example.com/releases/tool-1.2.3-linux-x64.tar.gz",
-    ...
-  }
-}
 ```
 
 ## License
