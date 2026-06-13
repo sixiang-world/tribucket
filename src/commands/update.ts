@@ -205,6 +205,13 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
         throw updateError;
       }
 
+      // Verify version after update
+      const [newVer] = detectVersion(join(path, binary), tj, info);
+      if (newVer !== remoteVer && newVer !== 'unknown') {
+        log(`Version mismatch: expected ${remoteVer}, got ${newVer}`);
+        // Don't fail, just warn — binary might report version differently
+      }
+
       config.packages[name].version = remoteVer;
       saveConfig(config);
 
