@@ -120,6 +120,18 @@ export async function installPackage(
     };
     writeFileSync(join(targetDir, 'tributable.json'), JSON.stringify(tributableJson, null, 2) + '\n');
 
+    // Generate install.sh
+    const installSh = generateInstallSh(pkg.name, pkg.repo || '', pkg.binary || name, version);
+    const installShPath = join(targetDir, 'install.sh');
+    writeFileSync(installShPath, installSh);
+    chmodSync(installShPath, 0o755);
+
+    // Generate cmd/tribucket-update.bat
+    const cmdDir = join(targetDir, 'cmd');
+    mkdirSync(cmdDir, { recursive: true });
+    const batContent = generateBat(pkg.name, pkg.binary || name);
+    writeFileSync(join(cmdDir, 'tribucket-update.bat'), batContent);
+
     config.packages[name] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked: false };
     saveConfig(config);
 
@@ -128,4 +140,86 @@ export async function installPackage(
   } finally {
     try { execSync(`rm -rf "${tmpDir}"`, { stdio: 'pipe' }); } catch {}
   }
+}
+
+function generateInstallSh(name: string, repo: string, binary: string, version: string): string {
+  return `#!/usr/bin/env bash
+set -euo pipefail
+# tribucket auto-generated install.sh — Package: ${name}
+# Repo: ${repo}
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BINARY="$SCRIPT_DIR/${binary}"
+REPO="${repo}"
+NAME="${name}"
+
+# --- If tribucket CLI is available, delegate ---
+if command -v tribucket &>/dev/null; then
+    case "\${1:-check}" in
+        check|status)  tribucket check "$NAME" ;;
+        update|upgrade) tribucket update "$NAME" ;;
+        install)       tribucket install "$NAME" --dir "$SCRIPT_DIR" --force ;;
+        *)             echo "Usage: $0 [check|update|install]"; exit 1 ;;
+    esac
+    exit $?
+fi
+
+# --- Standalone fallback ---
+echo "tribucket CLI not found. Running in standalone mode."
+echo "Install tribucket for full features (backup, resume, mirror):"
+echo "  curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash"
+echo ""
+
+detect_version() {
+    if [ -x "$BINARY" ]; then
+        "$BINARY" --version 2>&1 | grep -oP 'v?\\d+\\.\\d+(?:\\.\\d+)?' | head -1
+    fi
+}
+
+check_remote() {
+    curl -sf "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \\
+        | grep -oP '"tag_name":\\s*"\\K[^"]+' | sed 's/^v//' || echo ""
+}
+
+LOCAL=$(detect_version)
+REMOTE=$(check_remote)
+
+echo "Package: $NAME"
+echo "Local:   \${LOCAL:-not installed}"
+echo "Remote:  \${REMOTE:-unknown}"
+
+if [ -z "$LOCAL" ]; then
+    echo "Binary not found. Install tribucket for automatic setup."
+    exit 1
+fi
+
+if [ -z "$REMOTE" ]; then
+    echo "Status:  ? unable to check remote"
+    exit 0
+fi
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Status:  ✓ up to date"
+else
+    echo "Status:  ⚠ update available ($LOCAL → $REMOTE)"
+    echo "For backup-safe updates, install tribucket CLI."
+fi
+`;
+}
+
+function generateBat(name: string, binary: string): string {
+  const winBinary = binary.endsWith('.exe') ? binary : `${binary}.exe`;
+  return `@echo off
+REM Auto-generated — Package: ${name}
+SET SCRIPT_DIR=%~dp0
+SET BINARY=%SCRIPT_DIR%${winBinary}
+if not exist "%BINARY%" (
+    echo Error: %BINARY% not found.
+    echo Please install with: tribucket install ${name}
+    exit /b 1
+)
+"%BINARY%" --version
+echo.
+echo To update, run: tribucket update ${name}
+`;
 }
