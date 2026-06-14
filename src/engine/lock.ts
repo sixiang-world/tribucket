@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, unlinkSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { lockDir } from '../config/paths';
 import { error } from '../utils/log';
@@ -16,6 +16,7 @@ export class PackageLock {
   acquire(): void {
     mkdirSync(lockDir(), { recursive: true });
 
+    // Check for stale lock from a dead process
     if (existsSync(this.lockPath)) {
       try {
         const pid = parseInt(readFileSync(this.lockPath, 'utf-8').trim());
@@ -24,9 +25,17 @@ export class PackageLock {
           process.exit(EXIT_ERROR);
         }
       } catch {}
+      // Stale lock — remove it
+      try { unlinkSync(this.lockPath); } catch {}
     }
 
-    writeFileSync(this.lockPath, String(process.pid));
+    // Atomic create: wx flag fails if file was created between our check and here
+    try {
+      writeFileSync(this.lockPath, String(process.pid), { flag: 'wx' });
+    } catch {
+      error('locked', `Another update for '${this.name}' is in progress.`);
+      process.exit(EXIT_ERROR);
+    }
   }
 
   release(): void {

@@ -1,6 +1,6 @@
 import { sym } from '../utils/log';
 import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync, cpSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { resolveDownloadUrl } from '../engine/mirror';
@@ -31,7 +31,11 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   if (!info) { error('not-found', `Package '${name}' is not tracked.`); return false; }
 
   const path = info.path;
-  if (!existsSync(path)) { error('stale', `Package path does not exist: ${path}`); return false; }
+  if (!existsSync(path)) {
+    error('stale', `Package path does not exist: ${path}`);
+    console.error(`  ${sym('arrow')} Run 'tribucket untrack ${name}' to remove stale entry.`);
+    return false;
+  }
 
   const tjPath = join(path, 'tribucket.json');
   if (!existsSync(tjPath)) { error('config', `tribucket.json not found in ${path}`); return false; }
@@ -128,7 +132,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       let backupPath: string | null = null;
       if (options.backup !== false) {
         backupPath = join(backupDir(), name, localVer);
-        mkdirSync(backupPath, { recursive: true });
+        if (existsSync(backupPath)) rmSync(backupPath, { recursive: true, force: true });
+        mkdirSync(dirname(backupPath), { recursive: true });
         cpSync(path, backupPath, { recursive: true });
         log(`Backed up to ${backupPath}`);
       }

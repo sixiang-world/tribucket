@@ -65,7 +65,8 @@ export async function installPackage(
   const FORBIDDEN = ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
   for (const forbidden of FORBIDDEN) {
     if (resolvedTarget === forbidden || resolvedTarget.startsWith(forbidden + '/')) {
-      error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`);
+      error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`,
+            `Use --dir to specify a user directory, e.g.: --dir ~/apps`);
       return false;
     }
   }
@@ -74,7 +75,8 @@ export async function installPackage(
   const { tribucketHome } = await import('../config/paths');
   const homeDir = resolveReal(tribucketHome());
   if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + '/')) {
-    error('forbidden', `Refusing to install into tribucket home directory: ${resolvedTarget}`);
+    error('forbidden', `Cannot install into tribucket home directory: ${resolvedTarget}`,
+          `Use --dir to specify a different directory.`);
     return false;
   }
 
@@ -249,8 +251,8 @@ export async function installPackage(
         symlinkSync(binaryPath, linkPath);
         log(`Symlink: ${linkPath} ${sym('arrow')} ${binaryPath}`);
         linked = true;
-      } catch {
-        log('Failed to create symlink');
+      } catch (e) {
+        error('symlink', `Failed to create symlink: ${linkPath} ${sym('arrow')} ${binaryPath}`);
       }
     }
 

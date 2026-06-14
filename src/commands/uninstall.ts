@@ -45,6 +45,9 @@ export function uninstallPackage(name: string): boolean {
   }
 
   // Untrack
-  untrack(name);
+  if (!untrack(name)) {
+    console.error(`Warning: Failed to remove '${name}' from config. Run 'tribucket untrack ${name}' manually.`);
+    return false;
+  }
   return true;
 }
