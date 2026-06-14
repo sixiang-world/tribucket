@@ -223,7 +223,7 @@ program
 
     if (opts.dryRun) {
       const { checkPackage } = await import('./commands/check');
-      const r = await checkPackage(name);
+      const r = await checkPackage(name, { localOnly: false });
       if (r.error) { console.error(`Error: ${r.error}`); process.exit(3); }
       if (r.remote && r.local !== r.remote) console.log(`${name}: ${r.local} ${sym('arrow')} ${r.remote} (would update)`);
       else console.log(`${name}: ${r.local} — already up to date`);
