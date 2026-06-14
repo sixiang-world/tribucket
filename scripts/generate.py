@@ -14,6 +14,8 @@ import time
 import urllib.request
 import urllib.error
 import http.client
+import subprocess
+import tempfile
 from fnmatch import fnmatch
 
 
@@ -118,6 +120,61 @@ def http_get(url, token=None, retries=3, timeout=30):
                 continue
             raise
     raise last_err
+
+
+def _has_aria2():
+    """Check if aria2c is available."""
+    try:
+        subprocess.run(["aria2c", "--version"], capture_output=True, check=True)
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
+
+
+def download_file(url, dest_path, token=None, verbose=False):
+    """Download a file using aria2c (multi-connection + retry) with urllib fallback.
+
+    aria2c settings:
+      -x 16: 16 connections per server
+      -s 16: 16 splits
+      -k 10M: minimum split size 10MB
+      --retry-wait=2: 2s wait between retries
+      --max-tries=5: retry up to 5 times
+      --continue=true: resume partial downloads
+    """
+    if _has_aria2():
+        cmd = [
+            "aria2c",
+            "-x", "16",
+            "-s", "16",
+            "-k", "10M",
+            "--retry-wait=2",
+            "--max-tries=5",
+            "--continue=true",
+            "--console-log-level=warn",
+            "--summary-interval=0",
+            "-d", os.path.dirname(dest_path),
+            "-o", os.path.basename(dest_path),
+        ]
+        if token:
+            cmd.append(f"--header=Authorization: token {token}")
+        cmd.append(url)
+
+        if verbose:
+            print(f"  [aria2] downloading with 16 connections...")
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0 and os.path.exists(dest_path):
+            if verbose:
+                print(f"  [aria2] download complete")
+            return True
+        if verbose:
+            print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
+
+    # Fallback: urllib with retry
+    body = http_get(url, token=token, timeout=120)
+    with open(dest_path, "wb") as f:
+        f.write(body)
+    return True
 
 
 def fetch_latest_release(repo, token=None):
@@ -334,17 +391,17 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
     # Fallback: download and compute
     if verbose:
         print(f"  Downloading {filename} to compute SHA256...")
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{filename}") as tmp:
-        tmp_path = tmp.name
-        body = http_get(url, timeout=120)
-        tmp.write(body)
+    tmp_path = os.path.join(tempfile.gettempdir(), f"tribucket_{pkg_name}_{filename}")
     try:
+        download_file(url, tmp_path, verbose=verbose)
         sha = compute_sha256(tmp_path)
         write_cache(cache_dir, pkg_name, version, filename, sha)
         return sha
     finally:
-        os.unlink(tmp_path)
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
 
 
 def process_package(pkg, cache_dir, skip_hash=False, verbose=False):

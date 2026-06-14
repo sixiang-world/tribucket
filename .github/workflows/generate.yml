@@ -27,6 +27,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install aria2
+        run: sudo apt-get update && sudo apt-get install -y aria2
+
       - name: Generate Formula and Bucket
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
