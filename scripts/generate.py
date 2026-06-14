@@ -123,15 +123,15 @@ def http_get(url, token=None, retries=3, timeout=30):
 
 
 def _has_aria2():
-    """Check if aria2c is available."""
-    try:
-        result = subprocess.run(["aria2c", "--version"], capture_output=True, text=True, check=True)
-        ver = result.stdout.splitlines()[0] if result.stdout else "unknown"
-        print(f"  [aria2] detected: {ver}")
-        return True
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        print("  [aria2] not found, will fall back to urllib")
-        return False
+    """Check if aria2c is available. Result is cached for subsequent calls."""
+    if not hasattr(_has_aria2, "cached"):
+        try:
+            result = subprocess.run(["aria2c", "--version"], capture_output=True, text=True, check=True)
+            ver = result.stdout.splitlines()[0] if result.stdout else "unknown"
+            _has_aria2.cached = ver
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            _has_aria2.cached = None
+    return _has_aria2.cached
 
 
 def download_file(url, dest_path, token=None, verbose=False):
@@ -145,8 +145,8 @@ def download_file(url, dest_path, token=None, verbose=False):
       --max-tries=5: retry up to 5 times
       --continue=true: resume partial downloads
     """
-    aria2_ok = _has_aria2()
-    if aria2_ok:
+    aria2_ver = _has_aria2()
+    if aria2_ver:
         cmd = [
             "aria2c",
             "-x", "16",
@@ -164,19 +164,15 @@ def download_file(url, dest_path, token=None, verbose=False):
             cmd.append(f"--header=Authorization: token {token}")
         cmd.append(url)
 
-        print(f"  [aria2] downloading with 16 connections...")
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0 and os.path.exists(dest_path):
-            print(f"  [aria2] download complete")
             return True
         print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
 
     # Fallback: urllib with retry
-    print(f"  [urllib] downloading (aria2 unavailable or failed)...")
     body = http_get(url, token=token, timeout=120)
     with open(dest_path, "wb") as f:
         f.write(body)
-    print(f"  [urllib] download complete")
     return True
 
 
@@ -1001,6 +997,13 @@ def main():
         ok = check_asset_patterns(pkgs)
         print(f"\n{'All patterns OK.' if ok else 'Some patterns have issues (see above).'}")
         sys.exit(0 if ok else 1)
+
+    # Check download backend
+    aria2_ver = _has_aria2()
+    if aria2_ver:
+        print(f"Download backend: aria2 {aria2_ver} (16 connections, 5 retries, resume)")
+    else:
+        print("Download backend: urllib (install aria2 for faster downloads)")
 
     print(f"Processing {len(pkgs)} package(s)...")
 
