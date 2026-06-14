@@ -127,31 +127,3 @@ jobs:
             sha256sums.txt
           draft: false
           prerelease: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: 'Generation: wait for API propagation'
-        run: sleep 10
-
-      - name: Generate Formula & Bucket
-        id: generate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          python3 scripts/generate.py --verbose 2>&1
-
-      - name: Commit generated files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/ bucket/
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update Formula/Bucket for ${{ steps.version.outputs.tag }}"
-            git push origin HEAD:main
-            echo "Committed and pushed Formula/Bucket updates"
-          else
-            echo "No Formula/Bucket changes to commit"
-          fi
