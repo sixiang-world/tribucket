@@ -30,7 +30,7 @@ jobs:
       - name: Generate Formula and Bucket
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/generate.py
+        run: python -u scripts/generate.py
 
       - name: Check for changes
         id: diff
