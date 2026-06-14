@@ -13,6 +13,7 @@ import sys
 import time
 import urllib.request
 import urllib.error
+import http.client
 from fnmatch import fnmatch
 
 
@@ -105,6 +106,12 @@ def http_get(url, token=None, retries=3, timeout=30):
                 continue
             raise
         except urllib.error.URLError as e:
+            last_err = e
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            raise
+        except http.client.HTTPException as e:
             last_err = e
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)
