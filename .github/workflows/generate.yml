@@ -38,17 +38,17 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          git diff --quiet Formula/ bucket/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+          git diff --quiet Formula/ bucket/ packages/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push
         if: steps.diff.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/ bucket/
+          git add Formula/ bucket/ packages/
           # Build a descriptive commit message
-          CHANGED=$(git diff --cached --name-only | sed 's|Formula/\|bucket/||; s|\.rb\|\.json||' | sort -u | tr '\n' ', ' | sed 's/,$//')
+          CHANGED=$(git diff --cached --name-only | sed 's|Formula/\|bucket/\||; s|\.rb\|\.json||' | sort -u | tr '\n' ', ' | sed 's/,$//')
           git commit -m "chore: update Formula/Bucket ($CHANGED)"
           # Pull latest to avoid push rejection when main moved
-          git pull --rebase --autostash origin main
+          git pull --rebase origin main
           git push
