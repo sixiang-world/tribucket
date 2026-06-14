@@ -5,7 +5,7 @@ export function computeSha256(filepath: string): Promise<string> {
   return Bun.CryptoHasher.hash('sha256', file).toString();
 }
 
-const CHECKSUM_PATTERNS = ['sha256sums', 'sha256', 'checksums.txt'];
+const CHECKSUM_PATTERNS = ['sha256sums', 'sha256', 'checksums.txt', '.sha256'];
 
 export async function findSha256FromRelease(
   releaseData: any,
@@ -20,7 +20,7 @@ export async function findSha256FromRelease(
       const content = new TextDecoder().decode(body);
       for (const line of content.trim().split('\n')) {
         const parts = line.trim().split(/\s+/);
-        if (parts.length >= 2 && targetFilename.includes(parts[parts.length - 1])) {
+        if (parts.length >= 2 && parts[parts.length - 1].includes(targetFilename)) {
           return parts[0].toLowerCase();
         }
       }

@@ -1,18 +1,25 @@
 #!/usr/bin/env bun
 import { Command } from 'commander';
 import { cleanupOldTmp } from './utils/cleanup';
+import { setNoColor, sym } from './utils/log';
 import { detectPlatform } from './utils/platform';
 
-const VERSION = '2.0.0';
+import { VERSION } from './version';
 
 const program = new Command();
 program
   .name('tribucket')
   .description('Lightweight portable package manager')
   .option('--json', 'JSON output (with --version)')
+  .option('--no-color', 'Disable colored output')
 
 // Handle --version separately to support --json
 const args = process.argv.slice(2);
+
+// Check for --no-color before commander processes args
+if (args.includes("--no-color") || !process.stdout.isTTY || process.env.NO_COLOR !== undefined) {
+  setNoColor(true);
+}
 if (args.includes('--version') || args.includes('-V')) {
   const jsonOutput = args.includes('--json');
   if (jsonOutput) {
@@ -50,41 +57,8 @@ program
   .description('Uninstall a package')
   .argument('<name>', 'Package name')
   .action(async (name) => {
-    const { loadConfig, saveConfig } = await import('./config/store');
-    const { binDir, backupDir } = await import('./config/paths');
-    const { findRepoKey } = await import('./commands/track');
-    const { existsSync, readdirSync, unlinkSync, rmSync } = await import('fs');
-    const { join } = await import('path');
-
-    const config = loadConfig();
-    const repoKey = findRepoKey(config, name) || name;
-    const info = config.packages[repoKey];
-    if (!info) { console.error(`Error: '${name}' is not tracked.`); process.exit(5); }
-
-    if (existsSync(info.path)) { rmSync(info.path, { recursive: true }); console.log(`Deleted: ${info.path}`); }
-
-    const bd = binDir();
-    if (existsSync(bd)) {
-      const { readlinkSync, lstatSync } = await import('fs');
-      for (const f of readdirSync(bd)) {
-        const link = join(bd, f);
-        try {
-          if (lstatSync(link).isSymbolicLink()) {
-            const target = readlinkSync(link);
-            if (target.startsWith(info.path)) {
-              unlinkSync(link);
-              console.log(`Removed symlink: ${link}`);
-            }
-          }
-        } catch {}
-      }
-    }
-
-    const bk = join(backupDir(), name);
-    if (existsSync(bk)) { rmSync(bk, { recursive: true }); console.log(`Removed backup: ${bk}`); }
-
-    delete config.packages[repoKey];
-    saveConfig(config);
+    const { uninstallPackage } = await import('./commands/uninstall');
+    if (!uninstallPackage(name)) process.exit(5);
   });
 
 // track
@@ -140,14 +114,9 @@ program
     }
     if (names.length === 0) { console.error('Specify package names or use --all'); process.exit(2); }
 
-    // Concurrent check with 4 workers
-    const WORKERS = 4;
-    const results: any[] = [];
-    for (let i = 0; i < names.length; i += WORKERS) {
-      const batch = names.slice(i, i + WORKERS);
-      const batchResults = await Promise.all(batch.map(t => checkPackage(t, opts)));
-      results.push(...batchResults);
-    }
+    // Concurrent check (work queue, matching Python's ThreadPoolExecutor)
+    const { concurrentMap } = await import('./utils/concurrent');
+    const results = await concurrentMap(names, t => checkPackage(t, opts));
 
     if (opts.json) {
       const output: Record<string, any> = {};
@@ -157,7 +126,7 @@ program
     }
 
     for (const r of results) {
-      if (r.error) console.log(`${r.name?.padEnd(20)}  ✗ ${r.error}`);
+      if (r.error) console.log(`${r.name?.padEnd(20)}  ${sym('err')} ${r.error}`);
       else console.log(formatCheckResult(r.name!, r.local!, r.local_source!, r.remote, r.path_exists));
     }
   });
@@ -191,28 +160,24 @@ program
           }
         }
         if (wouldUpdate.length > 0) {
-          console.log(`\n⚠ ${wouldUpdate.length} package(s) would be updated:`);
+          console.log(`\n${sym('warn')} ${wouldUpdate.length} package(s) would be updated:`);
           for (const { n, local, remote } of wouldUpdate) {
-            console.log(`  ${n}: ${local} → ${remote}`);
+            console.log(`  ${n}: ${local} ${sym('arrow')} ${remote}`);
           }
         } else {
-          console.log(`\n✓ All packages up to date.`);
+          console.log(`\n${sym('ok')} All packages up to date.`);
         }
         return;
       }
 
-      // Concurrent update with 4 workers
-      const WORKERS = 4;
+      // Concurrent update (work queue, matching Python's ThreadPoolExecutor)
+      const { concurrentMap } = await import('./utils/concurrent');
       let success = 0, failed = 0;
       const updateOne = async (n: string) => {
         const { updatePackage } = await import('./commands/update');
         try { if (await updatePackage(n, opts)) success++; else failed++; } catch { failed++; }
       };
-
-      for (let i = 0; i < names.length; i += WORKERS) {
-        const batch = names.slice(i, i + WORKERS);
-        await Promise.all(batch.map(updateOne));
-      }
+      await concurrentMap(names, updateOne);
 
       console.log(`\n${success} updated, ${failed} failed.`);
       process.exit(failed > 0 ? 1 : 0);
@@ -225,7 +190,7 @@ program
       const { checkPackage } = await import('./commands/check');
       const r = await checkPackage(name);
       if (r.error) { console.error(`Error: ${r.error}`); process.exit(3); }
-      if (r.remote && r.local !== r.remote) console.log(`${name}: ${r.local} → ${r.remote} (would update)`);
+      if (r.remote && r.local !== r.remote) console.log(`${name}: ${r.local} ${sym('arrow')} ${r.remote} (would update)`);
       else console.log(`${name}: ${r.local} — already up to date`);
       process.exit(0);
       return;
@@ -302,6 +267,12 @@ program
 
 // Cleanup on startup
 cleanupOldTmp();
+
+// Catch SIGINT globally (matching Python's KeyboardInterrupt handler)
+process.on('SIGINT', () => {
+  console.error('\nInterrupted.');
+  process.exit(130);
+});
 
 // Handle uncaught rejections gracefully
 process.on('unhandledRejection', (reason) => {

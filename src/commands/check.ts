@@ -1,3 +1,4 @@
+import { sym, log } from '../utils/log';
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../config/store';
@@ -140,10 +141,10 @@ function computeStatus(localVer: string, remoteVer: string | null): 'latest' | '
 }
 
 export function formatCheckResult(name: string, localVer: string, localSource: string, remoteVer: string | null, pathExists = true): string {
-  if (!pathExists) return `${name.padEnd(20)}  ✗ not found`;
+  if (!pathExists) return `${name.padEnd(20)}  ${sym('err')} not found`;
   let status = '';
   if (!remoteVer) status = '? offline';
-  else if (localVer === remoteVer) status = '✓ latest';
-  else status = `⚠ ${localVer} → ${remoteVer}`;
+  else if (localVer === remoteVer) status = `${sym('ok')} latest`;
+  else status = `${sym('warn')} ${localVer} ${sym('arrow')} ${remoteVer}`;
   return `${name.padEnd(20)}  ${localVer.padEnd(12)} (${localSource.padEnd(8)})  ${status}`;
 }
