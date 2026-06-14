@@ -17,4 +17,4 @@ jobs:
         run: |
           git remote add mirror https://cnb:${{ secrets.CNB_TOKEN }}@cnb.cool/shisheng820/tribucket.git
           git push mirror --all
-          git push mirror --tags
+          git push mirror --tags --force
