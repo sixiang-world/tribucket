@@ -1,4 +1,4 @@
-import { existsSync, renameSync, unlinkSync, writeFileSync } from 'fs';
+import { existsSync, renameSync, unlinkSync, writeFileSync, chmodSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { httpGetJson, httpGet } from '../utils/http';
@@ -75,10 +75,7 @@ export async function selfUpdate(): Promise<void> {
     writeFileSync(scriptPath, newBinary);
 
     // Make executable (Bun compile output should already be, but be safe)
-    try {
-      const { execFileSync } = await import('child_process');
-      execFileSync('chmod', ['+x', scriptPath], { stdio: 'pipe' });
-    } catch {}
+    try { chmodSync(scriptPath, 0o755); } catch {}
 
     console.log(`Updated: ${VERSION} → ${latest}`);
     console.log('Restart tribucket to use the new version.');

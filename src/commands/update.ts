@@ -1,6 +1,5 @@
-import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync } from 'fs';
-import { join, resolve } from 'path';
-import { execFileSync } from 'child_process';
+import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync, cpSync } from 'fs';
+import { join } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { resolveDownloadUrl } from '../engine/mirror';
@@ -13,6 +12,7 @@ import { detectPlatform } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findRepoKey } from './track';
+import { findBinary } from '../utils/find';
 import type { PackageMeta } from '../types';
 
 // SIGINT handler for graceful interrupt
@@ -128,18 +128,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       if (!options.noBackup) {
         backupPath = join(backupDir(), name, localVer);
         mkdirSync(backupPath, { recursive: true });
-        // Copy directory safely
-        const entries = readdirSync(path);
-        for (const entry of entries) {
-          const srcPath = join(path, entry);
-          const destPath = join(backupPath, entry);
-          const stat = statSync(srcPath);
-          if (stat.isDirectory()) {
-            execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
-          } else {
-            copyFileSync(srcPath, destPath);
-          }
-        }
+        cpSync(path, backupPath, { recursive: true });
         log(`Backed up to ${backupPath}`);
       }
 
@@ -184,44 +173,15 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             const destPath = join(path, entry);
             const stat = statSync(srcPath);
             if (stat.isDirectory()) {
-              // Remove existing directory first, then copy
               if (existsSync(destPath)) rmSync(destPath, { recursive: true, force: true });
-              execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
+              cpSync(srcPath, destPath, { recursive: true });
             } else {
               copyFileSync(srcPath, destPath);
             }
           }
         } else {
-          // Binary type - find the binary
-          let found = '';
-          const tryPatterns = [binary, `${binary}*`, `*${binary}*`];
-
-          for (const pattern of tryPatterns) {
-            try {
-              const result = execFileSync('find', [extractDir, '-name', pattern, '-type', 'f'], {
-                encoding: 'utf-8',
-                stdio: ['pipe', 'pipe', 'pipe'],
-              }).trim();
-              if (result) {
-                found = result.split('\n')[0];
-                break;
-              }
-            } catch {}
-          }
-
-          // Fallback to any executable file
-          if (!found) {
-            try {
-              const result = execFileSync('find', [extractDir, '-type', 'f', '-executable'], {
-                encoding: 'utf-8',
-                stdio: ['pipe', 'pipe', 'pipe'],
-              }).trim();
-              if (result) {
-                found = result.split('\n')[0];
-              }
-            } catch {}
-          }
-
+          // Binary type - find the binary using native walk
+          const found = findBinary(extractDir, binary);
           if (!found) {
             throw new Error('No installable files found in archive');
           }
@@ -246,17 +206,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
               }
             }
             // Restore from backup
-            const backupEntries = readdirSync(backupPath);
-            for (const entry of backupEntries) {
-              const srcPath = join(backupPath, entry);
-              const destPath = join(path, entry);
-              const stat = statSync(srcPath);
-              if (stat.isDirectory()) {
-                execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
-              } else {
-                copyFileSync(srcPath, destPath);
-              }
-            }
+            cpSync(backupPath, path, { recursive: true });
             log('Restore successful');
           } catch (restoreError) {
             error('restore', `Restore also failed: ${restoreError}`);

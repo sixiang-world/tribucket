@@ -5,21 +5,11 @@ import { detectPlatform } from './utils/platform';
 
 const VERSION = '2.0.0';
 
-// Color support
-let NO_COLOR = !process.stdout.isTTY;
-
 const program = new Command();
 program
   .name('tribucket')
   .description('Lightweight portable package manager')
-  .option('--no-color', 'Disable colored output')
   .option('--json', 'JSON output (with --version)')
-  .hook('preAction', (thisCommand) => {
-    const opts = thisCommand.opts();
-    if (opts.noColor || process.env.NO_COLOR) {
-      NO_COLOR = true;
-    }
-  });
 
 // Handle --version separately to support --json
 const args = process.argv.slice(2);
@@ -189,14 +179,14 @@ program
       const names = Object.keys(config.packages);
       if (names.length === 0) { console.log('No packages tracked.'); return; }
 
-      if (opts.dry) {
+      if (opts.dryRun) {
         const { checkPackage } = await import('./commands/check');
         const wouldUpdate: Array<{n: string; local: string; remote: string}> = [];
         for (const n of names) {
           const r = await checkPackage(n, { localOnly: false });
           if (r.remote && r.local !== r.remote) {
             wouldUpdate.push({ n, local: r.local!, remote: r.remote });
-          } else {
+          } else if (r.remote) {
             console.log(`${n.padEnd(20)}  ${r.local} — already up to date`);
           }
         }
@@ -231,7 +221,7 @@ program
 
     if (!name) { console.error('Specify a package name or use --all'); process.exit(2); }
 
-    if (opts.dry) {
+    if (opts.dryRun) {
       const { checkPackage } = await import('./commands/check');
       const r = await checkPackage(name);
       if (r.error) { console.error(`Error: ${r.error}`); process.exit(3); }

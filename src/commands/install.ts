@@ -1,7 +1,6 @@
-import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync } from 'fs';
+import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync, rmSync, cpSync, symlinkSync } from 'fs';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
-import { execFileSync } from 'child_process';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
 import { detectPlatform } from '../utils/platform';
@@ -13,6 +12,7 @@ import { loadConfig, saveConfig } from '../config/store';
 import { binDir } from '../config/paths';
 import { computeSha256, findSha256FromRelease } from '../utils/sha256';
 import { findRepoKey } from './track';
+import { findBinary } from '../utils/find';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
@@ -69,7 +69,6 @@ export async function installPackage(
 
   // Non-empty directory check
   if (existsSync(targetDir)) {
-    const { readdirSync } = await import('fs');
     if (readdirSync(targetDir).length > 0 && !options.force) {
       error('exists', `Directory not empty: ${targetDir}`);
       console.log(`  → Use --force to overwrite.`);
@@ -172,52 +171,22 @@ export async function installPackage(
     const installType = pkg.install_type || 'binary';
 
     if (installType === 'directory') {
-      // Copy directory contents safely
+      // Copy directory contents safely using native fs
       const entries = readdirSync(extractDir);
       for (const entry of entries) {
         const srcPath = join(extractDir, entry);
         const destPath = join(targetDir, entry);
         const stat = statSync(srcPath);
         if (stat.isDirectory()) {
-          execFileSync('cp', ['-r', srcPath, destPath], { stdio: 'pipe' });
+          if (existsSync(destPath)) rmSync(destPath, { recursive: true, force: true });
+          cpSync(srcPath, destPath, { recursive: true });
         } else {
           copyFileSync(srcPath, destPath);
         }
       }
     } else {
-      // Try to find binary by name first
-      let found = '';
-      const tryPaths = [
-        join(extractDir, binary),
-        join(extractDir, `${binary}*`),
-      ];
-
-      for (const pattern of tryPaths) {
-        try {
-          const result = execFileSync('find', [extractDir, '-name', pattern.replace('*', '*'), '-type', 'f'], {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
-          }).trim();
-          if (result) {
-            found = result.split('\n')[0];
-            break;
-          }
-        } catch {}
-      }
-
-      // Fallback to any executable file
-      if (!found) {
-        try {
-          const result = execFileSync('find', [extractDir, '-type', 'f', '-executable'], {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
-          }).trim();
-          if (result) {
-            found = result.split('\n')[0];
-          }
-        } catch {}
-      }
-
+      // Find binary using native walk
+      const found = findBinary(extractDir, binary);
       if (found) {
         const dest = join(targetDir, binary);
         copyFileSync(found, dest);
@@ -254,9 +223,11 @@ export async function installPackage(
       const binary = pkg.binary || name;
       const linkPath = join(bd, binary);
       const binaryPath = join(targetDir, binary);
-      if (existsSync(linkPath)) { try { execFileSync('rm', ['-f', linkPath], { stdio: 'pipe' }); } catch {} }
+      if (existsSync(linkPath)) {
+        try { rmSync(linkPath, { force: true }); } catch {}
+      }
       try {
-        execFileSync('ln', ['-s', binaryPath, linkPath], { stdio: 'pipe' });
+        symlinkSync(binaryPath, linkPath);
         log(`Symlink: ${linkPath} → ${binaryPath}`);
         linked = true;
       } catch {
@@ -275,7 +246,7 @@ export async function installPackage(
     }
     return true;
   } finally {
-    try { execFileSync('rm', ['-rf', tmpDir], { stdio: 'pipe' }); } catch {}
+    try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   }
 }
 

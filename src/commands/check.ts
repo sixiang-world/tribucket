@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import { execFileSync } from 'child_process';
 import { loadConfig } from '../config/store';
 import { detectVersion } from '../engine/version';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
+import { findBinary } from '../utils/find';
 import type { CheckResult, PackageMeta } from '../types';
 
 export async function checkPackage(nameOrPath: string, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
@@ -54,7 +54,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
           const data = await httpGetJson<any>(`https://api.github.com/repos/${info.repo}/releases/latest`, { token });
           remoteVer = data.tag_name?.replace(/^v/, '') || null;
           if (remoteVer) saveRemoteVersionCache(info.repo, remoteVer);
-        } catch {}
+        } catch (e: any) { log(`Failed to fetch remote version for ${info.repo}: ${e.message}`); }
       }
     }
 
@@ -69,16 +69,8 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
   const installType = tj.install_type || 'binary';
   let binaryPath = join(path, binary);
   if (installType === 'directory' && !existsSync(binaryPath)) {
-    try {
-      // Recursive binary search using find command
-      const result = execFileSync('find', [path, '-name', binary, '-type', 'f'], {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
-      if (result) {
-        binaryPath = result.split('\n')[0];
-      }
-    } catch {}
+    const found = findBinary(path, binary);
+    if (found) binaryPath = found;
   }
 
   const [localVer, source] = detectVersion(binaryPath, tj, info);
@@ -104,7 +96,7 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
           }
           remoteVer = data?.tag_name?.replace(/^v/, '') || null;
           if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
-        } catch {}
+        } catch (e: any) { log(`Failed to fetch remote version for ${repo}: ${e.message}`); }
       }
     } else if (tj.download_url) {
       // download_url packages: try HEAD request to check reachability
@@ -123,7 +115,7 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
           await httpGet(url, { timeout: 5000, method: 'HEAD' });
           // If HEAD succeeds, URL is reachable but we don't know the version
           remoteVer = localVer;
-        } catch {}
+        } catch { log(`Cannot reach download URL for ${name}`); }
       }
     }
   }
