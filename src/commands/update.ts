@@ -245,12 +245,19 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
         throw updateError;
       }
 
-      // Verify version after update
-      const [newVer] = detectVersion(
+      // Verify version after update. We only warn on a *meaningful* mismatch:
+      // a concrete detected version that differs from the remote. A probe that
+      // returns 'unknown' or the package's hardcoded fallback (e.g. '0.0.0'
+      // for packages without a pinned version) is treated as "could not
+      // verify" rather than a real mismatch — the download already passed
+      // SHA256 (when a checksum was available), so a transient probe failure
+      // must not produce a misleading warning.
+      const [newVer, newSrc] = detectVersion(
         installType === 'directory' ? path : resolveBinaryPath(path, binary),
         tj, info
       );
-      if (newVer !== remoteVer && newVer !== 'unknown') {
+      const probeFailed = newVer === 'unknown' || newSrc === 'fallback';
+      if (!probeFailed && newVer !== remoteVer) {
         log(`Version mismatch: expected ${remoteVer}, got ${newVer}`);
         // Don't fail, just warn — binary might report version differently
       }
