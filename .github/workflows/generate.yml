@@ -50,5 +50,5 @@ jobs:
           CHANGED=$(git diff --cached --name-only | sed 's|Formula/\|bucket/||; s|\.rb\|\.json||' | sort -u | tr '\n' ', ' | sed 's/,$//')
           git commit -m "chore: update Formula/Bucket ($CHANGED)"
           # Pull latest to avoid push rejection when main moved
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git push
