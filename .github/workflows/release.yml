@@ -1,0 +1,133 @@
+name: Build & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (semver, e.g. 2.0.0)'
+        required: true
+        default: '2.0.0'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.output }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            output: tribucket-linux-amd64
+          - os: ubuntu-24.04-arm
+            output: tribucket-linux-arm64
+          - os: macos-13
+            output: tribucket-darwin-amd64
+          - os: macos-14
+            output: tribucket-darwin-arm64
+          - os: windows-latest
+            output: tribucket-windows-amd64.exe
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - name: Compile
+        run: bun build src/index.ts --compile --outfile ${{ matrix.output }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output }}
+          path: ${{ matrix.output }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Compute SHA256 checksums
+        run: |
+          cd dist
+          sha256sum * | tee ../sha256sums.txt
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+            echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body: |
+            ## tribucket ${{ steps.version.outputs.tag }}
+
+            See [commits](https://github.com/sixiang-world/tribucket/compare/${{ steps.version.outputs.tag }}) for details.
+
+            ### Platform binaries
+            - `tribucket-linux-amd64` — Linux x86_64
+            - `tribucket-linux-arm64` — Linux ARM64
+            - `tribucket-darwin-amd64` — macOS Intel
+            - `tribucket-darwin-arm64` — macOS Apple Silicon
+            - `tribucket-windows-amd64.exe` — Windows x86_64
+          files: |
+            dist/*
+            sha256sums.txt
+          draft: false
+          prerelease: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 'Generation: wait for API propagation'
+        run: sleep 10
+
+      - name: Generate Formula & Bucket
+        id: generate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/generate.py --verbose 2>&1
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/ bucket/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update Formula/Bucket for ${{ steps.version.outputs.tag }}"
+            # Push back to the branch that triggered this workflow
+            # For tag pushes, push to the default branch
+            git push origin HEAD:main
+            echo "Committed and pushed Formula/Bucket updates"
+          else
+            echo "No Formula/Bucket changes to commit"
+          fi
