@@ -398,7 +398,12 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
     # Fallback: download and compute
     if verbose:
         print(f"  Downloading {filename} to compute SHA256...")
-    tmp_path = os.path.join(tempfile.gettempdir(), f"tribucket_{pkg_name}_{filename}")
+    # Put the temp file inside a per-package subdir (instead of a flat
+    # "tribucket_{pkg}_{filename}" name) so the download progress log shows the
+    # REAL asset name, not a confusing prefixed temp name.
+    tmp_dir = os.path.join(tempfile.gettempdir(), "tribucket", pkg_name, version or "0")
+    os.makedirs(tmp_dir, exist_ok=True)
+    tmp_path = os.path.join(tmp_dir, filename)
     try:
         download_file(url, tmp_path, verbose=verbose)
         sha = compute_sha256(tmp_path)
