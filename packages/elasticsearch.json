@@ -1,7 +1,7 @@
 {
   "name": "elasticsearch",
   "repo": "elastic/elasticsearch",
-  "version": "8.17.6",
+  "version": "9.4.2",
   "checkver": "github",
   "description": "Distributed search and analytics engine by Elastic",
   "binary": "elasticsearch",
@@ -16,11 +16,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-linux-x86_64.tar.gz",
-    "linux_arm64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-linux-aarch64.tar.gz",
-    "darwin_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-darwin-x86_64.tar.gz",
-    "darwin_arm64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-darwin-aarch64.tar.gz",
-    "windows_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.6-windows-x86_64.zip",
+    "linux_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-linux-x86_64.tar.gz",
+    "linux_arm64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-linux-aarch64.tar.gz",
+    "darwin_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-darwin-x86_64.tar.gz",
+    "darwin_arm64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-darwin-aarch64.tar.gz",
+    "windows_amd64": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.4.2-windows-x86_64.zip",
     "windows_arm64": "NO_MATCH"
   }
 }
