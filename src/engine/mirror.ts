@@ -6,17 +6,96 @@ import type { MirrorMode } from '../types';
 const DEFAULT_PROVIDERS = [
   {
     name: 'hunluan',
-    template: 'https://gh.do.hunluan.space/https://github.com/{repo}/releases/download/v{version}/{asset}',
+    // {tag} is the raw release tag_name (e.g. "v1.2.3", "jq-1.8.1", "15.1.0").
+    // We must NOT inject a "v" prefix — release tags are project-specific.
+    template: 'https://gh.do.hunluan.space/https://github.com/{repo}/releases/download/{tag}/{asset}',
     test_url: 'https://gh.do.hunluan.space/',
   },
 ];
 
-export function buildDirectUrl(repo: string, version: string, asset: string): string {
-  return `https://github.com/${repo}/releases/download/v${version}/${asset}`;
+/**
+ * Build a direct GitHub download URL.
+ * `tag` is the raw release tag_name (with whatever prefix the project uses).
+ */
+export function buildDirectUrl(repo: string, tag: string, asset: string): string {
+  return `https://github.com/${repo}/releases/download/${tag}/${asset}`;
 }
 
-export function buildMirrorUrl(template: string, repo: string, version: string, asset: string): string {
-  return template.replace('{repo}', repo).replace('{version}', version).replace('{asset}', asset);
+/**
+ * Build a mirror download URL from a provider template.
+ * Templates may use {tag} (raw tag_name, preferred) or {version} (legacy,
+ * tag with a single leading "v" stripped — kept for backward compat with
+ * user mirror.json configs that still reference {version}).
+ */
+export function buildMirrorUrl(template: string, repo: string, tag: string, asset: string): string {
+  const version = tag.replace(/^v/, '');
+  return template
+    .replace('{repo}', repo)
+    .replace('{tag}', tag)
+    .replace('{version}', version)
+    .replace('{asset}', asset);
+}
+
+/**
+ * Convert an asset glob pattern (e.g. "fzf-*-windows_amd64.zip") into a RegExp.
+ * Only `*` is treated as a wildcard (matches any characters). All other regex
+ * metacharacters in the pattern are escaped so they match literally.
+ */
+function globToRegExp(pattern: string): RegExp {
+  const parts = pattern.split('*');
+  const escaped = parts.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return new RegExp('^' + escaped.join('.*') + '$');
+}
+
+/**
+ * Resolve an asset_pattern to the actual asset name from a GitHub release.
+ *
+ * Strategy:
+ *  1. Literal exact match: pattern equals an asset name → use it directly.
+ *  2. Glob match: pattern contains `*` → find the first asset matching the glob.
+ *  3. Suffix match: pattern is a pure suffix (no `/`, no `*`) → find assets
+ *     whose name ends with the pattern. Handles the common case where package
+ *     definitions list only the platform/arch tail (e.g. "x86_64-pc-windows-msvc.zip")
+ *     while the real asset is "bat-v0.26.1-x86_64-pc-windows-msvc.zip".
+ *
+ * Returns the resolved asset name, or the raw pattern if no release data / no
+ * match is available (the caller will then likely 404, but we never invent a
+ * fake name).
+ */
+export function resolveAssetName(releaseData: any | null, pattern: string): string {
+  if (!releaseData || pattern === 'NO_MATCH') return pattern;
+
+  const assets: string[] = (releaseData.assets || [])
+    .map((a: any) => a.name)
+    .filter((n: any): n is string => typeof n === 'string' && n.length > 0);
+
+  if (assets.length === 0) return pattern;
+
+  // 1. Literal exact match.
+  if (assets.includes(pattern)) return pattern;
+
+  // 2. Glob match (pattern contains *).
+  if (pattern.includes('*')) {
+    const re = globToRegExp(pattern);
+    const match = assets.find((a) => re.test(a));
+    if (match) return match;
+  }
+
+  // 3. Suffix match — pattern is a pure suffix with no path separators.
+  if (!pattern.includes('/')) {
+    const candidates = assets.filter((a) => a.endsWith(pattern));
+    if (candidates.length > 0) {
+      // Prefer the candidate whose prefix ends in a separator, to avoid
+      // e.g. "amd64" matching inside "arm64...amd64".
+      const preferred = candidates.find((a) => {
+        const prefix = a.slice(0, a.length - pattern.length);
+        return prefix === '' || /[-_.]$/.test(prefix);
+      });
+      return preferred || candidates[0];
+    }
+  }
+
+  return pattern;
 }
 
 async function testProvider(provider: { test_url: string }, timeout = 3000): Promise<[boolean, number]> {
@@ -115,10 +194,26 @@ async function testDirect(timeout = 3000): Promise<[boolean, number]> {
   }
 }
 
-export async function resolveDownloadUrl(repo: string, version: string, asset: string, mirrorMode: MirrorMode = 'auto'): Promise<[string, string]> {
+/**
+ * Resolve the final download URL for an asset.
+ *
+ * @param repo         owner/repo
+ * @param tag          raw release tag_name (e.g. "v1.2.3", "jq-1.8.1", "15.1.0")
+ * @param pattern      asset_pattern value for the current platform (literal, glob, or suffix)
+ * @param mirrorMode   auto / cn / direct
+ * @param releaseData  GitHub release object (used to resolve glob/suffix patterns to real asset names)
+ */
+export async function resolveDownloadUrl(
+  repo: string,
+  tag: string,
+  pattern: string,
+  mirrorMode: MirrorMode = 'auto',
+  releaseData: any | null = null,
+): Promise<[string, string]> {
+  const asset = resolveAssetName(releaseData, pattern);
   const [providerName, template] = await selectProvider(mirrorMode);
   if (providerName === 'direct' || !template) {
-    return [buildDirectUrl(repo, version, asset), 'direct'];
+    return [buildDirectUrl(repo, tag, asset), 'direct'];
   }
-  return [buildMirrorUrl(template, repo, version, asset), providerName];
+  return [buildMirrorUrl(template, repo, tag, asset), providerName];
 }

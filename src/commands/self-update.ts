@@ -4,6 +4,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { httpGetJson, httpGet } from '../utils/http';
 import { findSha256FromRelease, computeSha256 } from '../utils/sha256';
+import { versionFromTag } from '../engine/version';
 import { log, sym } from '../utils/log';
 
 const REPO = 'sixiang-world/tribucket';
@@ -17,7 +18,7 @@ export async function selfUpdate(): Promise<void> {
     releaseData = await httpGetJson<any>(
       `https://api.github.com/repos/${REPO}/releases/latest`
     );
-    latest = releaseData.tag_name?.replace(/^v/, '');
+    latest = versionFromTag(releaseData.tag_name) || undefined;
   } catch (e: any) {
     console.error(`Error: Cannot check for updates: ${e.message}`);
     process.exit(7);

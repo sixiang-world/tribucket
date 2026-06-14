@@ -84,9 +84,13 @@ export function extractArchive(archivePath: string, destDir: string): void {
     else if (lower.endsWith('.tar.xz') || lower.endsWith('.txz')) flag = '-xJf';
     else throw new Error('Unsupported archive format: ' + archivePath);
 
+    // NOTE: We deliberately do NOT pass --no-absolute-names to tar.
+    // That flag is NOT supported by GNU tar (including Ubuntu 24.04's
+    // GNU tar 1.35) despite a widespread misconception — it only exists in
+    // libarchive's bsdtar. Passing it makes tar crash on Linux.
+    // Instead we rely on the post-extraction zip-slip validator below
+    // (validateExtraction) to reject any path-escaping entries.
     const args = [flag, archivePath, '-C', destDir];
-    // --no-absolute-names is GNU tar only; Windows bsdtar rejects unknown flags.
-    if (!isWindows) args.push('--no-absolute-names');
 
     try {
       sh('tar', args);

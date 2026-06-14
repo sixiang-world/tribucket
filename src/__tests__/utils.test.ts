@@ -8,6 +8,29 @@ describe('Platform Detection', () => {
       expect(['linux_amd64', 'linux_arm64', 'darwin_amd64', 'darwin_arm64', 'windows_amd64', 'windows_arm64']).toContain(platform);
     }
   });
+
+  it('resolveBinaryPath appends .exe on Windows when bare missing', async () => {
+    const { resolveBinaryPath } = await import('../utils/platform');
+    const { mkdirSync, writeFileSync, rmSync } = await import('fs');
+    const { join } = await import('path');
+    const { tmpdir } = await import('os');
+    const dir = join(tmpdir(), `tb-binpath-test-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    try {
+      const isWin = process.platform === 'win32';
+      // Simulate the Windows case: only "rg.exe" exists, binary field is "rg".
+      const onDisk = isWin ? 'rg.exe' : 'rg';
+      writeFileSync(join(dir, onDisk), isWin ? '' : '#!/bin/sh\n');
+      const p = resolveBinaryPath(dir, 'rg');
+      // The resolved path must point at the file that actually exists.
+      expect(p.endsWith(isWin ? 'rg.exe' : 'rg')).toBe(true);
+      // On non-Windows the path is the bare name; on Windows it's the .exe.
+      if (isWin) expect(p.endsWith('rg.exe')).toBe(true);
+      else expect(p.endsWith('/rg') || p.endsWith('\\rg')).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('SHA256', () => {
@@ -28,16 +51,55 @@ describe('SHA256', () => {
 });
 
 describe('Mirror', () => {
-  it('should build direct URL', async () => {
+  it('should build direct URL using the raw tag (no forced v-prefix)', async () => {
     const { buildDirectUrl } = await import('../engine/mirror');
-    const url = buildDirectUrl('owner/repo', '1.0.0', 'asset.tar.gz');
-    expect(url).toBe('https://github.com/owner/repo/releases/download/v1.0.0/asset.tar.gz');
+    // v-prefixed tag: must be used verbatim
+    expect(buildDirectUrl('owner/repo', 'v1.0.0', 'asset.tar.gz'))
+      .toBe('https://github.com/owner/repo/releases/download/v1.0.0/asset.tar.gz');
+    // non-v tag (e.g. jq): must NOT get a v injected
+    expect(buildDirectUrl('jqlang/jq', 'jq-1.8.1', 'jq-linux64'))
+      .toBe('https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux64');
   });
 
-  it('should build mirror URL', async () => {
+  it('should build mirror URL supporting {tag} and legacy {version}', async () => {
     const { buildMirrorUrl } = await import('../engine/mirror');
-    const url = buildMirrorUrl('https://mirror.example.com/{repo}/v{version}/{asset}', 'owner/repo', '1.0.0', 'asset.tar.gz');
-    expect(url).toBe('https://mirror.example.com/owner/repo/v1.0.0/asset.tar.gz');
+    // {tag} preferred — used verbatim
+    expect(buildMirrorUrl('https://m/{repo}/releases/download/{tag}/{asset}', 'owner/repo', 'v1.0.0', 'a.zip'))
+      .toBe('https://m/owner/repo/releases/download/v1.0.0/a.zip');
+    // legacy {version} — strips a single leading v for backward compat
+    expect(buildMirrorUrl('https://m/{repo}/v{version}/{asset}', 'owner/repo', 'v1.0.0', 'a.zip'))
+      .toBe('https://m/owner/repo/v1.0.0/a.zip');
+  });
+
+  it('should resolve glob/suffix asset patterns against release assets', async () => {
+    const { resolveAssetName } = await import('../engine/mirror');
+    const release = {
+      assets: [
+        { name: 'bat-v0.26.1-x86_64-pc-windows-msvc.zip' },
+        { name: 'bat-v0.26.1-x86_64-unknown-linux-gnu.tar.gz' },
+        { name: 'fzf-0.73.1-windows_amd64.zip' },
+        { name: 'jq-linux64' },
+      ],
+    };
+    // 1. literal exact match
+    expect(resolveAssetName(release, 'jq-linux64')).toBe('jq-linux64');
+    // 2. glob match
+    expect(resolveAssetName(release, 'fzf-*-windows_amd64.zip'))
+      .toBe('fzf-0.73.1-windows_amd64.zip');
+    // 3. suffix match
+    expect(resolveAssetName(release, 'x86_64-pc-windows-msvc.zip'))
+      .toBe('bat-v0.26.1-x86_64-pc-windows-msvc.zip');
+    // no release data → pattern returned as-is
+    expect(resolveAssetName(null, 'whatever')).toBe('whatever');
+  });
+
+  it('versionFromTag extracts a comparable version core from any tag', async () => {
+    const { versionFromTag } = await import('../engine/version');
+    expect(versionFromTag('v1.2.3')).toBe('1.2.3');
+    expect(versionFromTag('jq-1.8.1')).toBe('1.8.1');
+    expect(versionFromTag('shellcheck-v0.11.0')).toBe('0.11.0');
+    expect(versionFromTag('15.1.0')).toBe('15.1.0');
+    expect(versionFromTag(null)).toBeNull();
   });
 });
 

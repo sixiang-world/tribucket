@@ -3,7 +3,7 @@ import { join, resolve, basename, sep } from 'path';
 import { tmpdir } from 'os';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
-import { detectPlatform } from '../utils/platform';
+import { detectPlatform, binaryFileName } from '../utils/platform';
 import { log, error, sym } from '../utils/log';
 import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
@@ -100,6 +100,27 @@ export async function installPackage(
   const version = pkg.version || '0.0.0';
   const repo = pkg.repo || '';
 
+  // Fetch the latest release once, up front. We need:
+  //  - the raw tag_name (NOT a v-stripped version) to build the download URL
+  //  - the assets list to resolve glob/suffix asset patterns to real asset names
+  //  - the release object again later for best-effort SHA256 verification
+  // A single fetch serves all three uses.
+  let releaseData: any | null = null;
+  let tag = version;
+  if (repo) {
+    try {
+      const token = process.env.GITHUB_TOKEN;
+      releaseData = await httpGetJson<any>(
+        `https://api.github.com/repos/${repo}/releases/latest`,
+        { token }
+      );
+      tag = releaseData.tag_name || version;
+      log(`Latest release: ${tag}`);
+    } catch {
+      log(`Could not fetch latest release, using ${version}`);
+    }
+  }
+
   // Determine download URL: download_url takes precedence over asset_pattern
   let url: string;
   let provider: string;
@@ -112,23 +133,7 @@ export async function installPackage(
     const pattern = pkg.asset_pattern?.[platform];
     if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
 
-    // If no version, fetch latest from GitHub
-    let actualVersion = version;
-    if (actualVersion === '0.0.0' && repo) {
-      try {
-        const token = process.env.GITHUB_TOKEN;
-        const data = await httpGetJson<any>(
-          `https://api.github.com/repos/${repo}/releases/latest`,
-          { token }
-        );
-        actualVersion = data.tag_name?.replace(/^v/, '') || version;
-        log(`Latest version: ${actualVersion}`);
-      } catch {
-        log(`Could not fetch latest version, using ${version}`);
-      }
-    }
-
-    const resolved = await resolveDownloadUrl(repo, actualVersion, pattern, options.mirror as any);
+    const resolved = await resolveDownloadUrl(repo, tag, pattern, options.mirror as any, releaseData);
     url = resolved[0];
     provider = resolved[1];
     log(`Download URL (${provider}): ${url}`);
@@ -141,14 +146,10 @@ export async function installPackage(
     const archivePath = await downloadFile(url, tmpDir);
     if (!archivePath) { error('network', 'Download failed'); return false; }
 
-    // SHA256 verification (best-effort) — searches release assets for checksum files
-    if (repo) {
+    // SHA256 verification (best-effort) — searches release assets for checksum files.
+    // Reuses the releaseData fetched above.
+    if (repo && releaseData) {
       try {
-        const token = process.env.GITHUB_TOKEN;
-        const releaseData = await httpGetJson<any>(
-          `https://api.github.com/repos/${repo}/releases/latest`,
-          { token }
-        );
         const archiveName = archivePath.split('/').pop() || '';
         const expectedHash = await findSha256FromRelease(releaseData, archiveName);
         if (expectedHash) {
@@ -179,9 +180,10 @@ export async function installPackage(
     if (isArchive) {
       extractArchive(archivePath, extractDir);
     } else {
-      // Raw binary — use the binary name directly (not hardcoded 'binary')
+      // Raw binary — use the binary name directly (not hardcoded 'binary').
+      // On Windows the executable must carry the .exe extension to be runnable.
       mkdirSync(extractDir, { recursive: true });
-      const binName = pkg.binary || name;
+      const binName = binaryFileName(pkg.binary || name);
       copyFileSync(archivePath, join(extractDir, binName));
       try { chmodSync(join(extractDir, binName), 0o755); } catch { /* Windows: ignore */ }
     }
@@ -214,7 +216,8 @@ export async function installPackage(
       // Find binary using native walk
       const found = findBinary(extractDir, binary);
       if (found) {
-        const dest = join(targetDir, binary);
+        // On Windows the installed file must be <binary>.exe to be runnable.
+        const dest = join(targetDir, binaryFileName(binary));
         copyFileSync(found, dest);
         try { chmodSync(dest, 0o755); } catch { /* Windows: ignore */ }
       }
@@ -246,7 +249,7 @@ export async function installPackage(
     if (options.link) {
       const bd = binDir();
       mkdirSync(bd, { recursive: true });
-      const linkName = pkg.binary || name;
+      const linkName = binaryFileName(pkg.binary || name);
       const linkPath = join(bd, linkName);
       const binaryPath = join(targetDir, linkName);
       if (existsSync(linkPath)) {

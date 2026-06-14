@@ -3,8 +3,9 @@ import { existsSync, readdirSync, lstatSync, readFileSync, readlinkSync } from '
 import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { binDir } from '../config/paths';
-import { detectVersion } from '../engine/version';
+import { detectVersion, versionFromTag } from '../engine/version';
 import { httpGetJson } from '../utils/http';
+import { resolveBinaryPath } from '../utils/platform';
 import type { PackageMeta } from '../types';
 
 export async function listPackages(options: { json?: boolean; sort?: string; check?: boolean }): Promise<void> {
@@ -29,7 +30,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
         }
 
         const binary = tj?.binary || info.name;
-        const binaryPath = join(path, binary);
+        const binaryPath = resolveBinaryPath(path, binary);
         if (existsSync(binaryPath) || tj) {
           const [ver] = detectVersion(binaryPath, tj || { version_check: { cli_flags: ['--version'], parse_regex: 'v?(\\d+\\.\\d+(?:\\.\\d+)?)', output_stream: 'stdout', timeout: 5 } }, info);
           localVer = ver;
@@ -40,7 +41,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
           try {
             const token = process.env.GITHUB_TOKEN;
             const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-            remoteVer = data.tag_name?.replace(/^v/, '') || null;
+            remoteVer = versionFromTag(data.tag_name);
           } catch {}
         }
       }

@@ -7,7 +7,11 @@ function getProxyUrl(url: string): string | null {
 }
 
 export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number; method?: string }): Promise<Uint8Array> {
-  const { token, retries = 3, timeout = 30000, method = 'GET' } = options || {};
+  // Default to 5 retries with jittered exponential backoff — GitHub metadata
+  // (api.github.com, raw.githubusercontent.com) is frequently flaky on
+  // restricted networks (e.g. China), where 3 retries were not enough in
+  // practice and caused spurious "Package not found" / install failures.
+  const { token, retries = 5, timeout = 30000, method = 'GET' } = options || {};
   const headers: Record<string, string> = {
     'User-Agent': 'Mozilla/5.0 (compatible; tribucket/2.0)',
   };
@@ -17,6 +21,9 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
   if (token) {
     headers['Authorization'] = `token ${token}`;
   }
+
+  // Exponential backoff with full jitter to avoid thundering-herd retries.
+  const backoffMs = (attempt: number) => Math.floor(Math.random() * (2 ** attempt * 1000)) + 250;
 
   const proxyUrl = getProxyUrl(url);
 
@@ -45,10 +52,18 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Retry on rate-limiting too: a transient 403/429 may clear after a
+        // short backoff, and failing fast makes installs unusable on
+        // rate-limited networks without a token.
+        if ((response.status === 403 || response.status === 429) && attempt < retries - 1) {
+          log(`HTTP ${response.status} (rate limited), retrying (${attempt + 1}/${retries})...`);
+          await new Promise(r => setTimeout(r, backoffMs(attempt)));
+          continue;
+        }
         if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
         if (response.status >= 500 && attempt < retries - 1) {
           log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
-          await new Promise(r => setTimeout(r, 2 ** attempt * 1000));
+          await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -58,7 +73,7 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
       lastError = e;
       if (attempt < retries - 1) {
         log(`Network error, retrying (${attempt + 1}/${retries})...`);
-        await new Promise(r => setTimeout(r, 2 ** attempt * 1000));
+        await new Promise(r => setTimeout(r, backoffMs(attempt)));
         continue;
       }
       throw e;
