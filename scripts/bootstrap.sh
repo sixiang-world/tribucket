@@ -2,13 +2,15 @@
 set -euo pipefail
 
 # tribucket bootstrap installer
-# Installs the tribucket CLI to ~/.tribucket/bin/
+# Installs the tribucket CLI (Bun compiled binary) to ~/.tribucket/bin/
 # Usage: curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash
 
 REPO="${TRIBUCKET_REPO:-sixiang-world/tribucket}"
 TRIBUCKET_HOME="${TRIBUCKET_HOME:-$HOME/.tribucket}"
 INSTALL_DIR="$TRIBUCKET_HOME/bin"
 RAW_URL="https://raw.githubusercontent.com/${REPO}/main"
+BINARY_URL="https://github.com/${REPO}/releases/latest/download/tribucket-linux-amd64"
+TAG_URL="https://api.github.com/repos/${REPO}/releases/latest"
 
 # Colors
 if [ -t 1 ]; then
@@ -22,55 +24,51 @@ ok()    { printf '%s[ok]%s    %s\n' "$G" "$RESET" "$*"; }
 warn()  { printf '%s[warn]%s  %s\n' "$Y" "$RESET" "$*" >&2; }
 err()   { printf '%s[error]%s %s\n' "$R" "$RESET" "$*" >&2; exit 1; }
 
-# Check Python
-check_python() {
-    if command -v python3 &>/dev/null; then
-        PYTHON=python3
-    elif command -v python &>/dev/null; then
-        PYTHON=python
-    else
-        err "Python 3 is required but not found. Install Python 3.8+ first."
-    fi
-
-    # Check version
-    PY_VERSION=$($PYTHON -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-    PY_MAJOR=$($PYTHON -c "import sys; print(sys.version_info.major)")
-    PY_MINOR=$($PYTHON -c "import sys; print(sys.version_info.minor)")
-
-    if [ "$PY_MAJOR" -lt 3 ] || ([ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 8 ]); then
-        err "Python 3.8+ required, found $PY_VERSION"
-    fi
-
-    info "Python: $PY_VERSION"
-}
-
 # Main
 main() {
-    info "Installing tribucket CLI..."
+    info "Installing tribucket CLI (Bun compiled binary)..."
     echo ""
 
-    # Check Python
-    check_python
+    # Detect platform
+    OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    ARCH="$(uname -m)"
+    case "$ARCH" in
+        x86_64)  ARCH="amd64" ;;
+        aarch64) ARCH="arm64" ;;
+        arm64)   ARCH="arm64" ;;
+    esac
+    SUFFIX="${OS}-${ARCH}"
+
+    # Try to get latest release download URL from GitHub API
+    DOWNLOAD_URL=""
+    if command -v curl &>/dev/null; then
+        DOWNLOAD_URL=$(curl -sf "$TAG_URL" 2>/dev/null \
+            | grep -oP '"browser_download_url":\s*"\K[^"]+' \
+            | grep -i "tribucket-${SUFFIX}" \
+            | head -1) || true
+    fi
+
+    if [ -z "$DOWNLOAD_URL" ]; then
+        DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/tribucket-${SUFFIX}"
+    fi
 
     # Create directories
     mkdir -p "$INSTALL_DIR" "$TRIBUCKET_HOME/cache" "$TRIBUCKET_HOME/backup"
 
-    # Download tribucket CLI
-    info "Downloading tribucket CLI..."
-    curl -fsSL "${RAW_URL}/bin/tribucket" -o "$INSTALL_DIR/tribucket"
+    # Download tribucket binary
+    info "Downloading tribucket binary..."
+    if command -v curl &>/dev/null; then
+        curl -fsSL "$DOWNLOAD_URL" -o "$INSTALL_DIR/tribucket"
+    elif command -v wget &>/dev/null; then
+        wget -q "$DOWNLOAD_URL" -O "$INSTALL_DIR/tribucket"
+    else
+        err "Neither curl nor wget found. Install one of them first."
+    fi
     chmod +x "$INSTALL_DIR/tribucket"
 
-    # Download lib/tribucket package
-    LIB_DIR="$TRIBUCKET_HOME/lib/tribucket"
-    mkdir -p "$LIB_DIR"
-    info "Downloading tribucket library..."
-    for f in __init__.py __main__.py cli.py config.py install.py mirror.py track.py update.py utils.py check.py; do
-        curl -fsSL "${RAW_URL}/lib/tribucket/${f}" -o "$LIB_DIR/${f}" 2>/dev/null || true
-    done
-
     # Verify
-    if "$PYTHON" "$INSTALL_DIR/tribucket" --version &>/dev/null; then
-        VERSION=$("$PYTHON" "$INSTALL_DIR/tribucket" --version 2>&1 | head -1)
+    if "$INSTALL_DIR/tribucket" --version &>/dev/null; then
+        VERSION=$("$INSTALL_DIR/tribucket" --version 2>&1 | head -1)
         ok "Installed: $INSTALL_DIR/tribucket ($VERSION)"
     else
         ok "Installed: $INSTALL_DIR/tribucket"

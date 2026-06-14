@@ -176,9 +176,11 @@ export async function installPackage(
     if (isArchive) {
       extractArchive(archivePath, extractDir);
     } else {
-      // Raw binary - copy directly using Node.js fs
+      // Raw binary — use the binary name directly (not hardcoded 'binary')
       mkdirSync(extractDir, { recursive: true });
-      copyFileSync(archivePath, join(extractDir, 'binary'));
+      const binName = pkg.binary || name;
+      copyFileSync(archivePath, join(extractDir, binName));
+      chmodSync(join(extractDir, binName), 0o755);
     }
 
     const binary = pkg.binary || name;

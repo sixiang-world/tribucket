@@ -1,8 +1,22 @@
 import { httpGet } from './http';
 
-export function computeSha256(filepath: string): Promise<string> {
-  const file = Bun.file(filepath);
-  return Bun.CryptoHasher.hash('sha256', file).toString();
+import { openSync, readSync, closeSync, statSync } from 'fs';
+
+export async function computeSha256(filepath: string): Promise<string> {
+  // Read file in chunks using fs.readSync (works in compiled binaries,
+  // unlike Bun.CryptoHasher.hash with Bun.file which fails with "File blob cannot be used here")
+  const hasher = new Bun.CryptoHasher('sha256');
+  const fd = openSync(filepath, 'r');
+  const buf = Buffer.alloc(64 * 1024);
+  let bytesRead: number;
+  try {
+    while ((bytesRead = readSync(fd, buf, 0, buf.length, null)) > 0) {
+      hasher.update(buf.subarray(0, bytesRead));
+    }
+  } finally {
+    closeSync(fd);
+  }
+  return hasher.digest('hex');
 }
 
 const CHECKSUM_PATTERNS = ['sha256sums', 'sha256', 'checksums.txt', '.sha256'];

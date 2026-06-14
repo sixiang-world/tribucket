@@ -2,6 +2,12 @@ import { join } from 'path';
 import { existsSync, statSync } from 'fs';
 import { log } from '../utils/log';
 
+function getProxyUrl(url: string): string | null {
+  const proto = url.startsWith('https') ? 'https' : 'http';
+  const envKey = proto === 'https' ? 'HTTPS_PROXY' : 'HTTP_PROXY';
+  return process.env[envKey] || process.env['ALL_PROXY'] || process.env['all_proxy'] || null;
+}
+
 export async function downloadFile(url: string, destDir: string): Promise<string | null> {
   const filename = url.split('/').pop()?.split('?')[0] || 'download';
   const destPath = join(destDir, filename);
@@ -25,7 +31,18 @@ export async function downloadFile(url: string, destDir: string): Promise<string
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120_000);
-    const response = await fetch(url, { headers, signal: controller.signal });
+
+    const fetchOptions: RequestInit & { proxy?: string } = {
+      headers,
+      signal: controller.signal,
+    };
+    const proxyUrl = getProxyUrl(url);
+    if (proxyUrl) {
+      fetchOptions.proxy = proxyUrl;
+      log(`Using proxy: ${proxyUrl}`);
+    }
+
+    const response = await fetch(url, fetchOptions);
     clearTimeout(timeout);
 
     if (!response.ok && response.status !== 206) {

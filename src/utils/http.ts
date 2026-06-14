@@ -35,15 +35,7 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
       // Proxy support via environment variables
       if (proxyUrl) {
         log(`Using proxy: ${proxyUrl}`);
-        // Bun supports proxy via dispatcher, but for simplicity we use undici
-        // Fallback: if proxy is needed, try direct connection
-        try {
-          const { ProxyAgent } = await import('undici');
-          fetchOptions.dispatcher = new ProxyAgent(proxyUrl);
-        } catch {
-          // undici not available, try direct connection
-          log('Proxy library not available, trying direct connection');
-        }
+        (fetchOptions as any).proxy = proxyUrl;
       }
 
       const response = await fetch(url, fetchOptions);
