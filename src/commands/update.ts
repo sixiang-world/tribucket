@@ -9,7 +9,7 @@ import { extractArchive } from '../utils/archive';
 import { log, error } from '../utils/log';
 import { backupDir } from '../config/paths';
 import { PackageLock } from '../engine/lock';
-import { detectPlatform, resolveBinaryPath } from '../utils/platform';
+import { detectPlatform, resolveBinaryPath, binaryFileName } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findRepoKey } from './track';
@@ -161,9 +161,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       } else {
         // Raw binary — copy using the package's real binary name (NOT a
         // hardcoded "binary"). On Unix we also chmod +x so that findBinary's
-        // executable-bit fallback can locate it. (Mirrors install.ts behavior.)
+        // executable-bit fallback can locate it. On Windows the file must
+        // carry the .exe extension to be runnable. (Mirrors install.ts.)
         mkdirSync(extractDir, { recursive: true });
-        const rawBinName = tj.binary || name;
+        const rawBinName = binaryFileName(tj.binary || name);
         const rawBinPath = join(extractDir, rawBinName);
         copyFileSync(archivePath, rawBinPath);
         try { chmodSync(rawBinPath, 0o755); } catch { /* Windows: ignore */ }
@@ -213,7 +214,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
           if (!found) {
             throw new Error('No installable files found in archive');
           }
-          const dest = join(path, binary);
+          // On Windows the installed file must be <binary>.exe to be runnable.
+          const dest = join(path, binaryFileName(binary));
           copyFileSync(found, dest);
           try { chmodSync(dest, 0o755); } catch { /* Windows: ignore */ }
         }

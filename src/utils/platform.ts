@@ -32,3 +32,17 @@ export function resolveBinaryPath(installDir: string, binary: string): string {
   const withExe = join(installDir, binary.endsWith('.exe') ? binary : `${binary}.exe`);
   return withExe;
 }
+
+/**
+ * Return the binary's on-disk file name within an install directory.
+ *
+ * On Windows, executables must carry the `.exe` extension to be runnable
+ * (and to be found by `resolveBinaryPath`/spawn). The package's `binary`
+ * field is the bare name, so we append `.exe` when installing/copying.
+ * On Unix the bare name is returned unchanged.
+ */
+export function binaryFileName(binary: string): string {
+  const isWindows = process.platform === 'win32';
+  if (!isWindows) return binary;
+  return binary.endsWith('.exe') ? binary : `${binary}.exe`;
+}

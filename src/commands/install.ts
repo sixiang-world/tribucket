@@ -3,7 +3,7 @@ import { join, resolve, basename, sep } from 'path';
 import { tmpdir } from 'os';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
-import { detectPlatform } from '../utils/platform';
+import { detectPlatform, binaryFileName } from '../utils/platform';
 import { log, error, sym } from '../utils/log';
 import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
@@ -180,9 +180,10 @@ export async function installPackage(
     if (isArchive) {
       extractArchive(archivePath, extractDir);
     } else {
-      // Raw binary — use the binary name directly (not hardcoded 'binary')
+      // Raw binary — use the binary name directly (not hardcoded 'binary').
+      // On Windows the executable must carry the .exe extension to be runnable.
       mkdirSync(extractDir, { recursive: true });
-      const binName = pkg.binary || name;
+      const binName = binaryFileName(pkg.binary || name);
       copyFileSync(archivePath, join(extractDir, binName));
       try { chmodSync(join(extractDir, binName), 0o755); } catch { /* Windows: ignore */ }
     }
@@ -215,7 +216,8 @@ export async function installPackage(
       // Find binary using native walk
       const found = findBinary(extractDir, binary);
       if (found) {
-        const dest = join(targetDir, binary);
+        // On Windows the installed file must be <binary>.exe to be runnable.
+        const dest = join(targetDir, binaryFileName(binary));
         copyFileSync(found, dest);
         try { chmodSync(dest, 0o755); } catch { /* Windows: ignore */ }
       }
@@ -247,7 +249,7 @@ export async function installPackage(
     if (options.link) {
       const bd = binDir();
       mkdirSync(bd, { recursive: true });
-      const linkName = pkg.binary || name;
+      const linkName = binaryFileName(pkg.binary || name);
       const linkPath = join(bd, linkName);
       const binaryPath = join(targetDir, linkName);
       if (existsSync(linkPath)) {

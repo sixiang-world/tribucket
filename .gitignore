@@ -46,4 +46,7 @@ AUX
 # Local test scratch dirs
 .test-home/
 .test-apps/
+.win-test-home/
+.win-test-apps/
+wintest.bat
 
