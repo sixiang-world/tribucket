@@ -200,7 +200,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
           }
           const dest = join(path, binary);
           copyFileSync(found, dest);
-          chmodSync(dest, 0o755);
+          try { chmodSync(dest, 0o755); } catch { /* Windows: ignore */ }
         }
       } catch (updateError) {
         // Restore from backup on failure

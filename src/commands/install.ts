@@ -180,7 +180,7 @@ export async function installPackage(
       mkdirSync(extractDir, { recursive: true });
       const binName = pkg.binary || name;
       copyFileSync(archivePath, join(extractDir, binName));
-      chmodSync(join(extractDir, binName), 0o755);
+      try { chmodSync(join(extractDir, binName), 0o755); } catch { /* Windows: ignore */ }
     }
 
     const binary = pkg.binary || name;
@@ -213,7 +213,7 @@ export async function installPackage(
       if (found) {
         const dest = join(targetDir, binary);
         copyFileSync(found, dest);
-        chmodSync(dest, 0o755);
+        try { chmodSync(dest, 0o755); } catch { /* Windows: ignore */ }
       }
     }
 
@@ -230,7 +230,7 @@ export async function installPackage(
     const installSh = generateInstallSh(pkg.name, pkg.repo || '', pkg.binary || name, version);
     const installShPath = join(targetDir, 'install.sh');
     writeFileSync(installShPath, installSh);
-    chmodSync(installShPath, 0o755);
+    try { chmodSync(installShPath, 0o755); } catch { /* Windows: ignore */ }
 
     // Generate cmd/tribucket-update.bat
     const cmdDir = join(targetDir, 'cmd');

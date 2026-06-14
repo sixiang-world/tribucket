@@ -72,7 +72,9 @@ export function findBinary(dir: string, name: string): string {
   if (wildcardExe.length > 0) return wildcardExe[0];
 
   // 6. Fallback: any executable file
+  const isWin = process.platform === 'win32';
   const executables = findFiles(dir, (_entry, fullPath) => {
+    if (isWin) return true; // Windows doesn't have Unix-style executable bits
     try {
       const { accessSync, constants } = require('fs');
       accessSync(fullPath, constants.X_OK);

@@ -12,14 +12,24 @@ program
   .description('Lightweight portable package manager')
   .option('--json', 'JSON output (with --version)')
   .option('--no-color', 'Disable colored output')
+  .option('--proxy <url>', 'Proxy URL for all HTTP requests (e.g. http://127.0.0.1:7897)');
 
-// Handle --version separately to support --json
+// Handle --version and --proxy before commander processes args,
+// so they work even if no subcommand is given.
 const args = process.argv.slice(2);
 
 // Check for --no-color before commander processes args
 if (args.includes("--no-color") || !process.stdout.isTTY || process.env.NO_COLOR !== undefined) {
   setNoColor(true);
 }
+
+// Bootstrap --proxy: set env vars early so all modules pick them up
+const proxyIdx = args.indexOf('--proxy');
+if (proxyIdx !== -1 && proxyIdx + 1 < args.length) {
+  const proxyUrl = args[proxyIdx + 1];
+  process.env.ALL_PROXY = proxyUrl;
+}
+
 if (args.includes('--version') || args.includes('-V')) {
   const jsonOutput = args.includes('--json');
   if (jsonOutput) {
@@ -35,6 +45,14 @@ if (args.includes('--version') || args.includes('-V')) {
 }
 
 program.version(VERSION);
+
+// preAction hook: forward --proxy to env for all commands
+program.hook('preAction', (thisCommand) => {
+  const opts = thisCommand.optsWithGlobals();
+  if (opts.proxy) {
+    process.env.ALL_PROXY = opts.proxy;
+  }
+});
 
 // install
 program
