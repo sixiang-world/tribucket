@@ -1,0 +1,118 @@
+validate	Check asset patterns against latest releases	﻿2026-06-14T19:28:15.2580855Z ##[group]Run python -u scripts/generate.py --check-assets
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.2581319Z ^[[36;1mpython -u scripts/generate.py --check-assets^[[0m
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.2613497Z shell: /usr/bin/bash -e {0}
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.2613744Z env:
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.2616727Z   GITHUB_TOKEN: ***
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.2616940Z ##[endgroup]
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.3442152Z Checking asset patterns for 107 package(s)...
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.3442869Z 
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.5373573Z   ✅ CLIProxyAPI: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.7336884Z   ✅ CloudflareSpeedTest: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:15.9343526Z   ✅ KrillinAI: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:16.1778729Z   ✅ ProxyBridge: 2/2 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:16.3562440Z   ✅ ast-grep: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:16.5413426Z   ✅ axonhub: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:16.7186826Z   ✅ bat: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:16.9167986Z   ✅ bottom: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.0893506Z   ✅ cc-connect: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.3230308Z   ✅ ccx: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.5387654Z   ✅ chsrc: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.7284597Z   ✅ claude-code: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.9128460Z   ⚠️  codewhale: 5/6 matched (1 platform(s) missing)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.9129136Z   —  corretto-jdk11: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.9129845Z   —  corretto-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.9130285Z   —  corretto-jdk21: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:17.9130988Z   —  corretto-jdk8: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:18.1134326Z   ✅ cosign: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:18.3303288Z   ✅ czkawka: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:18.5107666Z   ✅ delta: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:18.7050572Z   ✅ deno: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:18.9521253Z   ✅ dragonwell-jdk11: 3/3 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.2235151Z   ✅ dragonwell-jdk17: 3/3 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.2235992Z   —  dragonwell-jdk21: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.4523510Z   ✅ dragonwell-jdk8: 3/3 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.6540171Z   ✅ duf: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.8272616Z   ✅ dust: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:19.8273440Z   —  elasticsearch: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:20.0812993Z   ✅ erdtree: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:20.2634087Z   ✅ eza: 3/3 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:20.4291679Z   ✅ fd: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:20.6015195Z   ✅ fzf: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:20.8104424Z   ✅ gh: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.0152544Z   ✅ glow: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.1859431Z   ✅ go-musicfox: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.3794560Z   ✅ go-wxpush: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.3795206Z   —  go: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.8190171Z   ✅ goose: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.9919434Z   ✅ gping: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:21.9920044Z   —  graalvm-ce-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.1871759Z   ✅ graalvm-ce-jdk21: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.1872734Z   —  gradle: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.3686157Z   ✅ helix: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.5491634Z   ✅ hugo: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.7217461Z   ✅ hyperfine: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:22.9956567Z   ✅ icloudpd: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.2089773Z   ✅ jq: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.3971154Z   ✅ k9s: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.5775338Z   ❌ lazygit: 0/6 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.5776022Z   —  liberica-jdk11: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.5776610Z   —  liberica-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.5777188Z   —  liberica-jdk21: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.5777758Z   —  liberica-jdk8: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.7640319Z   ✅ listmonk: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:23.9404154Z   ❌ llmfit: 0/6 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.1288343Z   ✅ lsd: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.3007034Z   ❌ memos: 0/5 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.3007761Z   —  microsoft-jdk11: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.3008371Z   —  microsoft-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.3008964Z   —  microsoft-jdk21: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.5170759Z   ❌ mise: 0/6 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.7023660Z   ❌ navidrome: 0/5 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.8977607Z   ✅ neovim: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:24.8978188Z   —  node: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:25.1161698Z   ✅ oblivion-desktop: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:25.2876242Z   ✅ octopus: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:25.4941356Z   ✅ ollama: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:25.7471787Z   ❌ opentofu: 0/5 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:25.9319832Z   ✅ procs: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.1032067Z   ✅ quarkdown: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.2964802Z   ✅ ripgrep: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.4992580Z   ✅ ruff: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.4993062Z   —  sapmachine-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.6919888Z   ✅ sapmachine: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:26.8593157Z   ✅ scrcpy: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.0422529Z   ✅ sd: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.2222354Z   ✅ shellcheck: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.3975823Z   ✅ shfmt: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.6420907Z   ❌ sing-box: 0/6 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.8283001Z   ✅ siteone-crawler: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:27.8283435Z   —  sqlite: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:28.0299195Z   ✅ starship: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:28.2195697Z   ❌ surrealdb: 0/5 patterns matched (zero output)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:28.5820208Z   ✅ temurin-jdk11: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:28.8595513Z   ✅ temurin-jdk17: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:29.1678727Z   ✅ temurin-jdk21: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:29.3748602Z   ✅ temurin-jdk8: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:29.5670322Z   ✅ tencent-kona-jdk11: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:29.7377663Z   ✅ tencent-kona-jdk17: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:29.9073651Z   ✅ tencent-kona-jdk21: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.0861459Z   ✅ tencent-kona-jdk8: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.0862531Z   —  terraform: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.2748673Z   ✅ tree-sitter: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.4335166Z   ✅ tribucket: 4/4 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.6456170Z   ✅ uv: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.6456655Z   —  vagrant: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:30.8944552Z   ✅ watchexec: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:31.0646835Z   ✅ wgcf: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:31.2314661Z   ✅ xh: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:31.4309348Z   ✅ yazi: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:31.6286292Z   ✅ zellij: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:31.8182646Z   ✅ zola: 5/5 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0289274Z   ✅ zoxide: 6/6 matched
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0289823Z   —  zulu-jdk11: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0290387Z   —  zulu-jdk17: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0290923Z   —  zulu-jdk21: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0291489Z   —  zulu-jdk8: download_url (hardcoded)
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0291792Z 
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0291967Z Some patterns have issues (see above).
+validate	Check asset patterns against latest releases	2026-06-14T19:28:32.0407677Z ##[error]Process completed with exit code 1.

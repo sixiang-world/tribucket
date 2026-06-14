@@ -6,11 +6,11 @@
   "license": "GPL-3.0",
   "homepage": "https://github.com/SagerNet/sing-box",
   "asset_pattern": {
-    "linux_amd64": "sing-box-1.13.12-linux-amd64.tar.gz",
-    "linux_arm64": "sing-box-1.13.12-linux-arm64.tar.gz",
-    "darwin_amd64": "sing-box-1.13.12-darwin-amd64.tar.gz",
-    "darwin_arm64": "sing-box-1.13.12-darwin-arm64.tar.gz",
-    "windows_amd64": "sing-box-1.13.12-windows-amd64.zip",
-    "windows_arm64": "sing-box-1.13.12-windows-arm64.zip"
+    "linux_amd64": "sing-box-*-linux-amd64.tar.gz",
+    "linux_arm64": "sing-box-*-linux-arm64.tar.gz",
+    "darwin_amd64": "sing-box-*-darwin-amd64.tar.gz",
+    "darwin_arm64": "sing-box-*-darwin-arm64.tar.gz",
+    "windows_amd64": "sing-box-*-windows-amd64.zip",
+    "windows_arm64": "sing-box-*-windows-arm64.zip"
   }
 }

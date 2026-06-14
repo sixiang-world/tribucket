@@ -6,11 +6,11 @@
   "license": "MIT",
   "homepage": "https://github.com/jdx/mise",
   "asset_pattern": {
-    "linux_amd64": "mise-v2026.5.16-linux-x64.tar.gz",
-    "linux_arm64": "mise-v2026.5.16-linux-arm64.tar.gz",
-    "darwin_amd64": "mise-v2026.5.16-macos-x64.tar.gz",
-    "darwin_arm64": "mise-v2026.5.16-macos-arm64.tar.gz",
-    "windows_amd64": "mise-v2026.5.16-windows-x64.zip",
-    "windows_arm64": "mise-v2026.5.16-windows-arm64.zip"
+    "linux_amd64": "mise-*-linux-x64.tar.gz",
+    "linux_arm64": "mise-*-linux-arm64.tar.gz",
+    "darwin_amd64": "mise-*-macos-x64.tar.gz",
+    "darwin_arm64": "mise-*-macos-arm64.tar.gz",
+    "windows_amd64": "mise-*-windows-x64.zip",
+    "windows_arm64": "mise-*-windows-arm64.zip"
   }
 }

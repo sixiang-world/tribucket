@@ -6,11 +6,11 @@
   "license": "MPL-2.0",
   "homepage": "https://github.com/opentofu/opentofu",
   "asset_pattern": {
-    "linux_amd64": "tofu_1.12.1_linux_amd64.zip",
-    "linux_arm64": "tofu_1.12.1_linux_arm64.zip",
-    "darwin_amd64": "tofu_1.12.1_darwin_amd64.zip",
-    "darwin_arm64": "tofu_1.12.1_darwin_arm64.zip",
-    "windows_amd64": "tofu_1.12.1_windows_amd64.zip",
+    "linux_amd64": "tofu_*_linux_amd64.zip",
+    "linux_arm64": "tofu_*_linux_arm64.zip",
+    "darwin_amd64": "tofu_*_darwin_amd64.zip",
+    "darwin_arm64": "tofu_*_darwin_arm64.zip",
+    "windows_amd64": "tofu_*_windows_amd64.zip",
     "windows_arm64": "NO_MATCH"
   }
 }
