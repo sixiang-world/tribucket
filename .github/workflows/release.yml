@@ -43,9 +43,10 @@ jobs:
           name: ${{ matrix.output }}
           path: ${{ matrix.output }}
 
-  # macOS Intel runner has limited availability — optional build
+  # macOS Intel — only on manual workflow_dispatch (macOS-13 runner scarce)
   build-darwin-amd64:
-    name: Build tribucket-darwin-amd64 (optional)
+    if: github.event_name == 'workflow_dispatch'
+    name: Build tribucket-darwin-amd64
     runs-on: macos-13
     continue-on-error: true
     steps:
