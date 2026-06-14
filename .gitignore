@@ -50,3 +50,4 @@ AUX
 .win-test-apps/
 wintest.bat
 
+".ci-jobs.txt"  
