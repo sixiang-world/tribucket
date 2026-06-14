@@ -3,6 +3,31 @@ import { spawnSync } from 'child_process';
 import type { PackageMeta, TrackedPackage } from '../types';
 import { log } from '../utils/log';
 
+// Matches a semantic version core (major.minor[.patch][...suffix]) anywhere in
+// a string. Used to normalize release tags like "jq-1.8.1", "shellcheck-v0.11.0",
+// "v15.1.0", or "1.2.3" into a comparable "1.8.1" / "0.11.0" / "15.1.0".
+const VERSION_CORE_RE = /(\d+\.\d+(?:\.\d+)?)/;
+
+/**
+ * Extract a comparable version string from a release tag_name.
+ * Falls back to the raw tag (with a single leading "v" stripped) when no
+ * version core can be found, so behavior is never worse than before.
+ *
+ * Examples:
+ *   "v1.2.3"          -> "1.2.3"
+ *   "jq-1.8.1"        -> "1.8.1"
+ *   "shellcheck-v0.11.0" -> "0.11.0"
+ *   "15.1.0"          -> "15.1.0"
+ *   "release-2024-01" -> "2024-1" (best effort)
+ */
+export function versionFromTag(tag: string | null | undefined): string | null {
+  if (!tag) return null;
+  const m = tag.match(VERSION_CORE_RE);
+  if (m && m[1]) return m[1];
+  const stripped = tag.replace(/^v/, '');
+  return stripped || null;
+}
+
 export function detectVersion(
   binaryPath: string,
   tributableJson: PackageMeta,

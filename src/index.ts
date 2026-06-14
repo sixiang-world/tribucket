@@ -110,7 +110,8 @@ program
   .action(async (opts) => {
     const { listPackages } = await import('./commands/list');
     // Merge global opts so --json (also defined at program level) is visible.
-    const merged = { ...opts, ...(this as any)?.optsWithGlobals?.() };
+    // Arrow function => use module-scoped `program`, not `this`.
+    const merged = { ...opts, ...program.optsWithGlobals() };
     await listPackages(merged);
   });
 
@@ -144,7 +145,9 @@ program
     // global --json (index.ts top), and in Commander v15 a command-level
     // option with the same name as a program-level one does NOT appear in the
     // command's local opts() — it only surfaces through optsWithGlobals().
-    const wantJson = (this as any)?.optsWithGlobals?.()?.json === true || opts.json === true;
+    // We use program (module-scoped) rather than `this` because these actions
+    // are arrow functions, which do not bind their own `this` to the command.
+    const wantJson = program.optsWithGlobals().json === true || opts.json === true;
     if (wantJson) {
       const output: Record<string, any> = {};
       for (const r of results) output[r.name || '?'] = { local: r.local, remote: r.remote, status: r.status, source: r.local_source };

@@ -92,6 +92,15 @@ describe('Mirror', () => {
     // no release data → pattern returned as-is
     expect(resolveAssetName(null, 'whatever')).toBe('whatever');
   });
+
+  it('versionFromTag extracts a comparable version core from any tag', async () => {
+    const { versionFromTag } = await import('../engine/version');
+    expect(versionFromTag('v1.2.3')).toBe('1.2.3');
+    expect(versionFromTag('jq-1.8.1')).toBe('1.8.1');
+    expect(versionFromTag('shellcheck-v0.11.0')).toBe('0.11.0');
+    expect(versionFromTag('15.1.0')).toBe('15.1.0');
+    expect(versionFromTag(null)).toBeNull();
+  });
 });
 
 describe('Archive', () => {

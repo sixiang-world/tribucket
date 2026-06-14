@@ -2,7 +2,7 @@ import { sym } from '../utils/log';
 import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync, cpSync } from 'fs';
 import { join, dirname } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
-import { detectVersion } from '../engine/version';
+import { detectVersion, versionFromTag } from '../engine/version';
 import { resolveDownloadUrl } from '../engine/mirror';
 import { downloadFile } from '../engine/download';
 import { extractArchive } from '../utils/archive';
@@ -69,7 +69,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
       releaseData = data;
       remoteTag = data.tag_name || null;
-      remoteVer = remoteTag?.replace(/^v/, '') || null;
+      remoteVer = versionFromTag(remoteTag);
       if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
     } catch { error('network', `Cannot check remote version for ${repo}`); return false; }
   }

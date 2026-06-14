@@ -2,7 +2,7 @@ import { sym, log } from '../utils/log';
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../config/store';
-import { detectVersion } from '../engine/version';
+import { detectVersion, versionFromTag } from '../engine/version';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findBinary } from '../utils/find';
@@ -54,7 +54,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
         try {
           const token = process.env.GITHUB_TOKEN;
           const data = await httpGetJson<any>(`https://api.github.com/repos/${info.repo}/releases/latest`, { token });
-          remoteVer = data.tag_name?.replace(/^v/, '') || null;
+          remoteVer = versionFromTag(data.tag_name);
           if (remoteVer) saveRemoteVersionCache(info.repo, remoteVer);
         } catch (e: any) { log(`Failed to fetch remote version for ${info.repo}: ${e.message}`); }
       }
@@ -96,7 +96,7 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
           } else {
             data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
           }
-          remoteVer = data?.tag_name?.replace(/^v/, '') || null;
+          remoteVer = versionFromTag(data?.tag_name);
           if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
         } catch (e: any) { log(`Failed to fetch remote version for ${repo}: ${e.message}`); }
       }
