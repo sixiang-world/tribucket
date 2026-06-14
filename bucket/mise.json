@@ -1,31 +1,31 @@
 {
-  "version": "2026.5.16",
+  "version": "2026.6.9",
   "description": "Polyglot runtime manager (asdf replacement)",
   "homepage": "https://github.com/jdx/mise",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/jdx/mise/releases/download/v2026.5.16/mise-v2026.5.16-windows-x64.zip",
-      "hash": "ef58bd006a383545383cd8adb7d67c8edba215570ba737c7aa7ba98b5275b081"
+      "url": "https://github.com/jdx/mise/releases/download/v2026.6.9/mise-v2026.6.9-windows-x64.zip",
+      "hash": "dd8b56015535674ba957868861c46c4196e13631f91fd15f6f102dfbb9b85606"
     },
     "arm64": {
-      "url": "https://github.com/jdx/mise/releases/download/v2026.5.16/mise-v2026.5.16-windows-arm64.zip",
-      "hash": "ea932fa2ecad2324c873385926fe655cf0715a186b6b952dc546799dd1ff7fd4"
+      "url": "https://github.com/jdx/mise/releases/download/v2026.6.9/mise-v2026.6.9-windows-arm64.zip",
+      "hash": "de00f3b1d1483144e665ca563e0a9a6ced0e505be2ff04aff1462a7531993899"
     }
   },
   "bin": [
     [
-      "mise-v2026.5.16-windows-x64.zip",
+      "mise-v2026.6.9-windows-x64.zip",
       "mise"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.5.16-windows-x64.zip"
+        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.6.9-windows-x64.zip"
       },
       "arm64": {
-        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.5.16-windows-arm64.zip"
+        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.6.9-windows-arm64.zip"
       }
     }
   },

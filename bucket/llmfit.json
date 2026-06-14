@@ -1,31 +1,31 @@
 {
-  "version": "0.9.29",
+  "version": "0.9.31",
   "description": "LLM fitness evaluation tool",
   "homepage": "https://github.com/AlexsJones/llmfit",
   "license": "Apache-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/AlexsJones/llmfit/releases/download/v0.9.29/llmfit-v0.9.29-x86_64-pc-windows-msvc.zip",
-      "hash": "67a2db0845f98621ebb7b6ccb04f728043214714e1a5e291ad3902c53413c8e1"
+      "url": "https://github.com/AlexsJones/llmfit/releases/download/v0.9.31/llmfit-v0.9.31-x86_64-pc-windows-msvc.zip",
+      "hash": "95701f05eaa7d1561704a83e68d8cc6d54c0cd74210be4aa056bd14660444543"
     },
     "arm64": {
-      "url": "https://github.com/AlexsJones/llmfit/releases/download/v0.9.29/llmfit-v0.9.29-aarch64-pc-windows-msvc.zip",
-      "hash": "c355b4542eec61e2e7d48aa79dd8d2729533079107cd9ecff760312d75e3b138"
+      "url": "https://github.com/AlexsJones/llmfit/releases/download/v0.9.31/llmfit-v0.9.31-aarch64-pc-windows-msvc.zip",
+      "hash": "52c370a23091ffc3c9516798be667e6a038557b34aa44cd9d55c21df3d11f83d"
     }
   },
   "bin": [
     [
-      "llmfit-v0.9.29-x86_64-pc-windows-msvc.zip",
+      "llmfit-v0.9.31-x86_64-pc-windows-msvc.zip",
       "llmfit"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.29-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.31-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.29-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.31-aarch64-pc-windows-msvc.zip"
       }
     }
   },

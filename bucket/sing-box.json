@@ -1,31 +1,31 @@
 {
-  "version": "1.13.12",
+  "version": "1.13.13",
   "description": "The universal proxy platform",
   "homepage": "https://github.com/SagerNet/sing-box",
   "license": "GPL-3.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/SagerNet/sing-box/releases/download/v1.13.12/sing-box-1.13.12-windows-amd64.zip",
-      "hash": "e93fc531134eb1beb4efa3c74990a24e48456098a31c03b60d5ddf17f223cf98"
+      "url": "https://github.com/SagerNet/sing-box/releases/download/v1.13.13/sing-box-1.13.13-windows-amd64.zip",
+      "hash": "aea1fa983134a2e2d0600581d1178e98bd6bb93ae12ad8c333eaacae68a1694c"
     },
     "arm64": {
-      "url": "https://github.com/SagerNet/sing-box/releases/download/v1.13.12/sing-box-1.13.12-windows-arm64.zip",
-      "hash": "e01560b07061fa79e67cb7dc8727ac5e3010fa9f93444ddaf0c014967f52a1b4"
+      "url": "https://github.com/SagerNet/sing-box/releases/download/v1.13.13/sing-box-1.13.13-windows-arm64.zip",
+      "hash": "4ba5a9d714e9c7670405c5ee1bbac052bf455797720c1e43cd5a0b757c50dd5d"
     }
   },
   "bin": [
     [
-      "sing-box-1.13.12-windows-amd64.zip",
+      "sing-box-1.13.13-windows-amd64.zip",
       "sing-box"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.13.12-windows-amd64.zip"
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.13.13-windows-amd64.zip"
       },
       "arm64": {
-        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.13.12-windows-arm64.zip"
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.13.13-windows-arm64.zip"
       }
     }
   },
