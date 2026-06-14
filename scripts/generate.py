@@ -169,7 +169,7 @@ def download_file(url, dest_path, token=None, verbose=False):
         elapsed = time.monotonic() - start
         if result.returncode == 0 and os.path.exists(dest_path):
             fname = os.path.basename(dest_path)
-            print(f"  [aria2] {fname}  {elapsed:.1f}s")
+            print(f"  {fname}  {elapsed:.1f}s")
             return True
         print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
 
@@ -180,7 +180,7 @@ def download_file(url, dest_path, token=None, verbose=False):
     elapsed = time.monotonic() - start
     with open(dest_path, "wb") as f:
         f.write(body)
-    print(f"  [urllib] {fname}  {elapsed:.1f}s")
+    print(f"  {fname}  {elapsed:.1f}s")
     return True
 
 
