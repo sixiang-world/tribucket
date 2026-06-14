@@ -74,7 +74,7 @@ export async function installPackage(
   // Self-directory protection
   const { tribucketHome } = await import('../config/paths');
   const homeDir = resolveReal(tribucketHome());
-  if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + '/')) {
+  if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + sep)) {
     error('forbidden', `Cannot install into tribucket home directory: ${resolvedTarget}`,
           `Use --dir to specify a different directory.`);
     return false;
