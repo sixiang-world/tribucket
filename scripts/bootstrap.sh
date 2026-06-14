@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# tribucket bootstrap installer
+# tribucket bootstrap installer (macOS / Linux)
 # Installs the tribucket CLI (Bun compiled binary) to ~/.tribucket/bin/
 # Usage: curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash
+#
+# Windows users: use scripts/bootstrap.ps1 instead:
+#   irm https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.ps1 | iex
 
 REPO="${TRIBUCKET_REPO:-sixiang-world/tribucket}"
 TRIBUCKET_HOME="${TRIBUCKET_HOME:-$HOME/.tribucket}"
