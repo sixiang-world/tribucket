@@ -164,15 +164,23 @@ def download_file(url, dest_path, token=None, verbose=False):
             cmd.append(f"--header=Authorization: token {token}")
         cmd.append(url)
 
+        start = time.monotonic()
         result = subprocess.run(cmd, capture_output=True, text=True)
+        elapsed = time.monotonic() - start
         if result.returncode == 0 and os.path.exists(dest_path):
+            fname = os.path.basename(dest_path)
+            print(f"  [aria2] {fname}  {elapsed:.1f}s")
             return True
         print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
 
     # Fallback: urllib with retry
+    fname = os.path.basename(dest_path)
+    start = time.monotonic()
     body = http_get(url, token=token, timeout=120)
+    elapsed = time.monotonic() - start
     with open(dest_path, "wb") as f:
         f.write(body)
+    print(f"  [urllib] {fname}  {elapsed:.1f}s")
     return True
 
 
