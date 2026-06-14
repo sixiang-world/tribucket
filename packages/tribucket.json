@@ -1,7 +1,7 @@
 {
   "name": "tribucket",
   "repo": "sixiang-world/tribucket",
-  "description": "Lightweight portable package manager — install, track, check, update CLI tools",
+  "description": "Lightweight portable package manager \u2014 install, track, check, update CLI tools",
   "binary": "tribucket",
   "license": "MIT",
   "homepage": "https://github.com/sixiang-world/tribucket",
@@ -12,5 +12,6 @@
     "darwin_arm64": "tribucket-darwin-arm64",
     "windows_amd64": "tribucket-windows-amd64.exe",
     "windows_arm64": "NO_MATCH"
-  }
+  },
+  "version": "3.1.0"
 }
