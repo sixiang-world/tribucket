@@ -25,8 +25,6 @@ jobs:
             output: tribucket-linux-amd64
           - os: ubuntu-24.04-arm
             output: tribucket-linux-arm64
-          - os: macos-13
-            output: tribucket-darwin-amd64
           - os: macos-14
             output: tribucket-darwin-arm64
           - os: windows-latest
@@ -35,24 +33,36 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - run: bun install
-
-      - name: Compile
-        run: bun build src/index.ts --compile --outfile ${{ matrix.output }}
-
+      - run: bun build src/index.ts --compile --outfile ${{ matrix.output }}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output }}
           path: ${{ matrix.output }}
 
+  # macOS Intel runner has limited availability — optional build
+  build-darwin-amd64:
+    name: Build tribucket-darwin-amd64 (optional)
+    runs-on: macos-13
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - run: bun build src/index.ts --compile --outfile tribucket-darwin-amd64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tribucket-darwin-amd64
+          path: tribucket-darwin-amd64
+
   release:
     name: Create Release
-    needs: build
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,6 +72,9 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+
+      - name: List downloaded artifacts
+        run: ls -la dist/
 
       - name: Compute SHA256 checksums
         run: |
@@ -80,22 +93,34 @@ jobs:
             echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Build release body
+        id: body
+        run: |
+          BODY=$(cat <<'EOB'
+          ## tribucket ${{ steps.version.outputs.tag }}
+
+          See [commits](https://github.com/sixiang-world/tribucket/compare/${{ steps.version.outputs.tag }}) for details.
+
+          ### Platform binaries
+          - `tribucket-linux-amd64` — Linux x86_64
+          - `tribucket-linux-arm64` — Linux ARM64
+          - `tribucket-darwin-arm64` — macOS Apple Silicon
+          - `tribucket-windows-amd64.exe` — Windows x86_64
+          EOB
+          )
+          if [ -f dist/tribucket-darwin-amd64 ]; then
+            BODY="$BODY"$'\n'"- \`tribucket-darwin-amd64\` — macOS Intel"
+          fi
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
-          body: |
-            ## tribucket ${{ steps.version.outputs.tag }}
-
-            See [commits](https://github.com/sixiang-world/tribucket/compare/${{ steps.version.outputs.tag }}) for details.
-
-            ### Platform binaries
-            - `tribucket-linux-amd64` — Linux x86_64
-            - `tribucket-linux-arm64` — Linux ARM64
-            - `tribucket-darwin-amd64` — macOS Intel
-            - `tribucket-darwin-arm64` — macOS Apple Silicon
-            - `tribucket-windows-amd64.exe` — Windows x86_64
+          body: ${{ steps.body.outputs.body }}
           files: |
             dist/*
             sha256sums.txt
@@ -124,8 +149,6 @@ jobs:
           git add Formula/ bucket/
           if ! git diff --cached --quiet; then
             git commit -m "chore: update Formula/Bucket for ${{ steps.version.outputs.tag }}"
-            # Push back to the branch that triggered this workflow
-            # For tag pushes, push to the default branch
             git push origin HEAD:main
             echo "Committed and pushed Formula/Bucket updates"
           else
