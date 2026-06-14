@@ -51,3 +51,4 @@ AUX
 wintest.bat
 
 ".ci-jobs.txt"  
+checkassets.log  
