@@ -125,9 +125,12 @@ def http_get(url, token=None, retries=3, timeout=30):
 def _has_aria2():
     """Check if aria2c is available."""
     try:
-        subprocess.run(["aria2c", "--version"], capture_output=True, check=True)
+        result = subprocess.run(["aria2c", "--version"], capture_output=True, text=True, check=True)
+        ver = result.stdout.splitlines()[0] if result.stdout else "unknown"
+        print(f"  [aria2] detected: {ver}")
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
+        print("  [aria2] not found, will fall back to urllib")
         return False
 
 
@@ -142,7 +145,8 @@ def download_file(url, dest_path, token=None, verbose=False):
       --max-tries=5: retry up to 5 times
       --continue=true: resume partial downloads
     """
-    if _has_aria2():
+    aria2_ok = _has_aria2()
+    if aria2_ok:
         cmd = [
             "aria2c",
             "-x", "16",
@@ -160,20 +164,19 @@ def download_file(url, dest_path, token=None, verbose=False):
             cmd.append(f"--header=Authorization: token {token}")
         cmd.append(url)
 
-        if verbose:
-            print(f"  [aria2] downloading with 16 connections...")
+        print(f"  [aria2] downloading with 16 connections...")
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0 and os.path.exists(dest_path):
-            if verbose:
-                print(f"  [aria2] download complete")
+            print(f"  [aria2] download complete")
             return True
-        if verbose:
-            print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
+        print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
 
     # Fallback: urllib with retry
+    print(f"  [urllib] downloading (aria2 unavailable or failed)...")
     body = http_get(url, token=token, timeout=120)
     with open(dest_path, "wb") as f:
         f.write(body)
+    print(f"  [urllib] download complete")
     return True
 
 
