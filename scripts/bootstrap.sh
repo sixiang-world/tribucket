@@ -60,6 +60,14 @@ main() {
     curl -fsSL "${RAW_URL}/bin/tribucket" -o "$INSTALL_DIR/tribucket"
     chmod +x "$INSTALL_DIR/tribucket"
 
+    # Download lib/tribucket package
+    LIB_DIR="$TRIBUCKET_HOME/lib/tribucket"
+    mkdir -p "$LIB_DIR"
+    info "Downloading tribucket library..."
+    for f in __init__.py __main__.py cli.py config.py install.py mirror.py track.py update.py utils.py check.py; do
+        curl -fsSL "${RAW_URL}/lib/tribucket/${f}" -o "$LIB_DIR/${f}" 2>/dev/null || true
+    done
+
     # Verify
     if "$PYTHON" "$INSTALL_DIR/tribucket" --version &>/dev/null; then
         VERSION=$("$PYTHON" "$INSTALL_DIR/tribucket" --version 2>&1 | head -1)
