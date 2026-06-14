@@ -10,6 +10,25 @@
 
 v2 新增轻量级 **tribucket CLI**，可跟踪、检测、更新所有通过它安装的便携软件。
 
+## 更新日志
+
+### v3.2.0 — 跨平台稳定性大修
+
+经 Windows + Linux (WSL Ubuntu 24.04) 双平台完整实测，修复 12 个阻断/高风险 bug：
+
+- **下载 URL**：不再硬编码 `v` 版本前缀，使用 release 的原始 tag（修复 jq `jq-1.8.1`、ripgrep `15.1.0` 等 404）
+- **资源解析**：`asset_pattern` 现在对真实 release 资源列表做匹配（字面量 / glob `*` / 后缀），`fzf-*`、`x86_64-pc-windows-msvc.zip` 等模式均能解析
+- **Linux 解压**：移除 GNU tar 不支持的 `--no-absolute-names`（之前导致所有 tar 包解压崩溃）
+- **Windows 二进制**：安装时自动补 `.exe` 后缀；版本检测使用 `resolveBinaryPath` 探测 `.exe`
+- **`--json` 输出**：修复被全局同名选项遮蔽的问题（`check --json` / `list --json` 现输出正确 JSON）
+- **`--all`**：按包名而非 repo key 迭代，修复 `check/update --all` 的路径误判
+- **版本比较**：`versionFromTag` 从任意 tag 提取可比较的版本号；缓存读取自愈归一化
+- **网络韧性**：HTTP 重试 3→5 次 + jitter 退避，403/429 限流也重试
+- **更新后校验**：版本探测带重试，Windows 跳过不可靠的 `X_OK`，不再误报 `Version mismatch`
+- 清理仓库根目录误建的 `NUL` 文件并加入 `.gitignore`
+
+测试：单元测试 19/19 通过；Linux 端到端 12/12；Windows 端到端 9/9。
+
 ## 快速开始
 
 ### 安装 tribucket CLI
@@ -170,66 +189,44 @@ brew tap shisheng820/tribucket https://cnb.cool/shisheng820/tribucket.git
 
 ```
 tribucket/
-├── bin/
-│   └── tribucket               # CLI 入口 (Python)
-├── lib/tribucket/              # Python 引擎
-│   ├── cli.py                  # 命令路由 (argparse)
-│   ├── check.py                # 版本检测
-│   ├── update.py               # 安全更新 (备份/恢复)
-│   ├── install.py              # 首次安装
-│   ├── mirror.py               # 镜像加速
-│   ├── track.py                # 包跟踪
-│   ├── config.py               # 配置管理
-│   └── utils.py                # 工具函数
-├── packages/                   # 软件包元数据 (106 个)
-├── Formula/                    # Homebrew formulas (自动生成)
-├── bucket/                     # Scoop manifests (自动生成)
-├── portable/                   # 便携包模板 (generate.py --portable)
-├── scripts/
-│   ├── generate.py             # 生成器 (Formula/Bucket/Portable)
-│   ├── bootstrap.sh            # CLI 引导安装
-│   ├── checkver.py             # 版本检测
-│   └── install.sh              # v1 脚本安装
-├── tests/                      # 测试 (152 个)
+├── src/                        # v2 CLI (Bun/TypeScript，编译为单文件二进制)
+│   ├── index.ts                # CLI 入口 (Commander.js)
+│   ├── version.ts              # VERSION 常量
+│   ├── commands/               # install / update / check / list / track / config / self-update / clean / uninstall
+│   ├── engine/                 # version / mirror / download / lock
+│   ├── config/                 # paths / store / cache
+│   ├── utils/                  # http / archive / sha256 / platform / find / log / concurrent / cleanup
+│   └── __tests__/              # 单元测试 (19 个)
+├── packages/                   # 软件包元数据 (单一事实来源)
+├── Formula/                    # Homebrew formulas (自动生成，勿手改)
+├── bucket/                     # Scoop manifests (自动生成，勿手改)
+├── archive/python-v1/          # v1 (Python) — 仅作历史参考
+├── scripts/                    # bootstrap.sh / bootstrap.ps1 / install.sh / install.ps1 等
 └── docs/
-    └── architecture-v2.md      # v2 架构文档
 ```
 
 ## 添加新软件
 
-1. 在 `packages/` 下新建 `<name>.json`
-2. 运行 `python3 scripts/generate.py --only <name>`
-3. 运行 `python3 -m pytest tests/ -v`
+1. 在 `packages/` 下新建 `<name>.json`（`asset_pattern` 支持字面量 / glob `*` / 后缀三种匹配模式）
+2. 运行生成器生成 Formula / Bucket
+3. 运行 `bun test`
 4. 提交 PR
-
-```bash
-# 生成 Formula + Bucket + 便携包模板
-python3 scripts/generate.py --only <name> --portable
-
-# 预览
-python3 scripts/generate.py --only <name> --dry-run --skip-hash
-```
 
 ## 开发
 
 ```bash
-# 运行所有测试 (152 个)
-python3 -m pytest tests/ -v
-
-# 运行特定测试
-python3 -m pytest tests/test_generate.py -v
-python3 -m pytest tests/test_tribucket.py -v
-python3 -m pytest tests/test_integration.py -v
-
-# CLI 开发
-python3 bin/tribucket --help
-python3 bin/tribucket list
+bun install                                          # 安装依赖
+bun build src/index.ts --compile --outfile tribucket # 编译二进制
+bun run src/index.ts --help                          # 运行 CLI
+bun test                                             # 运行测试 (19 个)
 ```
 
-**代理设置**：
+**代理设置**（中国大陆访问 GitHub 必需）：
 ```bash
 export HTTPS_PROXY=http://127.0.0.1:7897
 export HTTP_PROXY=http://127.0.0.1:7897
+# 或使用 CLI 参数
+tribucket --proxy http://127.0.0.1:7897 install jq
 ```
 
 **GitHub Token**（可选，提升 API 速率限制到 5000 次/小时）：

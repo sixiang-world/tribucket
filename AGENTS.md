@@ -22,7 +22,7 @@ Package definitions live in `packages/*.json` (single source of truth) and gener
 bun install                                     # Install dependencies
 bun build src/index.ts --compile --outfile tribucket  # Build binary
 bun run src/index.ts --help                    # Run CLI
-bun test                                        # Run TypeScript tests (16 passing)
+bun test                                        # Run TypeScript tests (19 passing)
 cp tribucket ~/.tribucket/bin/tribucket         # Install binary
 ```
 
@@ -60,11 +60,11 @@ src/
 │   ├── store.ts          # Atomic JSON read/write
 │   └── cache.ts          # Version and mirror cache
 └── utils/                # Utilities
-    ├── http.ts           # HTTP client with retry, proxy, rate limit
-    ├── archive.ts        # Archive extraction with zip-slip protection
+    ├── http.ts           # HTTP client with retry (5x, jittered backoff), proxy, rate limit
+    ├── archive.ts        # Archive extraction with zip-slip protection (no --no-absolute-names)
     ├── sha256.ts         # SHA256 computation (fs-based, works in compiled binary)
     ├── log.ts            # Logging with symbols and NO_COLOR support
-    ├── platform.ts       # Platform detection (OS_ARCH format)
+    ├── platform.ts       # Platform detection + resolveBinaryPath/binaryFileName (.exe handling)
     ├── find.ts           # Recursive file search for binary matching
     ├── concurrent.ts     # Concurrent task runner
     └── cleanup.ts        # Temp directory cleanup
@@ -74,12 +74,17 @@ src/
 - **Security**: Block system directories (`/`, `/usr`, `/bin`, `/etc`, `/var`, `/tmp`)
 - **Path traversal**: `realpathSync` to resolve symlinks before validation
 - **Config**: `~/.tribucket/config.json` with atomic writes (tmp + rename)
-- **Mirror**: Multi-provider with TTL cache, auto-probe, fallback chain
-- **Version detection**: Priority: `binary --version` → `config.json` → `tributable.json` → `"unknown"`
-- **Archive security**: Recursive zip-slip validation; single top-level dir unwrapped
+- **Mirror**: Multi-provider with TTL cache, auto-probe, fallback chain. Provider templates use `{tag}` (raw release tag_name, verbatim) — never inject a `v` prefix, since tags are project-specific (`v1.2.3`, `jq-1.8.1`, `15.1.0`). Legacy `{version}` (tag with a single leading `v` stripped) is supported for backward compat.
+- **Asset resolution** (`mirror.resolveAssetName`): `asset_pattern` values are matched against the real GitHub release asset list — literal exact match → glob (`*`) → pure-suffix match. This handles both glob patterns (`fzf-*-windows_amd64.zip`) and bare platform tails (`x86_64-pc-windows-msvc.zip`).
+- **Version detection** (`engine/version.detectVersion`): Priority: `binary --version` (with bounded retry, X_OK check skipped on Windows) → `config.json` → `tributable.json` → `"unknown"`.
+- **Version comparison** (`engine/version.versionFromTag`): extracts a comparable version core (`major.minor[.patch]`) from any tag, so local-vs-remote comparison works for project-specific tag formats. Cached remote versions are normalized on read so stale pre-fix values self-heal.
+- **Windows binary paths** (`utils/platform.resolveBinaryPath`/`binaryFileName`): the `binary` field is the bare name (e.g. `rg`); on Windows we append `.exe` both when probing (`resolveBinaryPath`) and when installing/copying (`binaryFileName`).
+- **Archive security**: Recursive zip-slip validation (post-extraction validator); single top-level dir unwrapped. We do NOT pass `--no-absolute-names` to tar (it is not supported by GNU tar and crashed Linux extraction).
 - **File locking**: Atomic lock via `wx` flag with PID stale-process detection
 - **Proxy**: Supports `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` env vars for all HTTP(S) requests and downloads (uses Bun's native `proxy` option)
 - **NO_COLOR support**: `sym()` utility with automatic ASCII fallback
+- **HTTP resilience** (`utils/http.httpGet`): 5 retries with full-jitter exponential backoff; retries on 403/429 rate-limiting, not just 5xx.
+- **--json output** (`index.ts`): read via `program.optsWithGlobals()` (not `this`), because the actions are arrow functions and a program-level `--json` would otherwise shadow the command-level option.
 - **SHA256**: Uses `fs.readSync` in chunks with `Bun.CryptoHasher` (not `Bun.CryptoHasher.hash(Bun.file(...))` which fails in compiled binaries)
 
 ## Known Gotchas
@@ -88,9 +93,21 @@ src/
 
 2. **Proxy for downloads**: `engine/download.ts` and `utils/http.ts` both read `HTTPS_PROXY` / `ALL_PROXY` env vars. Without a proxy, GitHub release downloads time out from China.
 
-3. **Raw binary downloads**: When a downloaded file is a raw binary (not tar.gz/zip), install.ts copies it to the extract dir using the package's `binary` name (not hardcoded `'binary'`). This ensures `findBinary()` can find it.
+3. **Raw binary downloads**: When a downloaded file is a raw binary (not tar.gz/zip), install.ts/update.ts copy it to the extract dir using `binaryFileName(pkg.binary)` (e.g. `jq` on Unix, `jq.exe` on Windows) and chmod +x. Never use a hardcoded `'binary'` name — `findBinary()` would fail to locate it (esp. on Linux, where the executable bit matters).
 
-4. **non-empty directory**: If a target dir exists and is non-empty, the install refuses unless `--force` is used.
+4. **Release tags are project-specific**: Do NOT assume a `v` prefix. `buildDirectUrl`/`buildMirrorUrl` use the raw `tag_name` verbatim (e.g. `jq-1.8.1`, `15.1.0`, `v1.2.3`). For version *comparison*, use `versionFromTag()` to extract the version core.
+
+5. **`asset_pattern` is not a literal filename**: it is resolved against the actual release asset list (literal / glob `*` / suffix match). A pattern like `x86_64-pc-windows-msvc.zip` matches the real asset `bat-v0.26.1-x86_64-pc-windows-msvc.zip`.
+
+6. **Windows `.exe`**: `existsSync`/`spawnSync` do NOT try PATHEXT. Use `resolveBinaryPath(dir, binary)` to probe (appends `.exe` if the bare file is missing) and `binaryFileName(binary)` when writing.
+
+7. **Commander `--json` shadowing**: the program defines a global `--json`; command-level `opts.json` is `undefined` in Commander v15. Read it via `program.optsWithGlobals().json`.
+
+8. **`--all` keys**: `config.packages` is keyed by repo (e.g. `koalaman/shellcheck`), which contains `/`. Iterate by `package.name` (not the repo key) so downstream code does not misread the key as a filesystem path.
+
+9. **non-empty directory**: If a target dir exists and is non-empty, the install refuses unless `--force` is used.
+
+10. **`accessSync(X_OK)` is unreliable on Windows**: `detectVersion` skips the X_OK gate on Windows and only treats it as authoritative on POSIX.
 
 ## CLI Commands
 
@@ -170,6 +187,11 @@ tribucket uninstall <name>
      }
    }
    ```
+   `asset_pattern` values are resolved against the real GitHub release asset
+   list (literal exact match → glob `*` → pure-suffix match), so any of these
+   work: a full asset name, a glob like `fzf-*-linux_amd64.tar.gz`, or a bare
+   platform tail like `x86_64-pc-windows-msvc.zip`. Use `"NO_MATCH"` for
+   unsupported platforms.
 2. Run the generator (see scripts/generate.py in archive)
 3. Commit with conventional format
 

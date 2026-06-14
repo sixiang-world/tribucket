@@ -100,17 +100,54 @@ jobs:
           BODY=$(cat <<'EOB'
           ## tribucket ${{ steps.version.outputs.tag }}
 
-          See [commits](https://github.com/sixiang-world/tribucket/compare/${{ steps.version.outputs.tag }}) for details.
+          See [commits](https://github.com/sixiang-world/tribucket/compare/v3.1.0...${{ steps.version.outputs.tag }}) for details.
 
           ### Platform binaries
           - `tribucket-linux-amd64` — Linux x86_64
           - `tribucket-linux-arm64` — Linux ARM64
           - `tribucket-darwin-arm64` — macOS Apple Silicon
           - `tribucket-windows-amd64.exe` — Windows x86_64
+
+          ### What's new (v3.2.0)
+          Cross-platform stability overhaul — 12 blocking/high-risk bugs fixed,
+          verified end-to-end on Windows + Linux (WSL Ubuntu 24.04):
+
+          - **Download URLs** no longer hardcode a `v` tag prefix (fixed
+            `jq-1.8.1`, `15.1.0`-style tags 404'ing).
+          - **Asset resolution**: `asset_pattern` is now matched against the
+            real release asset list (literal / glob `*` / suffix).
+          - **Linux tar extraction**: removed the unsupported
+            `--no-absolute-names` flag that crashed every `.tar.*` install.
+          - **Windows binaries**: installed as `<name>.exe`; version detection
+            probes the `.exe` path.
+          - **`--json`** output for `check`/`list` fixed (was shadowed by the
+            global option).
+          - **`--all`** iterates by package name, not repo key.
+          - **Version comparison** via `versionFromTag`; cached remote versions
+            self-heal on read.
+          - **HTTP resilience**: 5 retries with jittered backoff; 403/429
+            retried too.
+          - **Post-update probe** retries and skips the unreliable Windows
+            `X_OK` check (no more spurious "Version mismatch").
+
+          Tests: unit 19/19, Linux end-to-end 12/12, Windows end-to-end 9/9.
           EOB
           )
           if [ -f dist/tribucket-darwin-amd64 ]; then
-            BODY="$BODY"$'\n'"- \`tribucket-darwin-amd64\` — macOS Intel"
+            BODY="$BODY"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.body.outputs.body }}
+          files: |
+            dist/*
+            sha256sums.txt
+          draft: false
+          prerelease: false
+\n'"- \`tribucket-darwin-amd64\` — macOS Intel"
           fi
           echo "body<<EOF" >> "$GITHUB_OUTPUT"
           echo "$BODY" >> "$GITHUB_OUTPUT"
