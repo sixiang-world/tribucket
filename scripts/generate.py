@@ -606,12 +606,28 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
             new_download_urls_for_writeback
 
 
-# infer_asset_format imported from tribucket.utils (avoids duplication)
-import sys as _sys
-_lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")
-if _lib_dir not in _sys.path:
-    _sys.path.insert(0, _lib_dir)
-from tribucket.utils import infer_asset_format
+# infer_asset_format — inlined here so the generator is self-contained and
+# does not depend on the archived Python v1 CLI (lib/tribucket/). This is the
+# only function the generator ever needed from that module.
+def infer_asset_format(asset_pattern):
+    """Infer archive format from asset filename patterns."""
+    formats = {}
+    for platform, pattern in asset_pattern.items():
+        if pattern == "NO_MATCH" or not pattern:
+            continue
+        if pattern.endswith(".tar.gz"):
+            formats[platform] = "tar.gz"
+        elif pattern.endswith(".tar.bz2"):
+            formats[platform] = "tar.bz2"
+        elif pattern.endswith(".tar.xz"):
+            formats[platform] = "tar.xz"
+        elif pattern.endswith(".zip"):
+            formats[platform] = "zip"
+        elif pattern.endswith(".exe"):
+            formats[platform] = "exe"
+        else:
+            formats[platform] = "binary"
+    return formats
 
 
 def infer_install_type(pkg):

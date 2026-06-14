@@ -5,7 +5,8 @@
 tribucket is a cross-platform package repository. The **Bun/TypeScript (v2)** version is the active CLI — compiled to a single binary via `bun build --compile`.
 
 - **v2 (Bun/TypeScript)**: `src/` — complete CLI, single binary, no runtime deps
-- **v1 (Python)**: Archived at `archive/python-v1/` — historical reference only
+- **Generator (Python)**: `scripts/generate.py` — build tool that turns `packages/*.json` into `Formula/*.rb` (Homebrew) + `bucket/*.json` (Scoop). Self-contained (stdlib only). Run by CI on `packages/**` changes and after each release.
+- **v1 (Python CLI)**: Archived at `archive/python-v1/` — historical reference only (the CLI migrated to Bun; the generator stays Python)
 
 Package definitions live in `packages/*.json` (single source of truth) and generate `Formula/*.rb` + `bucket/*.json`.
 
@@ -23,6 +24,7 @@ bun install                                     # Install dependencies
 bun build src/index.ts --compile --outfile tribucket  # Build binary
 bun run src/index.ts --help                    # Run CLI
 bun test                                        # Run TypeScript tests (19 passing)
+python scripts/generate.py --only <name>        # Regenerate Formula/bucket for a package
 cp tribucket ~/.tribucket/bin/tribucket         # Install binary
 ```
 
@@ -192,15 +194,17 @@ tribucket uninstall <name>
    work: a full asset name, a glob like `fzf-*-linux_amd64.tar.gz`, or a bare
    platform tail like `x86_64-pc-windows-msvc.zip`. Use `"NO_MATCH"` for
    unsupported platforms.
-2. Run the generator (see scripts/generate.py in archive)
+2. Run the generator: `python scripts/generate.py --only <name>` (produces `Formula/<name>.rb` + `bucket/<name>.json`; CI runs this automatically on `packages/**` changes and after each release)
 3. Commit with conventional format
 
 ## Testing
 
 ```bash
-bun test                                          # TypeScript tests
-bun test src/__tests__/utils.test.ts              # Utility tests
-bun test src/__tests__/config.test.ts             # Config tests
+bun test                                          # TypeScript CLI tests (src/__tests__)
+bun test src/__tests__/utils.test.ts              # Utility/mirror/version tests
+bun test src/__tests__/config.test.ts             # Config store tests
+python -m pytest tests/test_generate.py          # Generator tests (Python)
+python -m pytest tests/test_checkver.py          # Checkver tests (Python)
 ```
 
 ## Environment Variables
