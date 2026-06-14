@@ -38,6 +38,8 @@ export async function downloadFile(url: string, destDir: string): Promise<string
     };
     const proxyUrl = getProxyUrl(url);
     if (proxyUrl) {
+      // NOTE: `proxy` on RequestInit is a Bun-only extension (not standard
+      // fetch). See src/utils/http.ts for the same caveat.
       fetchOptions.proxy = proxyUrl;
       log(`Using proxy: ${proxyUrl}`);
     }

@@ -32,7 +32,10 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         signal: controller.signal,
       };
 
-      // Proxy support via environment variables
+      // Proxy support via environment variables.
+      // NOTE: `proxy` on RequestInit is a Bun-only extension (not part of the
+      // standard fetch Web API). If this code is ever ported to Node.js, swap
+      // this for an undici ProxyAgent / https-proxy-agent instead.
       if (proxyUrl) {
         log(`Using proxy: ${proxyUrl}`);
         (fetchOptions as any).proxy = proxyUrl;
