@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync, rmSync, cpSync, symlinkSync, realpathSync } from 'fs';
-import { join, resolve, basename } from 'path';
+import { join, resolve, basename, sep } from 'path';
 import { tmpdir } from 'os';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
@@ -56,7 +56,7 @@ export async function installPackage(
 
   const resolvedTarget = resolveReal(targetDir);
   const resolvedBase = resolveReal(options.dir || process.cwd());
-  if (!resolvedTarget.startsWith(resolvedBase + '/') && resolvedTarget !== resolvedBase) {
+  if (!resolvedTarget.startsWith(resolvedBase + sep) && resolvedTarget !== resolvedBase) {
     error('security', `Path traversal detected: ${name} resolves outside base directory`);
     return false;
   }
@@ -64,7 +64,7 @@ export async function installPackage(
   // System directory protection
   const FORBIDDEN = ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
   for (const forbidden of FORBIDDEN) {
-    if (resolvedTarget === forbidden || resolvedTarget.startsWith(forbidden + '/')) {
+    if (resolvedTarget === forbidden || resolvedTarget.startsWith(forbidden + sep)) {
       error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`,
             `Use --dir to specify a user directory, e.g.: --dir ~/apps`);
       return false;

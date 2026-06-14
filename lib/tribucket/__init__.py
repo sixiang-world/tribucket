@@ -1,2 +1,2 @@
 """tribucket — lightweight portable package manager."""
-__version__ = "3.0.0"
+__version__ = "3.0.1"
