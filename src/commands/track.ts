@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
+import { sym } from '../utils/log';
 
 function detectRepo(path: string): string | null {
   try {
@@ -25,7 +26,7 @@ export function track(name: string, path?: string): boolean {
 
   if (config.packages[repoKey] && existsSync(config.packages[repoKey].path)) {
     console.error(`Error: '${name}' is already tracked at ${config.packages[repoKey].path}`);
-    console.error(`  → Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
+    console.error(`  ${sym('arrow')} Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
     return false;
   }
 

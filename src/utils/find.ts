@@ -38,24 +38,40 @@ export function findFiles(
 /**
  * Find the first executable file matching a name pattern in a directory.
  * Searches recursively; returns the first match or empty string.
+ *
+ * Matches Python v1 behavior:
+ * 1. Direct match in root
+ * 2. Recursive exact name match
+ * 3. Recursive exact name + .exe (Windows)
+ * 4. Recursive wildcard: any file containing the name
+ * 5. Recursive wildcard: any file containing the name + .exe
+ * 6. Fallback: any executable file
  */
 export function findBinary(dir: string, name: string): string {
-  // Direct match first
+  // 1. Direct match first
   const direct = join(dir, name);
   try {
     if (statSync(direct).isFile()) return direct;
   } catch { /* not found */ }
 
-  // Recursive search by exact name
+  // 2. Recursive search by exact name
   const matches = findFiles(dir, (entry) => entry === name);
   if (matches.length > 0) return matches[0];
 
-  // Search by name suffix (e.g. name.exe on Windows)
+  // 3. Search by name suffix (e.g. name.exe on Windows)
   const suffix = `${name}.exe`;
   const suffixMatches = findFiles(dir, (entry) => entry === suffix);
   if (suffixMatches.length > 0) return suffixMatches[0];
 
-  // Fallback: any executable file
+  // 4. Recursive wildcard: any file containing the name (matching Python's **/*{name}*)
+  const wildcardMatches = findFiles(dir, (entry) => entry.includes(name));
+  if (wildcardMatches.length > 0) return wildcardMatches[0];
+
+  // 5. Recursive wildcard: any file containing the name + .exe
+  const wildcardExe = findFiles(dir, (entry) => entry.includes(name) && entry.endsWith('.exe'));
+  if (wildcardExe.length > 0) return wildcardExe[0];
+
+  // 6. Fallback: any executable file
   const executables = findFiles(dir, (_entry, fullPath) => {
     try {
       const { accessSync, constants } = require('fs');

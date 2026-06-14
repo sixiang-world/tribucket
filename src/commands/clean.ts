@@ -1,3 +1,4 @@
+import { sym } from '../utils/log';
 import { existsSync, readdirSync, unlinkSync, lstatSync, readlinkSync } from 'fs';
 import { join } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
@@ -14,7 +15,7 @@ export function clean(): void {
   if (removed.length > 0) {
     saveConfig(config);
     console.log(`Removed ${removed.length} stale entry(ies):`);
-    for (const name of removed) console.log(`  ✓ ${name}`);
+    for (const name of removed) console.log(`  ${sym('ok')} ${name}`);
   } else {
     console.log('No stale entries found.');
   }
@@ -32,10 +33,10 @@ export function clean(): void {
         try {
           const target = readlinkSync(linkPath);
           unlinkSync(linkPath);
-          console.log(`  ✓ ${linkPath} → ${target}`);
+          console.log(`  ${sym('ok')} ${linkPath} ${sym('arrow')} ${target}`);
         } catch {
           unlinkSync(linkPath);
-          console.log(`  ✓ ${linkPath}`);
+          console.log(`  ${sym('ok')} ${linkPath}`);
         }
       }
     } else if (removed.length === 0) {

@@ -175,7 +175,10 @@ program
       let success = 0, failed = 0;
       const updateOne = async (n: string) => {
         const { updatePackage } = await import('./commands/update');
-        try { if (await updatePackage(n, opts)) success++; else failed++; } catch { failed++; }
+        try {
+          if (await updatePackage(n, opts)) success++;
+          else { failed++; console.error(`[error] ${n}: update failed`); }
+        } catch (e) { failed++; console.error(`[error] ${n}: ${e}`); }
       };
       await concurrentMap(names, updateOne);
 

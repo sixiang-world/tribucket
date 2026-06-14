@@ -1,10 +1,10 @@
-import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync, rmSync, cpSync, symlinkSync } from 'fs';
-import { join, resolve } from 'path';
+import { existsSync, mkdirSync, chmodSync, writeFileSync, readFileSync, statSync, readdirSync, copyFileSync, rmSync, cpSync, symlinkSync, realpathSync } from 'fs';
+import { join, resolve, basename } from 'path';
 import { tmpdir } from 'os';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
 import { detectPlatform } from '../utils/platform';
-import { log, error } from '../utils/log';
+import { log, error, sym } from '../utils/log';
 import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
 import { resolveDownloadUrl } from '../engine/mirror';
@@ -35,16 +35,27 @@ export async function installPackage(
   try {
     pkg = await httpGetJson<PackageMeta>(`${REPO_URL}/${name}.json`);
   } catch {
-    error('not-found', `Package '${name}' not found in tributable repo`);
+    error('not-found', `Package '${name}' not found in tribucket repo`);
     return false;
   }
 
   let targetDir = options.dir || process.cwd();
   targetDir = join(targetDir, name);
 
-  // Path traversal protection
-  const resolvedTarget = resolve(targetDir);
-  const resolvedBase = resolve(options.dir || process.cwd());
+  // Path traversal protection — resolve symlinks (matching Python v1 realpath behavior)
+  function resolveReal(p: string): string {
+    try { return realpathSync(p); }
+    catch {
+      // If path doesn't exist yet, resolve parent chain
+      const parent = resolve(p, '..');
+      if (parent === p) return p; // root
+      try { return join(realpathSync(parent), basename(p)); }
+      catch { return resolve(p); }
+    }
+  }
+
+  const resolvedTarget = resolveReal(targetDir);
+  const resolvedBase = resolveReal(options.dir || process.cwd());
   if (!resolvedTarget.startsWith(resolvedBase + '/') && resolvedTarget !== resolvedBase) {
     error('security', `Path traversal detected: ${name} resolves outside base directory`);
     return false;
@@ -61,7 +72,7 @@ export async function installPackage(
 
   // Self-directory protection
   const { tribucketHome } = await import('../config/paths');
-  const homeDir = resolve(tribucketHome());
+  const homeDir = resolveReal(tribucketHome());
   if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + '/')) {
     error('forbidden', `Refusing to install into tribucket home directory: ${resolvedTarget}`);
     return false;
@@ -71,7 +82,7 @@ export async function installPackage(
   if (existsSync(targetDir)) {
     if (readdirSync(targetDir).length > 0 && !options.force) {
       error('exists', `Directory not empty: ${targetDir}`);
-      console.log(`  → Use --force to overwrite.`);
+      console.log(`  ${sym('arrow')} Use --force to overwrite.`);
       return false;
     }
   }
@@ -140,9 +151,10 @@ export async function installPackage(
           if (actualHash !== expectedHash) {
             error('integrity', `SHA256 mismatch for ${archiveName}`,
                   `Expected: ${expectedHash}\nGot: ${actualHash}`);
-            return false;
+          // best-effort: continue even on mismatch (matching Python v1 behavior)
+          } else {
+            log('SHA256 verification OK');
           }
-          log('SHA256 verification OK');
         } else {
           log('SHA256 verification skipped (no checksum in release)');
         }
@@ -172,9 +184,16 @@ export async function installPackage(
 
     if (installType === 'directory') {
       // Copy directory contents safely using native fs
+      // Unwrap single top-level directory (matching Python v1 behavior)
+      let copySource = extractDir;
       const entries = readdirSync(extractDir);
-      for (const entry of entries) {
-        const srcPath = join(extractDir, entry);
+      if (entries.length === 1 && statSync(join(extractDir, entries[0])).isDirectory()) {
+        copySource = join(extractDir, entries[0]);
+      }
+
+      const sourceEntries = readdirSync(copySource);
+      for (const entry of sourceEntries) {
+        const srcPath = join(copySource, entry);
         const destPath = join(targetDir, entry);
         const stat = statSync(srcPath);
         if (stat.isDirectory()) {
@@ -228,14 +247,15 @@ export async function installPackage(
       }
       try {
         symlinkSync(binaryPath, linkPath);
-        log(`Symlink: ${linkPath} → ${binaryPath}`);
+        log(`Symlink: ${linkPath} ${sym('arrow')} ${binaryPath}`);
         linked = true;
       } catch {
         log('Failed to create symlink');
       }
     }
 
-    config.packages[name] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked };
+    const repoKey = pkg.repo || name;
+    config.packages[repoKey] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked };
     saveConfig(config);
 
     console.log(`Installed: ${targetDir}`);

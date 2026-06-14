@@ -1,3 +1,4 @@
+import { sym } from '../utils/log';
 import { existsSync, readdirSync, lstatSync, readFileSync, readlinkSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../config/store';
@@ -47,13 +48,8 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       return { name: info.name, info, localVer, remoteVer };
     };
 
-    const WORKERS = 4;
-    const results: Array<{name: string; info: any; localVer: string; remoteVer: string | null}> = [];
-    for (let i = 0; i < packages.length; i += WORKERS) {
-      const batch = packages.slice(i, i + WORKERS);
-      const batchResults = await Promise.all(batch.map(checkOne));
-      results.push(...batchResults);
-    }
+    const { concurrentMap } = await import('../utils/concurrent');
+    const results = await concurrentMap(packages, (pkg) => checkOne(pkg));
 
     if (options.json) {
       const output: Record<string, any> = {};
@@ -75,10 +71,10 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
     for (const r of results) {
       const exists = existsSync(r.info.path);
       let status = '';
-      if (!exists) status = '✗ not found';
+      if (!exists) status = `${sym('err')} not found`;
       else if (!r.remoteVer) status = '? offline';
-      else if (r.localVer === r.remoteVer) status = '✓ latest';
-      else status = `⚠ outdated`;
+      else if (r.localVer === r.remoteVer) status = `${sym('ok')} latest`;
+      else status = `${sym('warn')} outdated`;
 
       console.log(`${r.name.padEnd(20)}  ${r.localVer.padEnd(12)}  ${(r.remoteVer || '?').padEnd(12)}  ${status.padEnd(10)}  ${r.info.path}`);
     }
@@ -95,7 +91,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
   if (options.sort === 'status') {
     packages.sort((a, b) => {
       const aE = existsSync(a[1].path), bE = existsSync(b[1].path);
-      return (aE === bE ? 0 : aE ? -1 : 1) || a[0].localeCompare(b[0]);
+      return (aE === bE ? 0 : aE ? 1 : -1) || a[0].localeCompare(b[0]);
     });
   } else {
     packages.sort((a, b) => a[0].localeCompare(b[0]));
@@ -106,7 +102,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
 
   for (const [_, info] of packages) {
     const exists = existsSync(info.path);
-    console.log(`${info.name.padEnd(20)}  ${(info.version || '?').padEnd(12)}  ${info.path.padEnd(40)}  ${exists ? '✓ latest' : '✗ not found'}`);
+    console.log(`${info.name.padEnd(20)}  ${(info.version || '?').padEnd(12)}  ${info.path.padEnd(40)}  ${exists ? sym('ok') + ' latest' : sym('err') + ' not found'}`);
   }
 
   const bd = binDir();
@@ -117,19 +113,19 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       try {
         if (lstatSync(linkPath).isSymbolicLink()) {
           const target = readlinkSync(linkPath);
-          if (!existsSync(linkPath)) dangling.push(`${linkPath} → ${target}`);
+          if (!existsSync(linkPath)) dangling.push(`${linkPath} ${sym('arrow')} ${target}`);
         }
       } catch {}
     }
     if (dangling.length > 0) {
-      console.log(`\n⚠ Found ${dangling.length} dangling symlink(s):`);
+      console.log(`\n${sym('warn')} Found ${dangling.length} dangling symlink(s):`);
       for (const p of dangling) console.log(`  ${p}`);
     }
   }
 
   const stale = packages.filter(([_, info]) => !existsSync(info.path)).map(([_, info]) => info.name);
   if (stale.length > 0) {
-    console.log(`\n⚠ Found ${stale.length} stale entry(ies): ${stale.join(', ')}`);
-    console.log(`  → Run 'tribucket clean' to remove them.`);
+    console.log(`\n${sym('warn')} Found ${stale.length} stale entry(ies): ${stale.join(', ')}`);
+    console.log(`  ${sym('arrow')} Run 'tribucket clean' to remove them.`);
   }
 }

@@ -13,7 +13,8 @@ export function loadConfig(): Config {
     data.settings = data.settings || {};
     data.packages = data.packages || {};
     return data;
-  } catch {
+  } catch (e) {
+    console.error(`Warning: config.json corrupted (${e}), using defaults`);
     return { settings: {}, packages: {} };
   }
 }

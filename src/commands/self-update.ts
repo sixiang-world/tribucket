@@ -1,12 +1,12 @@
 import { existsSync, renameSync, unlinkSync, writeFileSync, chmodSync } from 'fs';
+import { VERSION } from '../version';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { httpGetJson, httpGet } from '../utils/http';
 import { findSha256FromRelease, computeSha256 } from '../utils/sha256';
-import { log } from '../utils/log';
+import { log, sym } from '../utils/log';
 
 const REPO = 'sixiang-world/tribucket';
-const VERSION = '2.0.0';
 
 export async function selfUpdate(): Promise<void> {
   console.log('Checking for updates...');
@@ -37,14 +37,22 @@ export async function selfUpdate(): Promise<void> {
   }
 
   try {
-    // Download new binary
+    // Download new binary — detect platform for correct asset name
+    const { detectPlatform } = await import('../utils/platform');
+    const plat = detectPlatform();
+    if (!plat) { console.error('Error: Unsupported platform'); process.exit(1); }
+    const [os, arch] = plat.split('_');
+    const ext = os === 'windows' ? '.exe' : '';
+    const expectedName = `tribucket-${os}-${arch}${ext}`;
+
     const assets = releaseData.assets || [];
     const binaryAsset = assets.find((a: any) =>
-      a.name === 'tribucket' || a.name === 'tribucket-linux-amd64'
+      // Try platform-specific name first, then fallback to generic
+      a.name === expectedName || a.name === `tribucket${ext}`
     );
 
     if (!binaryAsset) {
-      console.error('Error: Binary asset not found in release');
+      console.error(`Error: Binary asset not found in release (expected ${expectedName})`);
       process.exit(1);
     }
 
@@ -77,7 +85,7 @@ export async function selfUpdate(): Promise<void> {
     // Make executable (Bun compile output should already be, but be safe)
     try { chmodSync(scriptPath, 0o755); } catch {}
 
-    console.log(`Updated: ${VERSION} → ${latest}`);
+    console.log(`Updated: ${VERSION} ${sym('arrow')} ${latest}`);
     console.log('Restart tribucket to use the new version.');
 
     // Schedule backup cleanup

@@ -23,7 +23,10 @@ export async function downloadFile(url: string, destDir: string): Promise<string
       headers['Range'] = `bytes=${existingSize}-`;
     }
 
-    const response = await fetch(url, { headers });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
+    const response = await fetch(url, { headers, signal: controller.signal });
+    clearTimeout(timeout);
 
     if (!response.ok && response.status !== 206) {
       log(`Download failed: HTTP ${response.status}`);

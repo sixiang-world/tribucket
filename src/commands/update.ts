@@ -1,3 +1,4 @@
+import { sym } from '../utils/log';
 import { existsSync, mkdirSync, chmodSync, readFileSync, readdirSync, statSync, copyFileSync, rmSync, cpSync } from 'fs';
 import { join } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
@@ -23,7 +24,7 @@ function handleSigint() {
   process.exit(130);
 }
 
-export async function updatePackage(name: string, options: { force?: boolean; mirror?: string; noBackup?: boolean }): Promise<boolean> {
+export async function updatePackage(name: string, options: { force?: boolean; mirror?: string; backup?: boolean }): Promise<boolean> {
   const config = loadConfig();
   const repoKey = findRepoKey(config, name);
   const info = repoKey ? config.packages[repoKey] : config.packages[name];
@@ -125,7 +126,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       }
 
       let backupPath: string | null = null;
-      if (!options.noBackup) {
+      if (options.backup !== false) {
         backupPath = join(backupDir(), name, localVer);
         mkdirSync(backupPath, { recursive: true });
         cpSync(path, backupPath, { recursive: true });
@@ -165,11 +166,18 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
           }
 
           // Copy new files from extracted archive
-          const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
+          // Unwrap single top-level directory (matching Python v1 behavior)
+          let copySource = extractDir;
           const entries = readdirSync(extractDir);
-          for (const entry of entries) {
+          if (entries.length === 1 && statSync(join(extractDir, entries[0])).isDirectory()) {
+            copySource = join(extractDir, entries[0]);
+          }
+
+          const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
+          const sourceEntries = readdirSync(copySource);
+          for (const entry of sourceEntries) {
             if (excludeFiles.includes(entry)) continue;
-            const srcPath = join(extractDir, entry);
+            const srcPath = join(copySource, entry);
             const destPath = join(path, entry);
             const stat = statSync(srcPath);
             if (stat.isDirectory()) {
@@ -228,11 +236,11 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       config.packages[repoKey || name].version = remoteVer;
       saveConfig(config);
 
-      if (!options.noBackup && backupPath && existsSync(backupPath)) {
+      if (options.backup !== false && backupPath && existsSync(backupPath)) {
         rmSync(backupPath, { recursive: true, force: true });
       }
 
-      console.log(`${name}: ${localVer} → ${remoteVer} ✓`);
+      console.log(`${name}: ${localVer} ${sym('arrow')} ${remoteVer} ${sym('ok')}`);
       return true;
     } finally {
       try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
