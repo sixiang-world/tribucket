@@ -95,7 +95,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
   if (options.sort === 'status') {
     packages.sort((a, b) => {
       const aE = existsSync(a[1].path), bE = existsSync(b[1].path);
-      return (aE === bE ? 0 : aE ? 1 : -1) || a[0].localeCompare(b[0]);
+      return (aE === bE ? 0 : aE ? -1 : 1) || a[0].localeCompare(b[0]);
     });
   } else {
     packages.sort((a, b) => a[0].localeCompare(b[0]));

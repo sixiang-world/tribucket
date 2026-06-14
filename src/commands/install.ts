@@ -12,6 +12,7 @@ import { resolveDownloadUrl } from '../engine/mirror';
 import { loadConfig, saveConfig } from '../config/store';
 import { binDir } from '../config/paths';
 import { computeSha256, findSha256FromRelease } from '../utils/sha256';
+import { findRepoKey } from './track';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
@@ -20,9 +21,10 @@ export async function installPackage(
   options: { dir?: string; link?: boolean; force?: boolean; mirror?: string }
 ): Promise<boolean> {
   const config = loadConfig();
-  if (config.packages[name] && !options.force) {
-    const info = config.packages[name];
-    if (existsSync(info.path)) {
+  const existingKey = findRepoKey(config, name);
+  if (existingKey && !options.force) {
+    const info = config.packages[existingKey];
+    if (info && existsSync(info.path)) {
       error('exists', `'${name}' is already installed at ${info.path}`,
             `Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
       return false;

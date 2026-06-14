@@ -10,7 +10,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
 
   try {
     const headers: Record<string, string> = {
-      'User-Agent': 'Mozilla/5.0 (compatible; tributable/2.0)',
+      'User-Agent': 'Mozilla/5.0 (compatible; tribucket/2.0)',
     };
 
     // Resume support: check existing file size

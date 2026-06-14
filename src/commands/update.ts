@@ -25,7 +25,8 @@ function handleSigint() {
 
 export async function updatePackage(name: string, options: { force?: boolean; mirror?: string; noBackup?: boolean }): Promise<boolean> {
   const config = loadConfig();
-  const info = config.packages[name];
+  const repoKey = findRepoKey(config, name);
+  const info = repoKey ? config.packages[repoKey] : config.packages[name];
   if (!info) { error('not-found', `Package '${name}' is not tracked.`); return false; }
 
   const path = info.path;
@@ -160,7 +161,21 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
       try {
         if (installType === 'directory') {
-          // Copy directory contents safely, excluding certain files
+          // Remove stale files first (except metadata files), then copy new ones
+          const keepFiles = new Set(['tribucket.json', 'install.sh', 'cmd']);
+          const existingEntries = readdirSync(path);
+          for (const entry of existingEntries) {
+            if (keepFiles.has(entry)) continue;
+            const entryPath = join(path, entry);
+            const stat = statSync(entryPath);
+            if (stat.isDirectory()) {
+              rmSync(entryPath, { recursive: true, force: true });
+            } else {
+              rmSync(entryPath, { force: true });
+            }
+          }
+
+          // Copy new files from extracted archive
           const excludeFiles = ['tribucket.json', 'install.sh', 'cmd'];
           const entries = readdirSync(extractDir);
           for (const entry of entries) {
@@ -207,11 +222,12 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             } catch {}
           }
 
-          if (found) {
-            const dest = join(path, binary);
-            copyFileSync(found, dest);
-            chmodSync(dest, 0o755);
+          if (!found) {
+            throw new Error('No installable files found in archive');
           }
+          const dest = join(path, binary);
+          copyFileSync(found, dest);
+          chmodSync(dest, 0o755);
         }
       } catch (updateError) {
         // Restore from backup on failure
@@ -259,8 +275,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
         // Don't fail, just warn — binary might report version differently
       }
 
-      const repoKey = findRepoKey(config, name) || name;
-      config.packages[repoKey].version = remoteVer;
+      config.packages[repoKey || name].version = remoteVer;
       saveConfig(config);
 
       if (!options.noBackup && backupPath && existsSync(backupPath)) {

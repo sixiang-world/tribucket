@@ -256,7 +256,9 @@ program
     const { join } = await import('path');
 
     const config = loadConfig();
-    const info = config.packages[name];
+    const { findRepoKey } = await import('./commands/track');
+    const repoKey = findRepoKey(config, name) || name;
+    const info = config.packages[repoKey];
     if (!info) { console.error(`Error: '${name}' is not tracked.`); process.exit(3); }
 
     console.log(`Name:        ${name}`);
