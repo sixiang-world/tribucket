@@ -109,7 +109,9 @@ program
   .option('--check', 'Run version detection for all packages')
   .action(async (opts) => {
     const { listPackages } = await import('./commands/list');
-    await listPackages(opts);
+    // Merge global opts so --json (also defined at program level) is visible.
+    const merged = { ...opts, ...(this as any)?.optsWithGlobals?.() };
+    await listPackages(merged);
   });
 
 // check
@@ -128,7 +130,9 @@ program
     let names: string[] = targets;
     if (opts.all) {
       const config = loadConfig();
-      names = Object.keys(config.packages);
+      // Use each package's human-readable .name (NOT the repo-key, which can
+      // contain "/" and would be misread as a filesystem path by checkPackage).
+      names = Object.values(config.packages).map((p: any) => p.name).filter((n: any): n is string => !!n);
     }
     if (names.length === 0) { console.error('Specify package names or use --all'); process.exit(2); }
 
@@ -136,7 +140,12 @@ program
     const { concurrentMap } = await import('./utils/concurrent');
     const results = await concurrentMap(names, t => checkPackage(t, opts));
 
-    if (opts.json) {
+    // NOTE: read --json via optsWithGlobals(). The program also defines a
+    // global --json (index.ts top), and in Commander v15 a command-level
+    // option with the same name as a program-level one does NOT appear in the
+    // command's local opts() — it only surfaces through optsWithGlobals().
+    const wantJson = (this as any)?.optsWithGlobals?.()?.json === true || opts.json === true;
+    if (wantJson) {
       const output: Record<string, any> = {};
       for (const r of results) output[r.name || '?'] = { local: r.local, remote: r.remote, status: r.status, source: r.local_source };
       console.log(JSON.stringify(output, null, 2));
@@ -163,7 +172,9 @@ program
     if (opts.all) {
       const { loadConfig } = await import('./config/store');
       const config = loadConfig();
-      const names = Object.keys(config.packages);
+      // Use each package's human-readable .name (NOT the repo-key, which can
+      // contain "/" and would be misread as a filesystem path downstream).
+      const names = Object.values(config.packages).map((p: any) => p.name).filter((n: any): n is string => !!n);
       if (names.length === 0) { console.log('No packages tracked.'); return; }
 
       if (opts.dryRun) {

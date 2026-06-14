@@ -32,3 +32,18 @@ tsconfig.json
 # Compiled binary
 tributable
 tribucket
+tribucket.exe
+tribucket_test.exe
+
+# Windows reserved device names that may be created by accident (e.g. output
+# redirected to "NUL" from inside the repo). These cannot be read/deleted via
+# the normal Win32 path namespace.
+NUL
+CON
+PRN
+AUX
+
+# Local test scratch dirs
+.test-home/
+.test-apps/
+

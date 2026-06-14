@@ -6,6 +6,7 @@ import { detectVersion } from '../engine/version';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findBinary } from '../utils/find';
+import { resolveBinaryPath } from '../utils/platform';
 import type { CheckResult, PackageMeta } from '../types';
 
 export async function checkPackage(nameOrPath: string, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
@@ -40,7 +41,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
 
   if (!tj) {
     const binary = info.name || name;
-    const binaryPath = join(path, binary);
+    const binaryPath = resolveBinaryPath(path, binary);
     const [localVer, source] = detectVersion(existsSync(binaryPath) ? binaryPath : path, { version_check: { cli_flags: ['--version'], parse_regex: 'v?(\\d+\\.\\d+(?:\\.\\d+)?)', output_stream: 'stdout', timeout: 5 } } as any);
 
     let remoteVer: string | null = null;
@@ -68,7 +69,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
 async function checkWithTributableJson(name: string, path: string, tj: PackageMeta, info: any, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
   const binary = tj.binary || name;
   const installType = tj.install_type || 'binary';
-  let binaryPath = join(path, binary);
+  let binaryPath = resolveBinaryPath(path, binary);
   if (installType === 'directory' && !existsSync(binaryPath)) {
     const found = findBinary(path, binary);
     if (found) binaryPath = found;

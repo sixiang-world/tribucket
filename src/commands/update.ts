@@ -9,7 +9,7 @@ import { extractArchive } from '../utils/archive';
 import { log, error } from '../utils/log';
 import { backupDir } from '../config/paths';
 import { PackageLock } from '../engine/lock';
-import { detectPlatform } from '../utils/platform';
+import { detectPlatform, resolveBinaryPath } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findRepoKey } from './track';
@@ -46,13 +46,16 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   const installType = tj.install_type || 'binary';
 
   const [localVer] = detectVersion(
-    installType === 'directory' ? path : join(path, binary),
+    installType === 'directory' ? path : resolveBinaryPath(path, binary),
     tj, info
   );
   log(`Local version: ${localVer}`);
 
   const token = process.env.GITHUB_TOKEN;
   let remoteVer: string | null = null;
+  // Keep the full release object + raw tag for URL building / asset resolution.
+  let releaseData: any | null = null;
+  let remoteTag: string | null = null;
 
   // Try cache first (unless force)
   if (!options.force) {
@@ -64,7 +67,9 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   if (!remoteVer) {
     try {
       const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-      remoteVer = data.tag_name?.replace(/^v/, '') || null;
+      releaseData = data;
+      remoteTag = data.tag_name || null;
+      remoteVer = remoteTag?.replace(/^v/, '') || null;
       if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
     } catch { error('network', `Cannot check remote version for ${repo}`); return false; }
   }
@@ -77,13 +82,23 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
     return true;
   }
 
+  // If we used a cached version, we still need the release object + raw tag
+  // for URL building and asset (glob/suffix) resolution. Fetch it now.
+  if (!releaseData || !remoteTag) {
+    try {
+      releaseData = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
+      remoteTag = releaseData.tag_name || remoteTag;
+    } catch { error('network', `Cannot fetch release info for ${repo}`); return false; }
+  }
+  if (!remoteTag) { error('network', `Cannot determine release tag for ${repo}`); return false; }
+
   const platform = detectPlatform();
   if (!platform) { error('platform', 'Unsupported platform'); return false; }
 
   const pattern = tj.asset_pattern?.[platform];
   if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
 
-  const [url, provider] = await resolveDownloadUrl(repo, remoteVer, pattern, options.mirror as any);
+  const [url, provider] = await resolveDownloadUrl(repo, remoteTag, pattern, options.mirror as any, releaseData);
   log(`Download URL (${provider}): ${url}`);
 
   // Install SIGINT handler
@@ -102,15 +117,10 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       const archivePath = await downloadFile(url, tmpDir);
       if (!archivePath) { error('network', 'Download failed'); return false; }
 
-      // SHA256 verification (best-effort)
-      if (repo) {
+      // SHA256 verification (best-effort). Reuses the releaseData fetched above.
+      if (repo && releaseData) {
         try {
           const { findSha256FromRelease, computeSha256 } = await import('../utils/sha256');
-          const token = process.env.GITHUB_TOKEN;
-          const releaseData = await httpGetJson<any>(
-            `https://api.github.com/repos/${repo}/releases/latest`,
-            { token }
-          );
           const archiveName = archivePath.split('/').pop() || '';
           const expectedHash = await findSha256FromRelease(releaseData, archiveName);
           if (expectedHash) {
@@ -149,9 +159,14 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       if (isArchive) {
         extractArchive(archivePath, extractDir);
       } else {
-        // Raw binary - copy directly
+        // Raw binary — copy using the package's real binary name (NOT a
+        // hardcoded "binary"). On Unix we also chmod +x so that findBinary's
+        // executable-bit fallback can locate it. (Mirrors install.ts behavior.)
         mkdirSync(extractDir, { recursive: true });
-        copyFileSync(archivePath, join(extractDir, 'binary'));
+        const rawBinName = tj.binary || name;
+        const rawBinPath = join(extractDir, rawBinName);
+        copyFileSync(archivePath, rawBinPath);
+        try { chmodSync(rawBinPath, 0o755); } catch { /* Windows: ignore */ }
       }
 
       try {
@@ -230,7 +245,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
       // Verify version after update
       const [newVer] = detectVersion(
-        installType === 'directory' ? path : join(path, binary),
+        installType === 'directory' ? path : resolveBinaryPath(path, binary),
         tj, info
       );
       if (newVer !== remoteVer && newVer !== 'unknown') {
