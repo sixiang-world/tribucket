@@ -3,6 +3,7 @@ import { loadConfig, saveConfig } from '../config/store';
 function coerceValue(s: string): any {
   if (/^(true|yes|on)$/i.test(s)) return true;
   if (/^(false|no|off)$/i.test(s)) return false;
+  if (s === '') return s;
   const num = Number(s);
   if (!isNaN(num)) return num;
   return s;

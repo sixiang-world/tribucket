@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, unlinkSync, lstatSync } from 'fs';
+import { existsSync, readdirSync, unlinkSync, lstatSync, readlinkSync } from 'fs';
 import { join } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
 import { binDir } from '../config/paths';
@@ -28,7 +28,16 @@ export function clean(): void {
     }
     if (dangling.length > 0) {
       console.log(`\nRemoving ${dangling.length} dangling symlink(s):`);
-      for (const p of dangling) { unlinkSync(p); console.log(`  ✓ ${p}`); }
+      for (const linkPath of dangling) {
+        try {
+          const target = readlinkSync(linkPath);
+          unlinkSync(linkPath);
+          console.log(`  ✓ ${linkPath} → ${target}`);
+        } catch {
+          unlinkSync(linkPath);
+          console.log(`  ✓ ${linkPath}`);
+        }
+      }
     } else if (removed.length === 0) {
       console.log('Nothing to clean.');
     }

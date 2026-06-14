@@ -17,14 +17,16 @@ export function track(name: string, path?: string): boolean {
   const config = loadConfig();
   const targetPath = resolve(path || process.cwd());
 
-  if (!existsSync(targetPath)) { console.error(`Error: path does not exist: ${targetPath}`); return false; }
+  if (!existsSync(targetPath)) { console.error(`Error: [${name}] path does not exist: ${targetPath}`); return false; }
 
   // Use owner/repo as key if available, otherwise just name
   const repo = detectRepo(targetPath);
   const repoKey = repo || name;
 
   if (config.packages[repoKey] && existsSync(config.packages[repoKey].path)) {
-    console.error(`Error: '${name}' is already tracked at ${config.packages[repoKey].path}`); return false;
+    console.error(`Error: '${name}' is already tracked at ${config.packages[repoKey].path}`);
+    console.error(`  → Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
+    return false;
   }
 
   config.packages[repoKey] = { name, path: targetPath, version: 'unknown', installed_at: new Date().toISOString(), linked: false };
