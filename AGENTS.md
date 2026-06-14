@@ -50,30 +50,34 @@ packages/*.json  →  scripts/generate.py  →  Formula/*.rb (Homebrew)
 src/
 ├── index.ts              # CLI entry point (Commander.js)
 ├── types.ts              # Shared TypeScript interfaces
+├── version.ts            # VERSION constant (single source of truth)
 ├── commands/             # CLI commands (install, update, check, etc.)
-│   ├── install.ts        # Package installation
-│   ├── update.ts         # Package updates with backup/restore
-│   ├── check.ts          # Version detection and remote check
-│   ├── list.ts           # List tracked packages
+│   ├── install.ts        # Package installation (path validation, symlink, SHA256)
+│   ├── update.ts         # Package updates with backup/restore and file lock
+│   ├── uninstall.ts      # Remove packages and clean up symlinks/backups
+│   ├── check.ts          # Version detection and remote check (concurrent)
+│   ├── list.ts           # List tracked packages (--check for version comparison)
 │   ├── track.ts          # Track/untrack packages (with findRepoKey)
-│   ├── config.ts         # Configuration management
-│   ├── self-update.ts    # Self-update binary
+│   ├── config.ts         # Configuration management (list/get/set/unset)
+│   ├── self-update.ts    # Self-update binary (platform-aware asset selection)
 │   └── clean.ts          # Remove stale entries and dangling symlinks
 ├── engine/               # Core logic
 │   ├── version.ts        # Version detection (spawnSync for stdout+stderr)
 │   ├── mirror.ts         # Multi-provider mirror with TTL cache
-│   ├── download.ts       # Download with resume and progress
-│   └── lock.ts           # PID-based file locking
+│   ├── download.ts       # Download with resume, progress, and timeout
+│   └── lock.ts           # Atomic file locking (wx flag) with PID stale check
 ├── config/               # Configuration management (~/.tribucket/)
 │   ├── paths.ts          # Path constants
-│   ├── store.ts          # Atomic JSON read/write
+│   ├── store.ts          # Atomic JSON read/write (tmp + rename)
 │   └── cache.ts          # Version and mirror cache
 └── utils/                # Utilities
-    ├── http.ts           # HTTP client with retry and proxy
+    ├── http.ts           # HTTP client with retry, proxy, and rate limit
     ├── archive.ts        # Archive extraction with zip-slip protection
-    ├── sha256.ts         # SHA256 computation (Bun.CryptoHasher)
-    ├── log.ts            # Logging utilities
-    ├── platform.ts       # Platform detection
+    ├── sha256.ts         # SHA256 computation (Bun.CryptoHasher) + checksum file matching
+    ├── log.ts            # Logging utilities with sym() symbols and NO_COLOR support
+    ├── platform.ts       # Platform detection (OS_ARCH format)
+    ├── find.ts           # Recursive file search with multi-strategy binary matching
+    ├── concurrent.ts     # Concurrent task runner (Python ThreadPoolExecutor equivalent)
     └── cleanup.ts        # Temp directory cleanup
 ```
 
@@ -95,11 +99,16 @@ lib/tribucket/
 ### Key Design Decisions
 - **Security**: Always use `execFileSync`/`spawnSync` (not `execSync`) to prevent command injection
 - **Path validation**: Block installation to system directories (`/`, `/usr`, `/bin`, `/etc`, `/var`, `/tmp`)
-- **Config**: `~/.tribucket/config.json` with atomic writes (tmp + rename)
+- **Path traversal**: Use `realpathSync` to resolve symlinks before validation (matching Python v1)
+- **Config**: `~/.tribucket/config.json` with atomic writes (tmp + rename), corruption warning to stderr
 - **Mirror**: Multi-provider with TTL cache, auto-probe, fallback chain
 - **Version detection**: Priority chain: `binary --version` → `config.json` → `tributable.json` → `"unknown"`
-- **Archive security**: Recursive zip-slip validation for all archive types
+- **Archive security**: Recursive zip-slip validation for all archive types; single top-level dir unwrapped
+- **File locking**: Atomic lock creation via `wx` flag with PID stale-process detection
+- **Backup safety**: Remove stale backup dir before `cpSync` to prevent nesting errors
 - **Config key lookup**: Use `findRepoKey()` to handle packages tracked under `owner/repo` keys
+- **Concurrent operations**: `concurrentMap()` utility with configurable worker count (matches Python `ThreadPoolExecutor`)
+- **NO_COLOR support**: `sym()` utility provides Unicode symbols with automatic ASCII fallback
 
 ## CLI Commands
 
@@ -165,6 +174,12 @@ tribucket self-update
 tribucket clean
 ```
 Removes stale entries and dangling symlinks.
+
+### uninstall
+```bash
+tribucket uninstall <name>
+```
+Remove a tracked package: deletes the install directory, symlinks, backups, and untracks the entry.
 
 ## Adding a Package
 
