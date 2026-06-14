@@ -28,7 +28,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install aria2
-        run: sudo apt-get update && sudo apt-get install -y aria2
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq aria2
 
       - name: Generate Formula and Bucket
         env:
