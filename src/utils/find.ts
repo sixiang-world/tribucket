@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from 'fs';
+import { readdirSync, statSync, accessSync, constants } from 'fs';
 import { join } from 'path';
 
 /**
@@ -76,7 +76,6 @@ export function findBinary(dir: string, name: string): string {
   const executables = findFiles(dir, (_entry, fullPath) => {
     if (isWin) return true; // Windows doesn't have Unix-style executable bits
     try {
-      const { accessSync, constants } = require('fs');
       accessSync(fullPath, constants.X_OK);
       return true;
     } catch {
