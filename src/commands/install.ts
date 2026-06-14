@@ -61,10 +61,13 @@ export async function installPackage(
     return false;
   }
 
-  // System directory protection
-  const FORBIDDEN = ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
+  // System directory protection (platform-specific paths)
+  const FORBIDDEN = process.platform === 'win32'
+    ? ['C:\\Windows', 'C:\\Program Files', 'C:\\Program Files (x86)', 'C:\\ProgramData']
+    : ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
   for (const forbidden of FORBIDDEN) {
-    if (resolvedTarget === forbidden || resolvedTarget.startsWith(forbidden + sep)) {
+    const normForbidden = resolve(forbidden);
+    if (resolvedTarget === normForbidden || resolvedTarget.startsWith(normForbidden + sep)) {
       error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`,
             `Use --dir to specify a user directory, e.g.: --dir ~/apps`);
       return false;
@@ -243,9 +246,9 @@ export async function installPackage(
     if (options.link) {
       const bd = binDir();
       mkdirSync(bd, { recursive: true });
-      const binary = pkg.binary || name;
-      const linkPath = join(bd, binary);
-      const binaryPath = join(targetDir, binary);
+      const linkName = pkg.binary || name;
+      const linkPath = join(bd, linkName);
+      const binaryPath = join(targetDir, linkName);
       if (existsSync(linkPath)) {
         try { rmSync(linkPath, { force: true }); } catch {}
       }
@@ -253,8 +256,16 @@ export async function installPackage(
         symlinkSync(binaryPath, linkPath);
         log(`Symlink: ${linkPath} ${sym('arrow')} ${binaryPath}`);
         linked = true;
-      } catch (e) {
-        error('symlink', `Failed to create symlink: ${linkPath} ${sym('arrow')} ${binaryPath}`);
+      } catch (e: any) {
+        // Windows: creating symlinks requires admin or Developer Mode enabled.
+        // Give a clear, actionable message instead of a generic failure.
+        const isWin = process.platform === 'win32';
+        const hint = isWin && (e?.code === 'EPERM' || e?.code === 'EACCES')
+          ? 'Windows requires Administrator rights or Developer Mode enabled to create symlinks. ' +
+            'Enable Developer Mode in Settings, or rerun from an elevated shell.'
+          : '';
+        error('symlink', `Failed to create symlink: ${linkPath} ${sym('arrow')} ${binaryPath}` +
+              (hint ? `\n  ${sym('arrow')} ${hint}` : ''));
       }
     }
 

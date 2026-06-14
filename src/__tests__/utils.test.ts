@@ -54,10 +54,19 @@ describe('Version Detection', () => {
     const { writeFileSync, chmodSync, unlinkSync } = await import('fs');
     const { join } = await import('path');
     const { tmpdir } = await import('os');
+    const isWin = process.platform === 'win32';
+
     const tmpDir = tmpdir();
-    const binaryPath = join(tmpDir, 'test-binary');
-    writeFileSync(binaryPath, '#!/bin/sh\necho "mytool 1.2.3"');
-    chmodSync(binaryPath, 0o755);
+    const baseName = 'test-binary';
+    const binaryPath = join(tmpDir, isWin ? baseName + '.bat' : baseName);
+
+    // Write a script that runs on the current platform and prints a version line.
+    const content = isWin
+      ? '@echo off\recho mytool 1.2.3'
+      : '#!/bin/sh\necho "mytool 1.2.3"';
+    writeFileSync(binaryPath, content);
+    if (!isWin) chmodSync(binaryPath, 0o755);
+
     const tj = { version_check: { cli_flags: ['--version'], parse_regex: '(\\d+\\.\\d+\\.\\d+)', output_stream: 'stdout' as const, timeout: 5 } };
     const [ver, source] = detectVersion(binaryPath, tj as any);
     expect(ver).toBe('1.2.3');
