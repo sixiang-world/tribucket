@@ -219,14 +219,27 @@ curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/script
 
 <!-- Inline JS (built by build.ts) -->
 <script>
-// Package data injected by build
-const PACKAGES = {{PACKAGES_JSON}};
+// Package data — fetched at runtime from EdgeOne KV via the admin sync endpoint
+const PACKAGES = [];
 
 // DOM refs
 const searchInput = document.getElementById('pkg-search');
 const pkgTbody = document.getElementById('pkg-tbody');
 const pkgCount = document.getElementById('pkg-count');
 const noResults = document.getElementById('no-results');
+
+async function loadPackages() {
+  try {
+    const resp = await fetch('/api/packages.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    PACKAGES.splice(0, PACKAGES.length, ...data);
+  } catch (e) {
+    pkgTbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:32px">加载软件包列表失败</td></tr>';
+    return;
+  }
+  renderPackages('');
+}
 
 function renderPackages(filter) {
   const q = (filter || '').toLowerCase().trim();
@@ -277,8 +290,8 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
-// Initial render
-renderPackages('');
+// Load packages on page load
+loadPackages();
 
 // Search
 searchInput.addEventListener('input', function () {

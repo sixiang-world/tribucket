@@ -1,33 +1,23 @@
 /**
  * website/build.ts — Static site builder for tribucket.hunluan.space
  *
- * Reads packages/*.json and README.md, injects data into the HTML template,
- * and copies Formula/*.rb + bucket/*.json into dist/.
+ * Reads CHANGELOG.md and src/version.ts, injects into the HTML template.
+ * Package data (packages/*.json, Formula/*.rb, bucket/*.json) is served
+ * at runtime via EdgeOne KV + Edge Functions — not baked into the build.
  *
  * Usage: bun run website/build.ts
  */
 
-import { existsSync, mkdirSync, cpSync, readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
-import { join, resolve, dirname } from "node:path";
+import { existsSync, mkdirSync, cpSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
 
 // Paths
 const ROOT = resolve(import.meta.dir, "..");
 const DIST = join(ROOT, "dist");
 const TEMPLATES_DIR = join(ROOT, "website", "templates");
 const STYLES_DIR = join(ROOT, "website", "styles");
-const PACKAGES_DIR = join(ROOT, "packages");
-const FORMULA_DIR = join(ROOT, "Formula");
-const BUCKET_DIR = join(ROOT, "bucket");
 const CHANGELOG_PATH = join(ROOT, "CHANGELOG.md");
 const VERSION_PATH = join(ROOT, "src", "version.ts");
-
-interface PackageInfo {
-  name: string;
-  repo: string;
-  description: string;
-  homepage: string;
-  license: string;
-}
 
 // ── Helpers ──
 
@@ -35,27 +25,6 @@ function readVersion(): string {
   const src = readFileSync(VERSION_PATH, "utf-8");
   const m = src.match(/VERSION\s*=\s*['"]([^'"]+)['"]/);
   return m ? m[1] : "unknown";
-}
-
-function readPackages(): PackageInfo[] {
-  const files = readdirSync(PACKAGES_DIR).filter((f) => f.endsWith(".json"));
-  const pkgs: PackageInfo[] = [];
-  for (const f of files) {
-    try {
-      const raw = JSON.parse(readFileSync(join(PACKAGES_DIR, f), "utf-8"));
-      pkgs.push({
-        name: raw.name || f.replace(".json", ""),
-        repo: raw.repo || "",
-        description: raw.description || "",
-        homepage: raw.homepage || "",
-        license: raw.license || "",
-      });
-    } catch {
-      console.warn(`[warn] skip invalid package: ${f}`);
-    }
-  }
-  pkgs.sort((a, b) => a.name.localeCompare(b.name));
-  return pkgs;
 }
 
 /**
@@ -108,23 +77,6 @@ function parseChangelog(changelog: string): string {
     .join("\n");
 }
 
-function copyDirRecursive(src: string, dest: string): void {
-  if (!existsSync(src)) {
-    console.warn(`[warn] source dir does not exist: ${src}`);
-    return;
-  }
-  mkdirSync(dest, { recursive: true });
-  const entries = readdirSync(src);
-  for (const entry of entries) {
-    const srcPath = join(src, entry);
-    const destPath = join(dest, entry);
-    const stat = existsSync(srcPath);
-    if (stat) {
-      cpSync(srcPath, destPath, { recursive: true });
-    }
-  }
-}
-
 // ── Main ──
 
 function main() {
@@ -140,47 +92,29 @@ function main() {
   const version = readVersion();
   console.log(`  version: ${version}`);
 
-  // 2. Read packages
-  const packages = readPackages();
-  console.log(`  packages: ${packages.length}`);
-
-  // 3. Read and parse CHANGELOG.md
+  // 2. Read and parse CHANGELOG.md
   const changelogSource = existsSync(CHANGELOG_PATH) ? readFileSync(CHANGELOG_PATH, "utf-8") : "";
   const changelog = parseChangelog(changelogSource);
   console.log(`  changelog: parsed`);
 
-  // 4. Read HTML template
+  // 3. Read HTML template
   const template = readFileSync(join(TEMPLATES_DIR, "index.html"), "utf-8");
 
-  // 5. Inject data into template
+  // 4. Inject data into template (package data is fetched at runtime from
+  //    /api/packages.json via EdgeOne KV — only version + changelog are inlined)
   const html = template
     .replace(/\{\{VERSION\}\}/g, version)
-    .replace("{{PACKAGES_JSON}}", JSON.stringify(packages))
+    .replace("{{PACKAGES_JSON}}", JSON.stringify([]))
     .replace("{{CHANGELOG}}", changelog);
 
-  // 6. Write output files
+  // 5. Write output files
   writeFileSync(join(DIST, "index.html"), html, "utf-8");
   console.log(`  wrote: dist/index.html`);
 
-  // 7. Copy styles
+  // 6. Copy styles
   mkdirSync(join(DIST, "styles"), { recursive: true });
   cpSync(join(STYLES_DIR, "main.css"), join(DIST, "styles", "main.css"));
   console.log(`  wrote: dist/styles/main.css`);
-
-  // 8. Copy Formula/*.rb
-  copyDirRecursive(FORMULA_DIR, join(DIST, "Formula"));
-  const formulaCount = existsSync(FORMULA_DIR) ? readdirSync(FORMULA_DIR).filter(f => f.endsWith(".rb")).length : 0;
-  console.log(`  copied: Formula/ (${formulaCount} files)`);
-
-  // 9. Copy bucket/*.json
-  copyDirRecursive(BUCKET_DIR, join(DIST, "bucket"));
-  const bucketCount = existsSync(BUCKET_DIR) ? readdirSync(BUCKET_DIR).filter(f => f.endsWith(".json")).length : 0;
-  console.log(`  copied: bucket/ (${bucketCount} files)`);
-
-  // 10. Copy packages/*.json (software source for the CLI)
-  copyDirRecursive(PACKAGES_DIR, join(DIST, "packages"));
-  const pkgJsonCount = existsSync(PACKAGES_DIR) ? readdirSync(PACKAGES_DIR).filter(f => f.endsWith(".json")).length : 0;
-  console.log(`  copied: packages/ (${pkgJsonCount} files)`);
 
   console.log(`\n  ✓ Build complete: dist/`);
 }
