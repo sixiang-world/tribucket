@@ -45,7 +45,6 @@ export async function selfUpdate(): Promise<void> {
     if (!plat) { console.error(`${sym('err')} ${t('error_unsupported_platform')}`); process.exit(1); }
     const [os, arch] = plat.split('_');
     const ext = os === 'windows' ? '.exe' : '';
-    declare const DEBUG_BUILD: boolean | undefined;
     const isDebug = typeof DEBUG_BUILD !== 'undefined' && DEBUG_BUILD;
     const debugSuffix = isDebug ? '-debug' : '';
     const expectedName = `tribucket-${os}-${arch}${debugSuffix}${ext}`;
