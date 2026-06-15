@@ -15,7 +15,7 @@ export function findFiles(
   function walk(current: string): void {
     let entries: string[];
     try {
-      const real = require('fs').realpathSync(current);
+      const real = realpathSync(current);
       if (visited.has(real)) return; // symlink loop detected
       visited.add(real);
     } catch {}

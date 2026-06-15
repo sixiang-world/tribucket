@@ -7,6 +7,11 @@
   <meta name="description" content="tribucket = tri (三合一) + bucket (包仓库)。一个通用的跨平台软件包仓库，同时提供 Homebrew、Scoop、Shell 脚本三种安装方式。">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230969da'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3Et%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles/main.css">
+<style>
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--color-primary); }
+  .sort-indicator { font-size: 0.75rem; }
+</style>
 </head>
 <body>
 
@@ -133,9 +138,9 @@ curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/script
     <table class="package-table" role="table" aria-label="软件包列表">
       <thead>
         <tr>
-          <th>名称</th>
-          <th>描述</th>
-          <th>GitHub</th>
+          <th class="sortable" data-sort-key="name" onclick="toggleSort('name')">名称 <span class="sort-indicator"></span></th>
+          <th class="sortable" data-sort-key="description" onclick="toggleSort('description')">描述 <span class="sort-indicator"></span></th>
+          <th class="sortable" data-sort-key="repo" onclick="toggleSort('repo')">GitHub <span class="sort-indicator"></span></th>
         </tr>
       </thead>
       <tbody id="pkg-tbody"></tbody>
@@ -296,6 +301,30 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
+// Sort state
+let sortKey = null;
+let sortAsc = true;
+
+function toggleSort(key) {
+  if (sortKey === key) {
+    sortAsc = !sortAsc;
+  } else {
+    sortKey = key;
+    sortAsc = true;
+  }
+  // Update indicators
+  document.querySelectorAll('.sort-indicator').forEach(el => el.textContent = '');
+  const indicator = document.querySelector('th[data-sort-key="' + key + '"] .sort-indicator');
+  if (indicator) indicator.textContent = sortAsc ? ' ▲' : ' ▼';
+  // Sort PACKAGES in-place
+  PACKAGES.sort((a, b) => {
+    const va = (a[key] || '').toLowerCase();
+    const vb = (b[key] || '').toLowerCase();
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+  renderPackages(document.getElementById('pkg-search').value);
+}
+
 // Load packages on page load
 loadPackages();
 
@@ -307,16 +336,30 @@ searchInput.addEventListener('input', function () {
 });
 
 // Tab switching
-// Tab switching (with aria synchronization)
+// Tab switching (with aria synchronization + URL hash)
+function switchTab(tabId) {
+  document.querySelectorAll('.install-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+  document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
+  const tab = document.querySelector('.install-tab[data-tab="' + tabId + '"]');
+  if (tab) {
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    document.getElementById('panel-' + tabId).classList.add('active');
+  }
+}
+
 document.querySelectorAll('.install-tab').forEach(tab => {
   tab.addEventListener('click', function () {
-    document.querySelectorAll('.install-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-    document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
-    this.classList.add('active');
-    this.setAttribute('aria-selected', 'true');
-    document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+    switchTab(this.dataset.tab);
+    location.hash = 'install-' + this.dataset.tab;
   });
 });
+
+// Restore tab from URL hash on page load
+(function() {
+  const match = location.hash.match(/^#install-(cli|homebrew|scoop|script)$/);
+  if (match) switchTab(match[1]);
+})();
 
 // Fallback copy for insecure contexts (HTTP)
 function fallbackCopy(text) {

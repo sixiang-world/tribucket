@@ -153,10 +153,11 @@ program
       (done, total) => { status(t('checking_packages', { done, total })); },
     );
 
-    // Clear the status line
-    if (process.stdout.isTTY) {
-      process.stdout.write('\r' + ' '.repeat(60) + '\r');
-    }
+    // Print completion summary instead of clearing
+    const ok = results.filter(r => r.status === 'latest').length;
+    const outdated = results.filter(r => r.status === 'outdated').length;
+    const errors = results.filter(r => r.error).length;
+    status(t('packages_check_complete', { ok, outdated, errors }));
 
     // NOTE: read --json via optsWithGlobals(). The program also defines a
     // global --json (index.ts top), and in Commander v15 a command-level

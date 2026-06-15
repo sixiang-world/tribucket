@@ -56,7 +56,7 @@ tribucket info ripgrep            # 查看包详情
 tribucket clean                   # 清理过期条目
 ```
 
-## 当前收录
+## 当前收录 / Available Packages
 
 | 软件 | 描述 | GitHub |
 |------|------|--------|
