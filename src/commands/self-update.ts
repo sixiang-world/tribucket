@@ -13,16 +13,21 @@ const REPO = 'sixiang-world/tribucket';
 export async function selfUpdate(): Promise<void> {
   console.log(t('checking_for_updates'));
 
-  let latest: string;
+  let latest: string | null = null;
   let releaseData: any;
   try {
     releaseData = await httpGetJson<any>(
       `https://api.github.com/repos/${REPO}/releases/latest`
     );
-    latest = versionFromTag(releaseData.tag_name) || undefined;
+    latest = versionFromTag(releaseData.tag_name);
   } catch (e: any) {
     console.error(`${sym('err')} ${t('error_cannot_check_updates', { message: e.message })}`);
     process.exit(7);
+  }
+
+  if (!latest) {
+    console.error(`${sym('err')} Could not determine latest version`);
+    process.exit(1);
   }
 
   if (latest === VERSION) {

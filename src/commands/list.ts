@@ -114,7 +114,7 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       try {
         if (lstatSync(linkPath).isSymbolicLink()) {
           const target = readlinkSync(linkPath);
-          if (!existsSync(linkPath)) dangling.push(`${linkPath} ${sym('arrow')} ${target}`);
+          if (!existsSync(target)) dangling.push(`${linkPath} ${sym('arrow')} ${target}`);
         }
       } catch {}
     }
