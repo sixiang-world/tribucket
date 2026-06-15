@@ -7,6 +7,7 @@ import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findBinary } from '../utils/find';
 import { resolveBinaryPath } from '../utils/platform';
+import { t } from '../utils/locale';
 import type { CheckResult, PackageMeta } from '../types';
 
 export async function checkPackage(nameOrPath: string, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
@@ -22,7 +23,7 @@ export async function checkPackage(nameOrPath: string, options: { refresh?: bool
     if (pkgInfo.name === nameOrPath) return checkTracked(nameOrPath, pkgInfo, options);
   }
 
-  return { name: nameOrPath, error: `Package '${nameOrPath}' not found` };
+  return { name: nameOrPath, error: t('error_package_not_found', { name: nameOrPath }) };
 }
 
 async function checkTracked(name: string, info: any, options: { refresh?: boolean; localOnly?: boolean }): Promise<CheckResult> {
@@ -30,7 +31,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
   const pathExists = existsSync(path);
 
   if (!pathExists) {
-    return { name, path, path_exists: false, local: 'not found', local_source: 'none', remote: null, status: 'error' };
+    return { name, path, path_exists: false, local: t('not_found'), local_source: 'none', remote: null, status: 'error' };
   }
 
   const tjPath = join(path, 'tribucket.json');
@@ -127,7 +128,7 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
 
 function checkPath(path: string): CheckResult {
   if (!existsSync(path)) {
-    return { name: path.split(/[/\\]/).pop() || path, path, error: 'Path not found' };
+    return { name: path.split(/[/\\]/).pop() || path, path, error: t('not_found') };
   }
 
   const tj = { version_check: { cli_flags: ['--version', '-v', '-V'], parse_regex: 'v?(\\d+\\.\\d+(?:\\.\\d+)?)', output_stream: 'stdout' as const, timeout: 5 } };
@@ -142,10 +143,10 @@ function computeStatus(localVer: string, remoteVer: string | null): 'latest' | '
 }
 
 export function formatCheckResult(name: string, localVer: string, localSource: string, remoteVer: string | null, pathExists = true): string {
-  if (!pathExists) return `${name.padEnd(20)}  ${sym('err')} not found`;
+  if (!pathExists) return `${name.padEnd(20)}  ${sym('err')} ${t('not_found')}`;
   let status = '';
-  if (!remoteVer) status = '? offline';
-  else if (localVer === remoteVer) status = `${sym('ok')} latest`;
+  if (!remoteVer) status = '? ' + t('offline');
+  else if (localVer === remoteVer) status = `${sym('ok')} ${t('latest')}`;
   else status = `${sym('warn')} ${localVer} ${sym('arrow')} ${remoteVer}`;
   return `${name.padEnd(20)}  ${localVer.padEnd(12)} (${localSource.padEnd(8)})  ${status}`;
 }

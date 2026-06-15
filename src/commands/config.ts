@@ -1,4 +1,5 @@
 import { loadConfig, saveConfig } from '../config/store';
+import { t } from '../utils/locale';
 
 function coerceValue(s: string): any {
   if (/^(true|yes|on)$/i.test(s)) return true;
@@ -15,32 +16,32 @@ export function configCommand(subcommand: string, key?: string, value?: string):
   switch (subcommand) {
     case 'list': {
       const settings = config.settings || {};
-      if (Object.keys(settings).length === 0) { console.log('No settings configured.'); return; }
+      if (Object.keys(settings).length === 0) { console.log(t('no_settings')); return; }
       for (const [k, v] of Object.entries(settings)) console.log(`${k} = ${v}`);
       break;
     }
     case 'get': {
-      if (!key) { console.error('Usage: tribucket config get <key>'); return; }
+      if (!key) { console.error(`Usage: tribucket config get <key>`); return; }
       const val = config.settings?.[key];
-      if (val === undefined) console.log(`Setting '${key}' is not set.`);
+      if (val === undefined) console.log(t('setting_not_set', { key }));
       else console.log(val);
       break;
     }
     case 'set': {
-      if (!key || !value) { console.error('Usage: tribucket config set <key> <value>'); return; }
+      if (!key || !value) { console.error(`Usage: tribucket config set <key> <value>`); return; }
       config.settings = config.settings || {};
       config.settings[key] = coerceValue(value);
       saveConfig(config);
-      console.log(`Set ${key} = ${config.settings[key]}`);
+      console.log(t('set', { key, value: config.settings[key] }));
       break;
     }
     case 'unset': {
-      if (!key) { console.error('Usage: tribucket config unset <key>'); return; }
-      if (config.settings && key in config.settings) { delete config.settings[key]; saveConfig(config); console.log(`Unset ${key}`); }
-      else console.log(`Setting '${key}' is not set.`);
+      if (!key) { console.error(`Usage: tribucket config unset <key>`); return; }
+      if (config.settings && key in config.settings) { delete config.settings[key]; saveConfig(config); console.log(t('unset', { key })); }
+      else console.log(t('setting_not_set', { key }));
       break;
     }
     default:
-      console.log('Usage: tribucket config [list|get|set|unset]');
+      console.log(t('config_usage'));
   }
 }

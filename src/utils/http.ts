@@ -1,4 +1,5 @@
 import { log, status } from './log';
+import { t } from './locale';
 
 function getProxyUrl(url: string): string | null {
   const proto = url.startsWith('https') ? 'https' : 'http';
@@ -57,14 +58,14 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         // rate-limited networks without a token.
         if ((response.status === 403 || response.status === 429) && attempt < retries - 1) {
           log(`HTTP ${response.status} (rate limited), retrying (${attempt + 1}/${retries})...`);
-          status(`Rate limited (HTTP ${response.status}), retrying (${attempt + 1}/${retries})...`);
+          status(t('rate_limited_retrying', { n: attempt + 1, total: retries }));
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
         if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
         if (response.status >= 500 && attempt < retries - 1) {
           log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
-          status(`Server error (HTTP ${response.status}), retrying (${attempt + 1}/${retries})...`);
+          status(t('server_error_retrying', { n: attempt + 1, total: retries }));
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
@@ -74,8 +75,10 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
     } catch (e: any) {
       lastError = e;
       if (attempt < retries - 1) {
-        log(`Network error, retrying (${attempt + 1}/${retries})...`);
-        status(`Network error, retrying (${attempt + 1}/${retries})...`);
+        // Extract a short error code for the status line (e.g. ECONNREFUSED, ETIMEDOUT)
+        const code = e?.cause?.code || e?.code || e?.name || 'unknown';
+        log(`Network error: ${e.message}${e.cause ? ` (cause: ${e.cause})` : ''}, retrying (${attempt + 1}/${retries})...`);
+        status(t('network_error_retrying', { code, n: attempt + 1, total: retries }));
         await new Promise(r => setTimeout(r, backoffMs(attempt)));
         continue;
       }

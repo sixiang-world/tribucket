@@ -6,13 +6,14 @@ import { binDir } from '../config/paths';
 import { detectVersion, versionFromTag } from '../engine/version';
 import { httpGetJson } from '../utils/http';
 import { resolveBinaryPath } from '../utils/platform';
+import { t } from '../utils/locale';
 import type { PackageMeta } from '../types';
 
 export async function listPackages(options: { json?: boolean; sort?: string; check?: boolean }): Promise<void> {
   const config = loadConfig();
   const packages = Object.entries(config.packages || {});
 
-  if (packages.length === 0) { console.log('No packages tracked.'); return; }
+  if (packages.length === 0) { console.log(t('no_packages_tracked')); return; }
 
   // If --check, run version detection for all packages
   if (options.check) {
@@ -48,7 +49,6 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
 
       return { name: info.name, info, localVer, remoteVer };
     };
-
     const { concurrentMap } = await import('../utils/concurrent');
     const results = await concurrentMap(packages, (pkg) => checkOne(pkg));
 
@@ -66,16 +66,16 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       return;
     }
 
-    console.log(`${'Name'.padEnd(20)}  ${'Version'.padEnd(12)}  ${'Remote'.padEnd(12)}  ${'Status'.padEnd(10)}  ${'Path'}`);
+    console.log(`${t('name').padEnd(20)}  ${t('version').padEnd(12)}  ${t('remote').padEnd(12)}  ${t('status_latest').padEnd(10)}  ${t('path')}`);
     console.log('-'.repeat(100));
 
     for (const r of results) {
       const exists = existsSync(r.info.path);
       let status = '';
-      if (!exists) status = `${sym('err')} not found`;
-      else if (!r.remoteVer) status = '? offline';
-      else if (r.localVer === r.remoteVer) status = `${sym('ok')} latest`;
-      else status = `${sym('warn')} outdated`;
+      if (!exists) status = `${sym('err')} ${t('not_found')}`;
+      else if (!r.remoteVer) status = '? ' + t('offline');
+      else if (r.localVer === r.remoteVer) status = `${sym('ok')} ${t('latest')}`;
+      else status = `${sym('warn')} ${t('outdated')}`;
 
       console.log(`${r.name.padEnd(20)}  ${r.localVer.padEnd(12)}  ${(r.remoteVer || '?').padEnd(12)}  ${status.padEnd(10)}  ${r.info.path}`);
     }
@@ -98,12 +98,12 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
     packages.sort((a, b) => a[0].localeCompare(b[0]));
   }
 
-  console.log(`${'Name'.padEnd(20)}  ${'Version'.padEnd(12)}  ${'Path'.padEnd(40)}  Status`);
+  console.log(`${t('name').padEnd(20)}  ${t('version').padEnd(12)}  ${t('path').padEnd(40)}  ${t('status_latest')}`);
   console.log('-'.repeat(90));
 
   for (const [_, info] of packages) {
     const exists = existsSync(info.path);
-    console.log(`${info.name.padEnd(20)}  ${(info.version || '?').padEnd(12)}  ${info.path.padEnd(40)}  ${exists ? sym('ok') + ' latest' : sym('err') + ' not found'}`);
+    console.log(`${info.name.padEnd(20)}  ${(info.version || '?').padEnd(12)}  ${info.path.padEnd(40)}  ${exists ? sym('ok') + ' ' + t('latest') : sym('err') + ' ' + t('not_found')}`);
   }
 
   const bd = binDir();
@@ -119,14 +119,14 @@ export async function listPackages(options: { json?: boolean; sort?: string; che
       } catch {}
     }
     if (dangling.length > 0) {
-      console.log(`\n${sym('warn')} Found ${dangling.length} dangling symlink(s):`);
+      console.log(`\n${sym('warn')} ${t('dangling_symlinks', { count: dangling.length })}:`);
       for (const p of dangling) console.log(`  ${p}`);
     }
   }
 
   const stale = packages.filter(([_, info]) => !existsSync(info.path)).map(([_, info]) => info.name);
   if (stale.length > 0) {
-    console.log(`\n${sym('warn')} Found ${stale.length} stale entry(ies): ${stale.join(', ')}`);
-    console.log(`  ${sym('arrow')} Run 'tribucket clean' to remove them.`);
+    console.log(`\n${sym('warn')} ${t('stale_entries', { count: stale.length, names: stale.join(', ') })}`);
+    console.log(`  ${sym('arrow')} ${t('run_clean')}`);
   }
 }

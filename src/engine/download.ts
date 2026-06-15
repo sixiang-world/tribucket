@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { existsSync, statSync } from 'fs';
-import { log, status, sym } from '../utils/log';
+import { log, status } from '../utils/log';
+import { t } from '../utils/locale';
 
 function getProxyUrl(url: string): string | null {
   const proto = url.startsWith('https') ? 'https' : 'http';
@@ -13,7 +14,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
   const destPath = join(destDir, filename);
 
   log(`Downloading ${filename}...`);
-  status(`Downloading ${filename}...`);
+  status(t('downloading', { filename }));
 
   try {
     const headers: Record<string, string> = {
@@ -115,7 +116,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
 
     const sizeMb = (downloaded / (1024 * 1024)).toFixed(1);
     log(`Download complete: ${sizeMb} MB`);
-    status(`Download complete: ${sizeMb} MB`);
+    status(t('download_complete', { size: sizeMb }));
     return destPath;
   } catch (e: any) {
     log(`Download failed: ${e.message}`);

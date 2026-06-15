@@ -6,11 +6,12 @@ import { httpGetJson, httpGet } from '../utils/http';
 import { findSha256FromRelease, computeSha256 } from '../utils/sha256';
 import { versionFromTag } from '../engine/version';
 import { log, sym } from '../utils/log';
+import { t } from '../utils/locale';
 
 const REPO = 'sixiang-world/tribucket';
 
 export async function selfUpdate(): Promise<void> {
-  console.log('Checking for updates...');
+  console.log(t('checking_for_updates'));
 
   let latest: string;
   let releaseData: any;
@@ -20,20 +21,20 @@ export async function selfUpdate(): Promise<void> {
     );
     latest = versionFromTag(releaseData.tag_name) || undefined;
   } catch (e: any) {
-    console.error(`Error: Cannot check for updates: ${e.message}`);
+    console.error(`${sym('err')} ${t('error_cannot_check_updates', { message: e.message })}`);
     process.exit(7);
   }
 
   if (latest === VERSION) {
-    console.log(`Already up to date (${VERSION})`);
+    console.log(t('already_up_to_date', { version: VERSION }));
     process.exit(0);
   }
 
-  console.log(`Current: ${VERSION}  Latest: ${latest}`);
+  console.log(t('current_latest', { current: VERSION, latest }));
 
   const scriptPath = process.argv[1];
   if (!scriptPath) {
-    console.error('Error: Cannot determine script path');
+    console.error(`${sym('err')} ${t('error_cannot_determine_path')}`);
     process.exit(1);
   }
 
@@ -41,7 +42,7 @@ export async function selfUpdate(): Promise<void> {
     // Download new binary — detect platform for correct asset name
     const { detectPlatform } = await import('../utils/platform');
     const plat = detectPlatform();
-    if (!plat) { console.error('Error: Unsupported platform'); process.exit(1); }
+    if (!plat) { console.error(`${sym('err')} ${t('error_unsupported_platform')}`); process.exit(1); }
     const [os, arch] = plat.split('_');
     const ext = os === 'windows' ? '.exe' : '';
     const expectedName = `tribucket-${os}-${arch}${ext}`;
@@ -53,11 +54,11 @@ export async function selfUpdate(): Promise<void> {
     );
 
     if (!binaryAsset) {
-      console.error(`Error: Binary asset not found in release (expected ${expectedName})`);
+      console.error(`${sym('err')} ${t('error_binary_asset_not_found', { filename: expectedName })}`);
       process.exit(1);
     }
 
-    console.log(`Downloading ${binaryAsset.name}...`);
+    console.log(t('downloading', { filename: binaryAsset.name }));
     const newBinary = await httpGet(binaryAsset.browser_download_url, { timeout: 60000 });
 
     // SHA256 verification
@@ -68,7 +69,7 @@ export async function selfUpdate(): Promise<void> {
       const actualHash = await computeSha256(tmpPath);
       unlinkSync(tmpPath);
       if (actualHash !== expectedHash) {
-        console.error('Error: SHA256 mismatch — download may be corrupted');
+        console.error(`${sym('err')} ${t('error_sha256_corrupted')}`);
         process.exit(1);
       }
       log('SHA256 verification OK');
@@ -86,8 +87,8 @@ export async function selfUpdate(): Promise<void> {
     // Make executable (Bun compile output should already be, but be safe)
     try { chmodSync(scriptPath, 0o755); } catch {}
 
-    console.log(`Updated: ${VERSION} ${sym('arrow')} ${latest}`);
-    console.log('Restart tribucket to use the new version.');
+    console.log(t('updated', { from: VERSION, arrow: sym('arrow'), to: latest }));
+    console.log(t('restart_to_use'));
 
     // Schedule backup cleanup
     process.on('exit', () => {
@@ -95,13 +96,13 @@ export async function selfUpdate(): Promise<void> {
     });
 
   } catch (e: any) {
-    console.error(`Error: Update failed: ${e.message}`);
+    console.error(`${sym('err')} ${t('error_update_failed', { message: e.message })}`);
     // Try to restore backup
     const backupPath = scriptPath + '.bak';
     if (existsSync(backupPath)) {
       try {
         renameSync(backupPath, scriptPath);
-        console.log('Restored original binary from backup.');
+        console.log(t('restored_from_backup'));
       } catch {}
     }
     process.exit(1);

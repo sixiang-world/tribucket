@@ -3,6 +3,7 @@ import { existsSync, readdirSync, unlinkSync, lstatSync, readlinkSync } from 'fs
 import { join } from 'path';
 import { loadConfig, saveConfig } from '../config/store';
 import { binDir } from '../config/paths';
+import { t } from '../utils/locale';
 
 export function clean(): void {
   const config = loadConfig();
@@ -14,10 +15,10 @@ export function clean(): void {
 
   if (removed.length > 0) {
     saveConfig(config);
-    console.log(`Removed ${removed.length} stale entry(ies):`);
+    console.log(t('removed_stale_entries', { count: removed.length }) + ':');
     for (const name of removed) console.log(`  ${sym('ok')} ${name}`);
   } else {
-    console.log('No stale entries found.');
+    console.log(t('no_stale_entries'));
   }
 
   const bd = binDir();
@@ -28,7 +29,7 @@ export function clean(): void {
       try { if (lstatSync(linkPath).isSymbolicLink() && !existsSync(linkPath)) dangling.push(linkPath); } catch {}
     }
     if (dangling.length > 0) {
-      console.log(`\nRemoving ${dangling.length} dangling symlink(s):`);
+      console.log(`\n${t('removing_dangling_symlinks', { count: dangling.length })}:`);
       for (const linkPath of dangling) {
         try {
           const target = readlinkSync(linkPath);
@@ -40,7 +41,7 @@ export function clean(): void {
         }
       }
     } else if (removed.length === 0) {
-      console.log('Nothing to clean.');
+      console.log(t('nothing_to_clean'));
     }
   }
 }

@@ -63,6 +63,7 @@ src/
 │   └── cache.ts          # Version and mirror cache
 └── utils/                # Utilities
     ├── http.ts           # HTTP client with retry (5x, jittered backoff), proxy, rate limit
+    ├── locale.ts         # Minimal i18n: auto-detect language, t(key, vars) for localized strings
     ├── archive.ts        # Archive extraction with zip-slip protection (no --no-absolute-names)
     ├── sha256.ts         # SHA256 computation (fs-based, works in compiled binary)
     ├── log.ts            # Logging: verbose `log()`, always-visible `status()`, `error()`, symbols + NO_COLOR
@@ -86,6 +87,8 @@ src/
 - **Proxy**: Supports `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` env vars for all HTTP(S) requests and downloads (uses Bun's native `proxy` option)
 - **NO_COLOR support**: `sym()` utility with automatic ASCII fallback
 - **Status output** (`utils/log.ts`): `status(msg)` prints always (to stderr, with `→` prefix); `log(msg)` is verbose-only (`TRIBUCKET_VERBOSE=1`). Use `status()` for user-visible step-by-step progress (install/update flow); `log()` for debug diagnostics.
+- **i18n** (`utils/locale.ts`): Minimal localization system. Detects system language via `LANG`/`LC_ALL`/`LC_MESSAGES`/`LANGUAGE` env vars (falls back to English). Supports `TRIBUCKET_LANG=en|zh` to force a language. All user-visible strings use `t(key, vars)` from locale.ts — never hardcode English in command files. The translation table covers ~80 entries covering all CLI output.
+- **Network error details** (`utils/http.ts`): On retry, `status()` shows the error code (e.g. `ECONNREFUSED`, `ETIMEDOUT`); full error details (message + cause) are logged to the verbose channel (`TRIBUCKET_VERBOSE=1`).
 - **Startup cleanup**: `cleanupOldTmp()` runs via `setImmediate()` to avoid blocking command startup
 - **HTTP resilience** (`utils/http.httpGet`): 5 retries with full-jitter exponential backoff; retries on 403/429 rate-limiting, not just 5xx.
 - **--json output** (`index.ts`): read via `program.optsWithGlobals()` (not `this`), because the actions are arrow functions and a program-level `--json` would otherwise shadow the command-level option.
@@ -218,6 +221,7 @@ python -m pytest tests/test_checkver.py          # Checkver tests (Python)
 | `GITHUB_TOKEN` | Increase API rate limit (5000 req/hr vs 60) |
 | `TRIBUCKET_HOME` | Override config directory (default: `~/.tribucket`) |
 | `TRIBUCKET_VERBOSE` | Enable debug logging (`1` to enable) |
+| `TRIBUCKET_LANG` | Force language (`en` or `zh`; auto-detects from system locale by default) |
 | `NO_COLOR` | Disable colored output |
 | `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` | Proxy configuration (used by all HTTP requests and downloads) |
 

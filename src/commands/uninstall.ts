@@ -3,13 +3,15 @@ import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { binDir, backupDir } from '../config/paths';
 import { findRepoKey, untrack } from './track';
+import { sym } from '../utils/log';
+import { t } from '../utils/locale';
 
 export function uninstallPackage(name: string): boolean {
   const config = loadConfig();
   const repoKey = findRepoKey(config, name) || name;
   const info = config.packages[repoKey];
   if (!info) {
-    console.error(`Error: '${name}' is not tracked.`);
+    console.error(`Error: ${t('error_not_tracked_generic', { name })}`);
     return false;
   }
 
@@ -17,7 +19,7 @@ export function uninstallPackage(name: string): boolean {
 
   if (existsSync(path)) {
     rmSync(path, { recursive: true });
-    console.log(`Deleted: ${path}`);
+    console.log(t('deleted', { path }));
   }
 
   // Remove symlinks pointing to the package path
@@ -30,7 +32,7 @@ export function uninstallPackage(name: string): boolean {
           const target = readlinkSync(link);
           if (target.startsWith(path)) {
             unlinkSync(link);
-            console.log(`Removed symlink: ${link}`);
+            console.log(t('removed_symlink', { path: link }));
           }
         }
       } catch {}
@@ -41,12 +43,12 @@ export function uninstallPackage(name: string): boolean {
   const bk = join(backupDir(), name);
   if (existsSync(bk)) {
     rmSync(bk, { recursive: true });
-    console.log(`Removed backup: ${bk}`);
+    console.log(t('removed_backup', { path: bk }));
   }
 
   // Untrack
   if (!untrack(name)) {
-    console.error(`Warning: Failed to remove '${name}' from config. Run 'tribucket untrack ${name}' manually.`);
+    console.error(t('untrack_failed', { name }));
     return false;
   }
   return true;

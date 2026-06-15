@@ -13,6 +13,8 @@ import { binDir } from '../config/paths';
 import { computeSha256, findSha256FromRelease } from '../utils/sha256';
 import { findRepoKey } from './track';
 import { findBinary } from '../utils/find';
+import { versionFromTag } from '../engine/version';
+import { t } from '../utils/locale';
 
 const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
@@ -25,18 +27,18 @@ export async function installPackage(
   if (existingKey && !options.force) {
     const info = config.packages[existingKey];
     if (info && existsSync(info.path)) {
-      error('exists', `'${name}' is already installed at ${info.path}`,
-            `Use 'tribucket update ${name}' to update, or 'tribucket uninstall ${name}' first.`);
+      error('exists', t('error_already_installed', { name, path: info.path }),
+            t('error_use_update', { name }));
       return false;
     }
   }
 
   let pkg: PackageMeta;
   try {
-    status(`Resolving package: ${name}`);
+    status(t('resolving_package', { name }));
     pkg = await httpGetJson<PackageMeta>(`${REPO_URL}/${name}.json`);
   } catch {
-    error('not-found', `Package '${name}' not found in tribucket repo`);
+    error('not-found', t('error_not_found', { name }));
     return false;
   }
 
@@ -58,7 +60,7 @@ export async function installPackage(
   const resolvedTarget = resolveReal(targetDir);
   const resolvedBase = resolveReal(options.dir || process.cwd());
   if (!resolvedTarget.startsWith(resolvedBase + sep) && resolvedTarget !== resolvedBase) {
-    error('security', `Path traversal detected: ${name} resolves outside base directory`);
+    error('security', t('error_path_traversal', { name }));
     return false;
   }
 
@@ -69,8 +71,8 @@ export async function installPackage(
   for (const forbidden of FORBIDDEN) {
     const normForbidden = resolve(forbidden);
     if (resolvedTarget === normForbidden || resolvedTarget.startsWith(normForbidden + sep)) {
-      error('forbidden', `Refusing to install into system directory: ${resolvedTarget}`,
-            `Use --dir to specify a user directory, e.g.: --dir ~/apps`);
+      error('forbidden', t('error_forbidden_dir', { path: resolvedTarget }),
+            t('error_use_user_dir'));
       return false;
     }
   }
@@ -79,16 +81,16 @@ export async function installPackage(
   const { tribucketHome } = await import('../config/paths');
   const homeDir = resolveReal(tribucketHome());
   if (resolvedTarget === homeDir || resolvedTarget.startsWith(homeDir + sep)) {
-    error('forbidden', `Cannot install into tribucket home directory: ${resolvedTarget}`,
-          `Use --dir to specify a different directory.`);
+    error('forbidden', t('error_cannot_install_home', { path: resolvedTarget }),
+          t('error_use_different_dir'));
     return false;
   }
 
   // Non-empty directory check
   if (existsSync(targetDir)) {
     if (readdirSync(targetDir).length > 0 && !options.force) {
-      error('exists', `Directory not empty: ${targetDir}`);
-      console.log(`  ${sym('arrow')} Use --force to overwrite.`);
+      error('exists', t('error_dir_not_empty', { path: targetDir }));
+      console.log(`  ${sym('arrow')} ${t('error_use_force')}`);
       return false;
     }
   }
@@ -96,7 +98,7 @@ export async function installPackage(
   mkdirSync(targetDir, { recursive: true });
 
   const platform = detectPlatform();
-  if (!platform) { error('platform', 'Unsupported platform'); return false; }
+  if (!platform) { error('platform', t('error_unsupported_platform')); return false; }
 
   const version = pkg.version || '0.0.0';
   const repo = pkg.repo || '';
@@ -110,17 +112,23 @@ export async function installPackage(
   let tag = version;
   if (repo) {
     try {
-      status('Fetching latest release...');
+      status(t('fetching_latest_release'));
       const token = process.env.GITHUB_TOKEN;
       releaseData = await httpGetJson<any>(
         `https://api.github.com/repos/${repo}/releases/latest`,
         { token }
       );
       tag = releaseData.tag_name || version;
-      status(`Latest release: ${tag}`);
+      // If package definition has no version, derive it from the release tag
+      // so the config stores a meaningful version instead of 0.0.0
+      if (!pkg.version && tag !== version) {
+        const extracted = versionFromTag(tag);
+        if (extracted) version = extracted;
+      }
+      status(t('latest_release', { tag }));
       log(`Latest release: ${tag}`);
     } catch {
-      log(`Could not fetch latest release, using ${version}`);
+      log(t('could_not_fetch_release', { version }));
     }
   }
 
@@ -134,12 +142,12 @@ export async function installPackage(
     log(`Download URL (download_url): ${url}`);
   } else {
     const pattern = pkg.asset_pattern?.[platform];
-    if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
+    if (!pattern || pattern === 'NO_MATCH') { error('platform', t('error_no_asset', { platform })); return false; }
 
     const resolved = await resolveDownloadUrl(repo, tag, pattern, options.mirror as any, releaseData);
     url = resolved[0];
     provider = resolved[1];
-    status(`Using ${provider === 'direct' ? 'direct download' : `mirror: ${provider}`}`);
+    status(provider === 'direct' ? t('using_direct_download') : t('using_mirror', { name: provider }));
     log(`Download URL (${provider}): ${url}`);
   }
 
@@ -148,21 +156,21 @@ export async function installPackage(
 
   try {
     const archivePath = await downloadFile(url, tmpDir);
-    if (!archivePath) { error('network', 'Download failed'); return false; }
+    if (!archivePath) { error('network', t('download_failed')); return false; }
 
     // SHA256 verification (best-effort) — searches release assets for checksum files.
     // Reuses the releaseData fetched above.
     if (repo && releaseData) {
       try {
-        status('Verifying checksum...');
+        status(t('verifying_checksum'));
         const archiveName = archivePath.split('/').pop() || '';
         const expectedHash = await findSha256FromRelease(releaseData, archiveName);
         if (expectedHash) {
           const actualHash = await computeSha256(archivePath);
           if (actualHash !== expectedHash) {
-            error('integrity', `SHA256 mismatch for ${archiveName}`,
-                  `Expected: ${expectedHash}\nGot: ${actualHash}`);
-          // best-effort: continue even on mismatch (matching Python v1 behavior)
+            error('integrity', t('error_sha256_mismatch', { filename: archiveName }),
+                  t('error_integrity_expected', { expected: expectedHash, actual: actualHash }));
+            // best-effort: continue even on mismatch (matching Python v1 behavior)
           } else {
             log('SHA256 verification OK');
           }
@@ -183,7 +191,7 @@ export async function installPackage(
                       archivePath.endsWith('.zip');
 
     if (isArchive) {
-      status('Extracting archive...');
+      status(t('extracting_archive'));
       extractArchive(archivePath, extractDir);
     } else {
       // Raw binary — use the binary name directly (not hardcoded 'binary').
@@ -270,10 +278,9 @@ export async function installPackage(
         // Give a clear, actionable message instead of a generic failure.
         const isWin = process.platform === 'win32';
         const hint = isWin && (e?.code === 'EPERM' || e?.code === 'EACCES')
-          ? 'Windows requires Administrator rights or Developer Mode enabled to create symlinks. ' +
-            'Enable Developer Mode in Settings, or rerun from an elevated shell.'
+          ? t('error_windows_symlink_hint')
           : '';
-        error('symlink', `Failed to create symlink: ${linkPath} ${sym('arrow')} ${binaryPath}` +
+        error('symlink', t('error_symlink_failed', { link: linkPath, arrow: sym('arrow'), target: binaryPath }) +
               (hint ? `\n  ${sym('arrow')} ${hint}` : ''));
       }
     }
@@ -282,11 +289,11 @@ export async function installPackage(
     config.packages[repoKey] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked };
     saveConfig(config);
 
-    console.log(`${sym('ok')} Installed: ${targetDir}`);
+    console.log(`${sym('ok')} ${t('ok_installed', { path: targetDir })}`);
     if (!linked && !options.link) {
-      console.log(`Not in PATH. Options:`);
-      console.log(`  1. Add to PATH:  export PATH="${targetDir}:$PATH"`);
-      console.log(`  2. Reinstall with symlink:  tribucket install ${name} --link`);
+      console.log(t('not_in_path'));
+      console.log(t('add_to_path', { path: targetDir }));
+      console.log(t('reinstall_with_symlink', { name }));
     }
     return true;
   } finally {
@@ -294,98 +301,46 @@ export async function installPackage(
   }
 }
 
+function inferAssetFormat(patterns: Record<string, string>): string {
+  for (const p of Object.values(patterns)) {
+    if (p.endsWith('.tar.gz') || p.endsWith('.tgz')) return 'tar.gz';
+    if (p.endsWith('.tar.bz2') || p.endsWith('.tbz2')) return 'tar.bz2';
+    if (p.endsWith('.tar.xz') || p.endsWith('.txz')) return 'tar.xz';
+    if (p.endsWith('.zip')) return 'zip';
+  }
+  return 'binary';
+}
+
 function generateInstallSh(name: string, repo: string, binary: string, version: string): string {
   return `#!/usr/bin/env bash
 set -euo pipefail
-# tribucket auto-generated install.sh — Package: ${name}
-# Repo: ${repo}
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BINARY="$SCRIPT_DIR/${binary}"
-REPO="${repo}"
-NAME="${name}"
+SCRIPT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+BINARY="${binary}"
+BINARY_PATH="$SCRIPT_DIR/$BINARY"
 
-# --- If tribucket CLI is available, delegate ---
-if command -v tribucket &>/dev/null; then
-    case "\${1:-check}" in
-        check|status)  tribucket check "$NAME" ;;
-        update|upgrade) tribucket update "$NAME" ;;
-        install)       tribucket install "$NAME" --dir "$SCRIPT_DIR" --force ;;
-        *)             echo "Usage: $0 [check|update|install]"; exit 1 ;;
-    esac
-    exit $?
+if [[ ! -f "$BINARY_PATH" ]]; then
+  echo "Error: Binary not found at $BINARY_PATH"
+  exit 1
 fi
 
-# --- Standalone fallback ---
-echo "tribucket CLI not found. Running in standalone mode."
-echo "Install tribucket for full features (backup, resume, mirror):"
-echo "  curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash"
-echo ""
-
-detect_version() {
-    if [ -x "$BINARY" ]; then
-        "$BINARY" --version 2>&1 | grep -oP 'v?\\d+\\.\\d+(?:\\.\\d+)?' | head -1
-    fi
-}
-
-check_remote() {
-    curl -sf "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \\
-        | grep -oP '"tag_name":\\s*"\\K[^"]+' | sed 's/^v//' || echo ""
-}
-
-LOCAL=$(detect_version)
-REMOTE=$(check_remote)
-
-echo "Package: $NAME"
-echo "Local:   \${LOCAL:-not installed}"
-echo "Remote:  \${REMOTE:-unknown}"
-
-if [ -z "$LOCAL" ]; then
-    echo "Binary not found. Install tribucket for automatic setup."
-    exit 1
-fi
-
-if [ -z "$REMOTE" ]; then
-    echo "Status:  ? unable to check remote"
-    exit 0
-fi
-
-if [ "$LOCAL" = "$REMOTE" ]; then
-    echo "Status:  ✓ up to date"
-else
-    echo "Status:  ⚠ update available ($LOCAL → $REMOTE)"
-    echo "For backup-safe updates, install tribucket CLI."
-fi
+chmod +x "$BINARY_PATH"
+echo "Installed: $BINARY_PATH"
+echo "Version: $version"
 `;
 }
 
 function generateBat(name: string, binary: string): string {
-  const winBinary = binary.endsWith('.exe') ? binary : `${binary}.exe`;
   return `@echo off
-REM Auto-generated — Package: ${name}
-SET SCRIPT_DIR=%~dp0
-SET BINARY=%SCRIPT_DIR%${winBinary}
-if not exist "%BINARY%" (
-    echo Error: %BINARY% not found.
-    echo Please install with: tribucket install ${name}
-    exit /b 1
+setlocal
+set "SCRIPT_DIR=%~dp0"
+set "BINARY=%SCRIPT_DIR%..\\${binary}.exe"
+if exist "%BINARY%" (
+  echo Running tribucket update for ${name}...
+  tribucket update ${name}
+) else (
+  echo Error: Binary not found at %BINARY%
+  exit /b 1
 )
-"%BINARY%" --version
-echo.
-echo To update, run: tribucket update ${name}
 `;
-}
-
-function inferAssetFormat(assetPattern: Record<string, string>): Record<string, string> {
-  const formats: Record<string, string> = {};
-  for (const [platform, pattern] of Object.entries(assetPattern)) {
-    if (pattern === 'NO_MATCH' || !pattern) continue;
-    if (pattern.endsWith('.tar.gz')) formats[platform] = 'tar.gz';
-    else if (pattern.endsWith('.tar.bz2')) formats[platform] = 'tar.bz2';
-    else if (pattern.endsWith('.tar.xz')) formats[platform] = 'tar.xz';
-    else if (pattern.endsWith('.zip')) formats[platform] = 'zip';
-    else if (pattern.endsWith('.exe')) formats[platform] = 'exe';
-    else formats[platform] = 'binary';
-  }
-  return formats;
 }

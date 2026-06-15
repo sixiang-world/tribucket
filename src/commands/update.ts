@@ -14,13 +14,14 @@ import { httpGetJson } from '../utils/http';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findRepoKey } from './track';
 import { findBinary } from '../utils/find';
+import { t } from '../utils/locale';
 import type { PackageMeta } from '../types';
 
 // SIGINT handler for graceful interrupt
 let sigintHandler: NodeJS.SignalsHandler | null = null;
 
 function handleSigint() {
-  console.log('\nInterrupted. Partial download saved. Run the same command again to resume.');
+  console.log(`\n${t('interrupted')}`);
   process.exit(130);
 }
 
@@ -28,17 +29,17 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   const config = loadConfig();
   const repoKey = findRepoKey(config, name);
   const info = repoKey ? config.packages[repoKey] : config.packages[name];
-  if (!info) { error('not-found', `Package '${name}' is not tracked.`); return false; }
+  if (!info) { error('not-found', t('error_not_tracked_generic', { name })); return false; }
 
   const path = info.path;
   if (!existsSync(path)) {
-    error('stale', `Package path does not exist: ${path}`);
-    console.error(`  ${sym('arrow')} Run 'tribucket untrack ${name}' to remove stale entry.`);
+    error('stale', t('error_stale_path', { path }));
+    console.error(`  ${sym('arrow')} ${t('error_run_untrack', { name })}`);
     return false;
   }
 
   const tjPath = join(path, 'tribucket.json');
-  if (!existsSync(tjPath)) { error('config', `tribucket.json not found in ${path}`); return false; }
+  if (!existsSync(tjPath)) { error('config', t('error_config_missing', { path })); return false; }
   const tj: PackageMeta = JSON.parse(readFileSync(tjPath, 'utf-8'));
 
   const repo = tj.repo || '';
@@ -66,20 +67,20 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   // Fetch from API if not cached
   if (!remoteVer) {
     try {
-      status(`Fetching latest release for ${name}...`);
+      status(t('fetching_latest_release_for', { name }));
       const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
       releaseData = data;
       remoteTag = data.tag_name || null;
       remoteVer = versionFromTag(remoteTag);
       if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
-    } catch { error('network', `Cannot check remote version for ${repo}`); return false; }
+    } catch { error('network', t('cannot_check_remote_version', { repo })); return false; }
   }
 
-  if (!remoteVer) { error('network', `Cannot check remote version for ${repo}`); return false; }
+  if (!remoteVer) { error('network', t('cannot_check_remote_version', { repo })); return false; }
   log(`Remote version: ${remoteVer}`);
 
   if (localVer === remoteVer && !options.force) {
-    console.log(`${name}: ${localVer} — already up to date`);
+    console.log(t('already_up_to_date_pkg', { name, version: localVer }));
     return true;
   }
 
@@ -89,18 +90,18 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
     try {
       releaseData = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
       remoteTag = releaseData.tag_name || remoteTag;
-    } catch { error('network', `Cannot fetch release info for ${repo}`); return false; }
+    } catch { error('network', t('cannot_fetch_release_info', { repo })); return false; }
   }
-  if (!remoteTag) { error('network', `Cannot determine release tag for ${repo}`); return false; }
+  if (!remoteTag) { error('network', t('cannot_determine_release_tag', { repo })); return false; }
 
   const platform = detectPlatform();
-  if (!platform) { error('platform', 'Unsupported platform'); return false; }
+  if (!platform) { error('platform', t('error_unsupported_platform')); return false; }
 
   const pattern = tj.asset_pattern?.[platform];
-  if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
+  if (!pattern || pattern === 'NO_MATCH') { error('platform', t('error_no_asset', { platform })); return false; }
 
   const [url, provider] = await resolveDownloadUrl(repo, remoteTag, pattern, options.mirror as any, releaseData);
-  status(`Using ${provider === 'direct' ? 'direct download' : `mirror: ${provider}`}`);
+  status(provider === 'direct' ? t('using_direct_download') : t('using_mirror', { name: provider }));
   log(`Download URL (${provider}): ${url}`);
 
   // Install SIGINT handler
@@ -117,20 +118,20 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
 
     try {
       const archivePath = await downloadFile(url, tmpDir);
-      if (!archivePath) { error('network', 'Download failed'); return false; }
+      if (!archivePath) { error('network', t('download_failed')); return false; }
 
       // SHA256 verification (best-effort). Reuses the releaseData fetched above.
       if (repo && releaseData) {
         try {
-          status('Verifying checksum...');
+          status(t('verifying_checksum'));
           const { findSha256FromRelease, computeSha256 } = await import('../utils/sha256');
           const archiveName = archivePath.split('/').pop() || '';
           const expectedHash = await findSha256FromRelease(releaseData, archiveName);
           if (expectedHash) {
             const actualHash = await computeSha256(archivePath);
             if (actualHash !== expectedHash) {
-              error('integrity', `SHA256 mismatch for ${archiveName}`,
-                    `Expected: ${expectedHash}\nGot: ${actualHash}`);
+              error('integrity', t('error_sha256_mismatch', { filename: archiveName }),
+                    t('error_integrity_expected', { expected: expectedHash, actual: actualHash }));
               return false;
             }
             log('SHA256 verification OK');
@@ -160,7 +161,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
                         archivePath.endsWith('.zip');
 
       if (isArchive) {
-        status('Extracting archive...');
+        status(t('extracting_archive'));
         extractArchive(archivePath, extractDir);
       } else {
         // Raw binary — copy using the package's real binary name (NOT a
