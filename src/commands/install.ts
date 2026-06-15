@@ -50,7 +50,16 @@ export async function installPackage(
       const parent = resolve(p, '..');
       if (parent === p) return p; // root
       try { return join(realpathSync(parent), basename(p)); }
-      catch { return resolve(p); }
+      catch {
+        // Last resort: resolve the path and check against resolved base
+        // to ensure the fallback itself doesn't allow traversal.
+        const resolved = resolve(p);
+        const resolvedBase = resolve(options.dir || process.cwd());
+        if (!resolved.startsWith(resolvedBase + require('path').sep) && resolved !== resolvedBase) {
+          throw new Error('Path traversal detected');
+        }
+        return resolved;
+      }
     }
   }
 
@@ -62,8 +71,10 @@ export async function installPackage(
   }
 
   // System directory protection (platform-specific paths)
+  const winRoot = process.env.SystemRoot || process.env.windir || 'C:\\Windows';
+  const winDrive = winRoot.slice(0, 2); // e.g. "C:"
   const FORBIDDEN = process.platform === 'win32'
-    ? ['C:\\Windows', 'C:\\Program Files', 'C:\\Program Files (x86)', 'C:\\ProgramData']
+    ? [winRoot, `${winDrive}\\Program Files`, `${winDrive}\\Program Files (x86)`, `${winDrive}\\ProgramData`]
     : ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
   for (const forbidden of FORBIDDEN) {
     const normForbidden = resolve(forbidden);

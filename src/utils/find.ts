@@ -10,8 +10,15 @@ export function findFiles(
   predicate: (name: string, fullPath: string) => boolean,
 ): string[] {
   const results: string[] = [];
+  // Guard against symlink loops: track visited realpaths.
+  const visited = new Set<string>();
   function walk(current: string): void {
     let entries: string[];
+    try {
+      const real = require('fs').realpathSync(current);
+      if (visited.has(real)) return; // symlink loop detected
+      visited.add(real);
+    } catch {}
     try {
       entries = readdirSync(current);
     } catch {
@@ -54,33 +61,39 @@ export function findBinary(dir: string, name: string): string {
     if (statSync(direct).isFile()) return direct;
   } catch { /* not found */ }
 
-  // 2. Recursive search by exact name
-  const matches = findFiles(dir, (entry) => entry === name);
-  if (matches.length > 0) return matches[0];
-
-  // 3. Search by name suffix (e.g. name.exe on Windows)
-  const suffix = `${name}.exe`;
-  const suffixMatches = findFiles(dir, (entry) => entry === suffix);
-  if (suffixMatches.length > 0) return suffixMatches[0];
-
-  // 4. Recursive wildcard: any file containing the name (matching Python's **/*{name}*)
-  const wildcardMatches = findFiles(dir, (entry) => entry.includes(name));
-  if (wildcardMatches.length > 0) return wildcardMatches[0];
-
-  // 5. Recursive wildcard: any file containing the name + .exe
-  const wildcardExe = findFiles(dir, (entry) => entry.includes(name) && entry.endsWith('.exe'));
-  if (wildcardExe.length > 0) return wildcardExe[0];
-
-  // 6. Fallback: any executable file
+  // Single-pass traversal: collect all files, then match against patterns.
+  // This avoids walking the entire directory tree up to 6 times.
+  const allFiles = findFiles(dir, () => true);
   const isWin = process.platform === 'win32';
-  const executables = findFiles(dir, (_entry, fullPath) => {
-    if (isWin) return true; // Windows doesn't have Unix-style executable bits
+
+  // Priority-ordered matching (2→6 from original logic, single pass)
+  for (const f of allFiles) {
+    const entry = f.split(/[/\\]/).pop() || '';
+    // 2. Exact match
+    if (entry === name) return f;
+  }
+  for (const f of allFiles) {
+    const entry = f.split(/[/\\]/).pop() || '';
+    // 3. name.exe suffix
+    if (entry === `${name}.exe`) return f;
+  }
+  for (const f of allFiles) {
+    const entry = f.split(/[/\\]/).pop() || '';
+    // 4. Wildcard: name contained
+    if (entry.includes(name)) return f;
+  }
+  for (const f of allFiles) {
+    const entry = f.split(/[/\\]/).pop() || '';
+    // 5. Wildcard + .exe
+    if (entry.includes(name) && entry.endsWith('.exe')) return f;
+  }
+  for (const f of allFiles) {
+    // 6. Any executable (Windows: any file, Unix: X_OK)
+    if (isWin) return f;
     try {
-      accessSync(fullPath, constants.X_OK);
-      return true;
-    } catch {
-      return false;
-    }
-  });
-  return executables.length > 0 ? executables[0] : '';
+      accessSync(f, constants.X_OK);
+      return f;
+    } catch {}
+  }
+  return '';
 }
