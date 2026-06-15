@@ -1,7 +1,7 @@
 import { existsSync, accessSync, constants } from 'fs';
 import { spawnSync } from 'child_process';
 import type { PackageMeta, TrackedPackage } from '../types';
-import { log } from '../utils/log';
+import { log, VERBOSE } from '../utils/log';
 
 // Matches a semantic version core (major.minor[.patch][...suffix]) anywhere in
 // a string. Used to normalize release tags like "jq-1.8.1", "shellcheck-v0.11.0",
@@ -150,8 +150,7 @@ function runVersionCommandWithRetry(
       while (Date.now() < end) { /* busy-wait; spawnSync is sync already */ }
     }
   }
-  if (process.env.TRIBUCKET_VERBOSE === '1' && lastErr) {
-    // Best-effort log; do not import log.ts to avoid a cycle.
+  if (VERBOSE && lastErr) {
     console.error(`[debug] version probe failed after ${retries} attempts: ${lastErr.message || lastErr}`);
   }
   return null;

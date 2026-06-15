@@ -45,7 +45,9 @@ export async function selfUpdate(): Promise<void> {
     if (!plat) { console.error(`${sym('err')} ${t('error_unsupported_platform')}`); process.exit(1); }
     const [os, arch] = plat.split('_');
     const ext = os === 'windows' ? '.exe' : '';
-    const expectedName = `tribucket-${os}-${arch}${ext}`;
+    const isDebug = process.argv[0].includes('-debug');
+    const debugSuffix = isDebug ? '-debug' : '';
+    const expectedName = `tribucket-${os}-${arch}${debugSuffix}${ext}`;
 
     const assets = releaseData.assets || [];
     const binaryAsset = assets.find((a: any) =>

@@ -1,4 +1,7 @@
-export const VERBOSE = process.env.TRIBUCKET_VERBOSE === '1';
+declare const DEBUG_BUILD: boolean | undefined;
+export const VERBOSE = typeof DEBUG_BUILD !== 'undefined'
+  ? DEBUG_BUILD
+  : process.env.TRIBUCKET_VERBOSE === '1';
 
 export function log(msg: string): void {
   if (VERBOSE) {

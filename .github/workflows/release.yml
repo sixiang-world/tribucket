@@ -23,12 +23,16 @@ jobs:
         include:
           - os: ubuntu-latest
             output: tribucket-linux-amd64
+            debug_output: tribucket-linux-amd64-debug
           - os: ubuntu-24.04-arm
             output: tribucket-linux-arm64
+            debug_output: tribucket-linux-arm64-debug
           - os: macos-14
             output: tribucket-darwin-arm64
+            debug_output: tribucket-darwin-arm64-debug
           - os: windows-latest
             output: tribucket-windows-amd64.exe
+            debug_output: tribucket-windows-amd64-debug.exe
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -42,6 +46,11 @@ jobs:
         with:
           name: ${{ matrix.output }}
           path: ${{ matrix.output }}
+      - run: bun build src/index.ts --compile --define DEBUG_BUILD=true --outfile ${{ matrix.debug_output }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.debug_output }}
+          path: ${{ matrix.debug_output }}
 
   # macOS Intel — only on manual workflow_dispatch (macOS-13 runner scarce)
   build-darwin-amd64:
@@ -60,6 +69,11 @@ jobs:
         with:
           name: tribucket-darwin-amd64
           path: tribucket-darwin-amd64
+      - run: bun build src/index.ts --compile --define DEBUG_BUILD=true --outfile tribucket-darwin-amd64-debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tribucket-darwin-amd64-debug
+          path: tribucket-darwin-amd64-debug
 
   release:
     name: Create Release
@@ -112,6 +126,15 @@ jobs:
             printf '%s\n' "- \`tribucket-windows-amd64.exe\` — Windows x86_64"
             if [ -f dist/tribucket-darwin-amd64 ]; then
               printf '%s\n' "- \`tribucket-darwin-amd64\` — macOS Intel"
+            fi
+            printf '\n'
+            printf '%s\n' "### Debug binaries (verbose always on)"
+            printf '%s\n' "- \`tribucket-linux-amd64-debug\` — Linux x86_64"
+            printf '%s\n' "- \`tribucket-linux-arm64-debug\` — Linux ARM64"
+            printf '%s\n' "- \`tribucket-darwin-arm64-debug\` — macOS Apple Silicon"
+            printf '%s\n' "- \`tribucket-windows-amd64-debug.exe\` — Windows x86_64"
+            if [ -f dist/tribucket-darwin-amd64-debug ]; then
+              printf '%s\n' "- \`tribucket-darwin-amd64-debug\` — macOS Intel"
             fi
             printf '\n'
             printf '%s\n' "### What's new (v3.2.0)"

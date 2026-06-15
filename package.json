@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts --compile --outfile tribucket",
+    "build:debug": "bun build src/index.ts --compile --define DEBUG_BUILD=true --outfile tribucket-debug",
     "build:web": "bun run website/build.ts",
     "dev": "bun run src/index.ts",
     "test": "bun test"

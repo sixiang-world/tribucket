@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { Command } from 'commander';
 import { cleanupOldTmp } from './utils/cleanup';
-import { setNoColor, sym } from './utils/log';
+import { setNoColor, sym, VERBOSE } from './utils/log';
 import { detectPlatform } from './utils/platform';
 
 import { VERSION } from './version';
@@ -311,7 +311,7 @@ process.on('SIGINT', () => {
 
 // Handle uncaught rejections gracefully
 process.on('unhandledRejection', (reason) => {
-  if (process.env.TRIBUCKET_VERBOSE === '1') {
+  if (VERBOSE) {
     console.error('Unhandled rejection:', reason);
   }
   process.exit(1);

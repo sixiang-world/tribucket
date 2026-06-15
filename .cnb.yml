@@ -27,18 +27,34 @@ main:
         - name: build-linux-amd64
           script: bun build src/index.ts --compile --target bun-linux-x64 --outfile tribucket-linux-amd64
 
+        - name: build-linux-amd64-debug
+          script: bun build src/index.ts --compile --target bun-linux-x64 --define DEBUG_BUILD=true --outfile tribucket-linux-amd64-debug
+
         - name: build-linux-arm64
           script: bun build src/index.ts --compile --target bun-linux-arm64 --outfile tribucket-linux-arm64
+
+        - name: build-linux-arm64-debug
+          script: bun build src/index.ts --compile --target bun-linux-arm64 --define DEBUG_BUILD=true --outfile tribucket-linux-arm64-debug
 
         - name: build-darwin-arm64
           script: bun build src/index.ts --compile --target bun-darwin-arm64 --outfile tribucket-darwin-arm64
 
+        - name: build-darwin-arm64-debug
+          script: bun build src/index.ts --compile --target bun-darwin-arm64 --define DEBUG_BUILD=true --outfile tribucket-darwin-arm64-debug
+
         - name: build-darwin-amd64
           script: bun build src/index.ts --compile --target bun-darwin-x64 --outfile tribucket-darwin-amd64
+
+        - name: build-darwin-amd64-debug
+          script: bun build src/index.ts --compile --target bun-darwin-x64 --define DEBUG_BUILD=true --outfile tribucket-darwin-amd64-debug
 
         - name: build-windows-amd64
           script: |
             bun build src/index.ts --compile --target bun-windows-x64 --outfile tribucket-windows-amd64.exe
+
+        - name: build-windows-amd64-debug
+          script: |
+            bun build src/index.ts --compile --target bun-windows-x64 --define DEBUG_BUILD=true --outfile tribucket-windows-amd64-debug.exe
 
         - name: compute-sha256
           script: |
@@ -56,6 +72,13 @@ main:
               printf -- '- `tribucket-darwin-arm64` — macOS Apple Silicon\n'
               printf -- '- `tribucket-darwin-amd64` — macOS Intel\n'
               printf -- '- `tribucket-windows-amd64.exe` — Windows x86_64\n'
+              printf '\n'
+              printf '### Debug binaries (verbose always on)\n'
+              printf -- '- `tribucket-linux-amd64-debug` — Linux x86_64\n'
+              printf -- '- `tribucket-linux-arm64-debug` — Linux ARM64\n'
+              printf -- '- `tribucket-darwin-arm64-debug` — macOS Apple Silicon\n'
+              printf -- '- `tribucket-darwin-amd64-debug` — macOS Intel\n'
+              printf -- '- `tribucket-windows-amd64-debug.exe` — Windows x86_64\n'
               printf '\n'
               printf '### SHA256 Checksums\n'
               printf '```\n'
@@ -98,18 +121,34 @@ $:
         - name: build-linux-amd64
           script: bun build src/index.ts --compile --target bun-linux-x64 --outfile tribucket-linux-amd64
 
+        - name: build-linux-amd64-debug
+          script: bun build src/index.ts --compile --target bun-linux-x64 --define DEBUG_BUILD=true --outfile tribucket-linux-amd64-debug
+
         - name: build-linux-arm64
           script: bun build src/index.ts --compile --target bun-linux-arm64 --outfile tribucket-linux-arm64
+
+        - name: build-linux-arm64-debug
+          script: bun build src/index.ts --compile --target bun-linux-arm64 --define DEBUG_BUILD=true --outfile tribucket-linux-arm64-debug
 
         - name: build-darwin-arm64
           script: bun build src/index.ts --compile --target bun-darwin-arm64 --outfile tribucket-darwin-arm64
 
+        - name: build-darwin-arm64-debug
+          script: bun build src/index.ts --compile --target bun-darwin-arm64 --define DEBUG_BUILD=true --outfile tribucket-darwin-arm64-debug
+
         - name: build-darwin-amd64
           script: bun build src/index.ts --compile --target bun-darwin-x64 --outfile tribucket-darwin-amd64
+
+        - name: build-darwin-amd64-debug
+          script: bun build src/index.ts --compile --target bun-darwin-x64 --define DEBUG_BUILD=true --outfile tribucket-darwin-amd64-debug
 
         - name: build-windows-amd64
           script: |
             bun build src/index.ts --compile --target bun-windows-x64 --outfile tribucket-windows-amd64.exe
+
+        - name: build-windows-amd64-debug
+          script: |
+            bun build src/index.ts --compile --target bun-windows-x64 --define DEBUG_BUILD=true --outfile tribucket-windows-amd64-debug.exe
 
         - name: compute-sha256
           script: |
@@ -127,6 +166,13 @@ $:
               printf -- '- `tribucket-darwin-arm64` — macOS Apple Silicon\n'
               printf -- '- `tribucket-darwin-amd64` — macOS Intel\n'
               printf -- '- `tribucket-windows-amd64.exe` — Windows x86_64\n'
+              printf '\n'
+              printf '### Debug binaries (verbose always on)\n'
+              printf -- '- `tribucket-linux-amd64-debug` — Linux x86_64\n'
+              printf -- '- `tribucket-linux-arm64-debug` — Linux ARM64\n'
+              printf -- '- `tribucket-darwin-arm64-debug` — macOS Apple Silicon\n'
+              printf -- '- `tribucket-darwin-amd64-debug` — macOS Intel\n'
+              printf -- '- `tribucket-windows-amd64-debug.exe` — Windows x86_64\n'
               printf '\n'
               printf '### SHA256 Checksums\n'
               printf '```\n'
