@@ -88,8 +88,8 @@ export function findBinary(dir: string, name: string): string {
     if (entry.includes(name) && entry.endsWith('.exe')) return f;
   }
   for (const f of allFiles) {
-    // 6. Any executable (Windows: any file, Unix: X_OK)
-    if (isWin) return f;
+    // 6. Any executable (Windows: any file containing name, Unix: X_OK)
+    if (isWin && f.toLowerCase().includes(name.toLowerCase())) return f;
     try {
       accessSync(f, constants.X_OK);
       return f;

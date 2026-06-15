@@ -70,16 +70,12 @@ export async function downloadFile(url: string, destDir: string): Promise<string
       downloaded = existingSize;
       appendMode = true;
       log(`Resuming from ${existingSize} bytes`);
-    } else if (statusCode === 200 && existingSize > 0) {
-      // Server doesn't support resume, restart
-      totalSize = contentLength;
-      downloaded = 0;
-      appendMode = false;
-      log("Server doesn't support resume, restarting download");
     } else {
+      // Fresh download (or server doesn't support resume)
       totalSize = contentLength;
       downloaded = 0;
       appendMode = false;
+      if (existingSize > 0) log("Server doesn't support resume, restarting download");
     }
 
     // Download with progress

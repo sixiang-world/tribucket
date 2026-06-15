@@ -43,8 +43,8 @@ export async function selfUpdate(): Promise<void> {
     process.exit(1);
   }
   // Detect dev mode: when running via `bun run src/index.ts`, process.argv[1]
-  # points to the bun binary, not the compiled tribucket binary. Self-update
-  would overwrite bun, which is catastrophic.
+  // points to the bun binary, not the compiled tribucket binary. Self-update
+  // would overwrite bun, which is catastrophic.
   const isDev = scriptPath.endsWith('bun') || scriptPath.endsWith('bun.exe') ||
                 scriptPath.includes('node_modules') || scriptPath.endsWith('.ts');
   if (isDev) {

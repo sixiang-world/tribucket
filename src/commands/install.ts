@@ -146,6 +146,14 @@ export async function installPackage(
       log(`Latest release: ${tag}`);
     } catch {
       log(t('could_not_fetch_release', { version }));
+      // If version is still 0.0.0 (no pkg.version), try software source as fallback
+      if (version === '0.0.0') {
+        try {
+          const { fetchPackageDef } = await import('../utils/software-source');
+          const def = await fetchPackageDef(pkg.name);
+          if (def?.version) version = def.version;
+        } catch {}
+      }
     }
   }
 

@@ -5,11 +5,12 @@ import { setNoColor, sym, VERBOSE } from './utils/log';
 import { detectPlatform } from './utils/platform';
 
 import { VERSION } from './version';
+const _yesMode = process.argv.includes('--yes') || process.argv.includes('-y');
+
 // Global flag for --yes mode (checked by prompt.ts)
 process.env.TRIBUCKET_YES = _yesMode ? '1' : '';
 
 const program = new Command();
-const _yesMode = process.argv.includes('--yes') || process.argv.includes('-y');
 
 program
   .name('tribucket')

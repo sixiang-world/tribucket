@@ -16,30 +16,29 @@ export class PackageLock {
   acquire(): void {
     mkdirSync(lockDir(), { recursive: true });
 
-    // Check for stale lock from a dead process
-    if (existsSync(this.lockPath)) {
-      try {
-        const rawPid = readFileSync(this.lockPath, 'utf-8').trim();
-        const pid = parseInt(rawPid);
-        if (!pid || isNaN(pid)) {
-          // Corrupted lock file — log and remove
-          log(`Corrupted lock file for '${this.name}', removing: ${rawPid}`);
-        } else if (this.isProcessAlive(pid)) {
-          error('locked', `Another update for '${this.name}' is in progress.`);
-          process.exit(EXIT_ERROR);
-        }
-      } catch (e: any) { log(`Failed to read lock file: ${e.message}`); }
-      // Stale or corrupted lock — remove it
-      try { unlinkSync(this.lockPath); } catch {}
-    }
-
-    // Atomic create: wx flag fails if file was created between our check and here
+    // Atomic create: wx flag is the primary mutual exclusion mechanism.
+    // Only if wx fails do we check for stale lock (not the other way around),
+    // avoiding the TOCTOU gap between existsSync-check and writeFileSync.
     try {
       writeFileSync(this.lockPath, String(process.pid), { flag: 'wx' });
-    } catch {
-      error('locked', `Another update for '${this.name}' is in progress.`);
-      process.exit(EXIT_ERROR);
+      return;  // Lock acquired
+    } catch (err: any) {
+      if (err.code !== 'EEXIST') throw err;
     }
+
+    // File exists — check if the lock holder is still alive
+    try {
+      const rawPid = readFileSync(this.lockPath, 'utf-8').trim();
+      const pid = parseInt(rawPid);
+      if (!pid || isNaN(pid)) {
+        log(`Corrupted lock file for '${this.name}', removing: ${rawPid}`);
+      } else if (this.isProcessAlive(pid)) {
+        error('locked', `Another update for '${this.name}' is in progress.`);
+        process.exit(EXIT_ERROR);
+      }
+    } catch (e: any) { log(`Failed to read lock file: ${e.message}`); }
+    // Stale or corrupted lock — overwrite
+    writeFileSync(this.lockPath, String(process.pid));
   }
 
   release(): void {

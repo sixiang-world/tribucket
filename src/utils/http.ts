@@ -56,13 +56,15 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         // Retry on rate-limiting too: a transient 403/429 may clear after a
         // short backoff, and failing fast makes installs unusable on
         // rate-limited networks without a token.
-        if ((response.status === 403 || response.status === 429) && attempt < retries - 1) {
+        const isRateLimited = response.status === 429 ||
+          (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0');
+        if (isRateLimited && attempt < retries - 1) {
           log(`HTTP ${response.status} (rate limited), retrying (${attempt + 1}/${retries})...`);
           if (!silent) status(t('rate_limited_retrying', { n: attempt + 1, total: retries }));
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
-        if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
+        if (response.status === 403) throw new Error(`HTTP 403: ${response.headers.get('X-RateLimit-Remaining') === '0' ? 'Rate limited' : 'Forbidden'}`);
         if (response.status >= 500 && attempt < retries - 1) {
           log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
           if (!silent) status(t('server_error_retrying', { n: attempt + 1, total: retries }));

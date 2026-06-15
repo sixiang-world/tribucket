@@ -142,9 +142,10 @@ function computeStatus(localVer: string, remoteVer: string | null): 'latest' | '
 
 export function formatCheckResult(name: string, localVer: string, localSource: string, remoteVer: string | null, pathExists = true): string {
   if (!pathExists) return `${name.padEnd(20)}  ${sym('err')} ${t('not_found')}`;
+  const s = computeStatus(localVer, remoteVer);
   let status = '';
-  if (!remoteVer) status = '? ' + t('offline');
-  else if (localVer === remoteVer) status = `${sym('ok')} ${t('latest')}`;
+  if (s === 'unknown') status = '? ' + t('offline');
+  else if (s === 'latest') status = `${sym('ok')} ${t('latest')}`;
   else status = `${sym('warn')} ${localVer} ${sym('arrow')} ${remoteVer}`;
   return `${name.padEnd(20)}  ${localVer.padEnd(12)} (${localSource.padEnd(8)})  ${status}`;
 }
