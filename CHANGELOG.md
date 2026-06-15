@@ -1,5 +1,30 @@
 # 更新日志
 
+## v3.6.3 — 用户体验优化（UX review）
+
+根据 UX 审查报告修复了 19 个中/高/严重问题。
+
+### 网站前端（10 个）
+- **加载骨架屏**：包列表 API 请求未完成时显示加载动画，减少首屏空窗期跳出
+- **加载失败重试**：网络错误时显示「点击重试」按钮，用户可自助恢复
+- **Clipboard API 降级**：不安全上下文（HTTP）时回退到 `document.execCommand('copy')`，复制功能全场景可用
+- **Favicon**：添加 SVG favicon，多标签页可识别
+- **搜索防抖**：150ms debounce，避免每次按键全量过滤重建 DOM 导致的卡顿
+- **ARIA 无障碍**：Tab 添加 `role="tablist"`/`aria-selected`，搜索框添加 `role="searchbox"`/`aria-label`，搜索区域添加 `aria-live="polite"`
+- **颜色对比度**：`--color-text-secondary` 从 `#656d76` 加深到 `#495057`，满足 WCAG AA 4.5:1
+- **导航锚点偏移**：添加 `scroll-margin-top: 64px`，防止粘性 header 遮挡 section 标题
+- **移动端仓库链接**：第三列不再 `display:none`，改为在包名行内显示 repo 链接
+- **空状态提示**：未匹配时显示示例关键词引导
+
+### CLI 命令行（7 个）
+- **自更新开发环境防护**：检测到 `process.argv[1]` 指向 `bun` 或 `.ts` 文件时拒绝执行，防止误覆盖
+- **check --all 完成摘要**：进度行结束后打印「X 个最新，Y 个过期，Z 个错误」汇总
+- **config set 类型转换修复**：仅对明确布尔字面量（`true`/`false`/`yes`/`no`/`on`/`off`）做转换，任意字符串不再误转
+- **--yes 全局选项**：添加 `-y`/`--yes`，脚本化使用可跳过所有确认提示
+- **confirm() 超时**：30 秒无输入自动拒绝，防止终端挂起
+- **symlink 失败醒目提示**：`--link` 创建失败时使用 `status()`（始终可见）替代 `log()`（仅 verbose）
+- **self-update locale 补充**：新增 `error_self_update_dev` 等 i18n key
+
 ## v3.6.2 — 第二轮代码审查修复
 
 根据第二轮全量代码审查修复了 21 个问题（含 6 个高优先级）：
