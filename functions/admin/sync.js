@@ -70,10 +70,12 @@ export async function onRequestPost(context) {
     }
   }
 
-  // ── Write all items ──
+  // ── Write all items (parallel batches to avoid function timeout) ──
   try {
-    for (const item of items) {
-      await TRIBUCKET_KV.put(item.key, item.value);
+    const BATCH_SIZE = 20;
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      const batch = items.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((item) => TRIBUCKET_KV.put(item.key, item.value)));
     }
 
     // Write index last so readers never see a partially-updated index
