@@ -13,7 +13,7 @@ function getProxyUrl(url: string): string | null {
 const _progress = new ProgressBar();
 
 export async function downloadFile(url: string, destDir: string): Promise<string | null> {
-  const filename = url.split('/').pop()?.split('?')[0] || 'download';
+  const filename = (url.split('/').pop()?.split('?')[0] && url.includes('/')) ? url.split('/').pop()!.split('?')[0] : 'download';
   const destPath = join(destDir, filename);
 
   log(`Downloading ${filename}...`);

@@ -38,7 +38,7 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
   const tjPath = join(path, 'tribucket.json');
   let tj: PackageMeta | null = null;
   if (existsSync(tjPath)) {
-    try { tj = JSON.parse(readFileSync(tjPath, 'utf-8')); } catch {}
+    try { tj = JSON.parse(readFileSync(tjPath, 'utf-8')); } catch { log(`Failed to parse ${tjPath}`); }
   }
 
   if (!tj) {

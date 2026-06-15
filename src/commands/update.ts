@@ -276,7 +276,8 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
         // Don't fail, just warn — binary might report version differently
       }
 
-      config.packages[repoKey || name].version = remoteVer;
+      const targetKey = repoKey || name;
+    config.packages[targetKey].version = remoteVer;
       saveConfig(config);
 
       if (options.backup !== false && backupPath && existsSync(backupPath)) {

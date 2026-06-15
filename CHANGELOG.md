@@ -1,5 +1,26 @@
 # 更新日志
 
+## v3.6.1 — Bug fixes (code review)
+
+根据全量代码审查报告修复了 7 个真实问题（含 2 个高优先级 BUG）：
+
+### 高优先级
+- **list.ts**: 悬空符号链接(dangling symlink)检测逻辑反转 — 检查的是链接自身而非目标，导致检测永远不触发
+- **self-update.ts**: `latest` 变量可能为 `undefined`，导致版本比较异常和输出显示 "undefined"
+
+### 中优先级
+- **update.ts**: SIGINT handler 是模块级共享变量，`--all` 并发更新时后一个 handler 覆盖前一个
+- **clean.ts**: catch 块中 `unlinkSync` 无错误处理，可能抛出未捕获异常
+- **uninstall.ts**: symlink 目标路径使用 `startsWith` 比较不精确，可能误匹配
+- **archive.ts**: PowerShell 命令路径未转义单引号，存在注入风险
+- **admin/sync.js**: 认证比较使用普通字符串比较（非 timing-safe），改为恒定时间比较
+
+### 低优先级
+- **check.ts**: JSON.parse 错误被静默吞掉，添加日志记录
+- **download.ts**: URL 无路径时文件名提取可能返回域名
+- **mirror.ts**: `String.replace` 只替换首个匹配，改用 `replaceAll`
+- **update.ts**: config key 使用不一致，统一为一致的 key 解析
+
 ## v3.6.0 — Release/Debug 双构建模式
 
 CI 流水线现在同时构建 release 和 debug 两种二进制，debug 版本内置始终开启的详细日志（`VERBOSE=1`），方便问题排查。
