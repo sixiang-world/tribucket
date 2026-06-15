@@ -1,24 +1,24 @@
 class Tribucket < Formula
   desc "Lightweight portable package manager — install, track, check, update CLI tools"
   homepage "https://github.com/sixiang-world/tribucket"
-  version "3.4.0"
+  version "3.5.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/sixiang-world/tribucket/releases/download/v3.4.0/tribucket-darwin-arm64"
-      sha256 "6385bdd2864dfeb192cfbd7693bb7c1eaae703d5585aa084cfeb0e89d58c4ddc"
+      url "https://github.com/sixiang-world/tribucket/releases/download/v3.5.0/tribucket-darwin-arm64"
+      sha256 "113526a65b69ac0cbf5682e657c5a9a032f5cf44abc8c1b4b5ae73116f556152"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/sixiang-world/tribucket/releases/download/v3.4.0/tribucket-linux-arm64"
-      sha256 "c4c211d7c35fda4485cd12a5df5483d2475631ae74552c3b039d8efb7fe6de99"
+      url "https://github.com/sixiang-world/tribucket/releases/download/v3.5.0/tribucket-linux-arm64"
+      sha256 "d369466e24bdc65c9b48271f3703d04190a425512caa67ab0d5bffdf3006b011"
     end
     on_intel do
-      url "https://github.com/sixiang-world/tribucket/releases/download/v3.4.0/tribucket-linux-amd64"
-      sha256 "9baedd8c564adb269a3959230f249d808c5f10c56d6e77b4163d8909629dbe18"
+      url "https://github.com/sixiang-world/tribucket/releases/download/v3.5.0/tribucket-linux-amd64"
+      sha256 "68fb7a6aa5149943b31a7478ee8144040ec7f0cf2ba07c1072682996e7ef4aef"
     end
   end
 
