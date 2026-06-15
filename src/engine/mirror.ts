@@ -31,10 +31,10 @@ export function buildDirectUrl(repo: string, tag: string, asset: string): string
 export function buildMirrorUrl(template: string, repo: string, tag: string, asset: string): string {
   const version = tag.replace(/^v/, '');
   return template
-    .replace('{repo}', repo)
-    .replace('{tag}', tag)
-    .replace('{version}', version)
-    .replace('{asset}', asset);
+    .replaceAll('{repo}', repo)
+    .replaceAll('{tag}', tag)
+    .replaceAll('{version}', version)
+    .replaceAll('{asset}', asset);
 }
 
 /**
