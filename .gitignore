@@ -38,6 +38,9 @@ tribucket_test.exe
 # Website build output
 dist/
 
+# EdgeOne Pages functions directory (committed for Pages detection)
+# functions/  — intentionally tracked
+
 # Windows reserved device names that may be created by accident (e.g. output
 # redirected to "NUL" from inside the repo). These cannot be read/deleted via
 # the normal Win32 path namespace.

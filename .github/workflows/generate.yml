@@ -52,3 +52,9 @@ jobs:
           # Pull latest to avoid push rejection when main moved
           git pull --rebase origin main
           git push
+
+      - name: Sync to EdgeOne KV
+        run: python -u scripts/kv-sync.py
+        env:
+          ADMIN_SYNC_SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
+          TRIBUCKET_SITE: https://tribucket.hunluan.space
