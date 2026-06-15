@@ -1,5 +1,28 @@
 # 更新日志
 
+## v3.6.4 — 完整代码审查修复（第3轮）
+
+根据完整代码审查报告修复了 11 个问题（含 2 个严重、4 个高优）。
+
+### 🔴 严重
+- **index.ts TDZ 崩溃**：`_yesMode` 在 `const` 声明前被引用，导致 CLI 完全无法启动。将声明上移到使用之前
+- **self-update.ts 注释语法错误**：`#` 不是 TypeScript 注释标记，导致编译失败。改为 `//`
+
+### 🟠 高优先级
+- **install.ts 版本丢失**：GitHub API 失败时 version 保持 `0.0.0`。添加从软件源回退获取版本
+- **lock.ts TOCTOU 竞争**：`existsSync → unlinkSync → writeFileSync(wx)` 非原子序列存在竞争窗口。改为 `wx` 原子写入作为唯一互斥
+- **findBinary Windows 回退**：返回任意文件（含 `.dll`），至少检查文件名包含目标名称
+- **SHA256 行为不一致**：install 继续但 update 中止（已由 v3.6.1 修复一半，统一为可配置策略）
+
+### 🟡 中优先级
+- **http.ts 403 误判限流**：所有 403 都重试，改为检查 `X-RateLimit-Remaining: 0` 头确认是否限流
+- **software-source.ts 缺少 token**：`fetchPackageDef` 未传递 `GITHUB_TOKEN` 给 GitHub raw 请求
+- **update.ts 缩进不一致**：`config.packages...version` 赋值缩进错误
+- **check.ts 状态计算重复**：`formatCheckResult` 与 `computeStatus` 逻辑重复，统一调用
+
+### 🟢 低优先级
+- **download.ts 分支冗余**：`statusCode === 200 && existingSize > 0` 与 `else` 分支代码相同，合并
+
 ## v3.6.3 — 用户体验优化（UX review）
 
 根据 UX 审查报告修复了 19 个中/高/严重问题。
