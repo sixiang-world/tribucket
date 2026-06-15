@@ -1,12 +1,12 @@
 {
-  "version": "3.5.0",
+  "version": "3.6.1",
   "description": "Lightweight portable package manager — install, track, check, update CLI tools",
   "homepage": "https://github.com/sixiang-world/tribucket",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/sixiang-world/tribucket/releases/download/v3.5.0/tribucket-windows-amd64.exe",
-      "hash": "182e7164d98a0ddffe33b6cb2dbb5c65e5291044bbe26c7f92c48a4ded24fa8b"
+      "url": "https://github.com/sixiang-world/tribucket/releases/download/v3.6.1/tribucket-windows-amd64.exe",
+      "hash": "6dd7ce57580a869782d2a6c6521405d268f566f5113723c2666e5e708c29f968"
     }
   },
   "bin": [
