@@ -230,7 +230,7 @@ const noResults = document.getElementById('no-results');
 
 async function loadPackages() {
   try {
-    const resp = await fetch('/api/packages.json');
+    const resp = await fetch('/api/packages');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     PACKAGES.splice(0, PACKAGES.length, ...data);
