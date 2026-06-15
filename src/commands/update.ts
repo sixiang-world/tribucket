@@ -6,7 +6,7 @@ import { detectVersion, versionFromTag } from '../engine/version';
 import { resolveDownloadUrl } from '../engine/mirror';
 import { downloadFile } from '../engine/download';
 import { extractArchive } from '../utils/archive';
-import { log, error } from '../utils/log';
+import { log, status, error } from '../utils/log';
 import { backupDir } from '../config/paths';
 import { PackageLock } from '../engine/lock';
 import { detectPlatform, resolveBinaryPath, binaryFileName } from '../utils/platform';
@@ -66,6 +66,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   // Fetch from API if not cached
   if (!remoteVer) {
     try {
+      status(`Fetching latest release for ${name}...`);
       const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
       releaseData = data;
       remoteTag = data.tag_name || null;
@@ -99,6 +100,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   if (!pattern || pattern === 'NO_MATCH') { error('platform', `No asset available for ${platform}`); return false; }
 
   const [url, provider] = await resolveDownloadUrl(repo, remoteTag, pattern, options.mirror as any, releaseData);
+  status(`Using ${provider === 'direct' ? 'direct download' : `mirror: ${provider}`}`);
   log(`Download URL (${provider}): ${url}`);
 
   // Install SIGINT handler
@@ -120,6 +122,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       // SHA256 verification (best-effort). Reuses the releaseData fetched above.
       if (repo && releaseData) {
         try {
+          status('Verifying checksum...');
           const { findSha256FromRelease, computeSha256 } = await import('../utils/sha256');
           const archiveName = archivePath.split('/').pop() || '';
           const expectedHash = await findSha256FromRelease(releaseData, archiveName);
@@ -157,6 +160,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
                         archivePath.endsWith('.zip');
 
       if (isArchive) {
+        status('Extracting archive...');
         extractArchive(archivePath, extractDir);
       } else {
         // Raw binary — copy using the package's real binary name (NOT a

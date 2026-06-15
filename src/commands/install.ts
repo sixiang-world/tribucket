@@ -4,7 +4,7 @@ import { tmpdir } from 'os';
 import type { PackageMeta } from '../types';
 import { httpGetJson } from '../utils/http';
 import { detectPlatform, binaryFileName } from '../utils/platform';
-import { log, error, sym } from '../utils/log';
+import { log, status, error, sym } from '../utils/log';
 import { extractArchive } from '../utils/archive';
 import { downloadFile } from '../engine/download';
 import { resolveDownloadUrl } from '../engine/mirror';
@@ -33,6 +33,7 @@ export async function installPackage(
 
   let pkg: PackageMeta;
   try {
+    status(`Resolving package: ${name}`);
     pkg = await httpGetJson<PackageMeta>(`${REPO_URL}/${name}.json`);
   } catch {
     error('not-found', `Package '${name}' not found in tribucket repo`);
@@ -109,12 +110,14 @@ export async function installPackage(
   let tag = version;
   if (repo) {
     try {
+      status('Fetching latest release...');
       const token = process.env.GITHUB_TOKEN;
       releaseData = await httpGetJson<any>(
         `https://api.github.com/repos/${repo}/releases/latest`,
         { token }
       );
       tag = releaseData.tag_name || version;
+      status(`Latest release: ${tag}`);
       log(`Latest release: ${tag}`);
     } catch {
       log(`Could not fetch latest release, using ${version}`);
@@ -136,6 +139,7 @@ export async function installPackage(
     const resolved = await resolveDownloadUrl(repo, tag, pattern, options.mirror as any, releaseData);
     url = resolved[0];
     provider = resolved[1];
+    status(`Using ${provider === 'direct' ? 'direct download' : `mirror: ${provider}`}`);
     log(`Download URL (${provider}): ${url}`);
   }
 
@@ -150,6 +154,7 @@ export async function installPackage(
     // Reuses the releaseData fetched above.
     if (repo && releaseData) {
       try {
+        status('Verifying checksum...');
         const archiveName = archivePath.split('/').pop() || '';
         const expectedHash = await findSha256FromRelease(releaseData, archiveName);
         if (expectedHash) {
@@ -178,6 +183,7 @@ export async function installPackage(
                       archivePath.endsWith('.zip');
 
     if (isArchive) {
+      status('Extracting archive...');
       extractArchive(archivePath, extractDir);
     } else {
       // Raw binary — use the binary name directly (not hardcoded 'binary').
@@ -276,7 +282,7 @@ export async function installPackage(
     config.packages[repoKey] = { name, path: targetDir, version, installed_at: new Date().toISOString(), linked };
     saveConfig(config);
 
-    console.log(`Installed: ${targetDir}`);
+    console.log(`${sym('ok')} Installed: ${targetDir}`);
     if (!linked && !options.link) {
       console.log(`Not in PATH. Options:`);
       console.log(`  1. Add to PATH:  export PATH="${targetDir}:$PATH"`);

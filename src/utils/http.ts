@@ -1,4 +1,4 @@
-import { log } from './log';
+import { log, status } from './log';
 
 function getProxyUrl(url: string): string | null {
   const proto = url.startsWith('https') ? 'https' : 'http';
@@ -57,12 +57,14 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         // rate-limited networks without a token.
         if ((response.status === 403 || response.status === 429) && attempt < retries - 1) {
           log(`HTTP ${response.status} (rate limited), retrying (${attempt + 1}/${retries})...`);
+          status(`Rate limited (HTTP ${response.status}), retrying (${attempt + 1}/${retries})...`);
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
         if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
         if (response.status >= 500 && attempt < retries - 1) {
           log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
+          status(`Server error (HTTP ${response.status}), retrying (${attempt + 1}/${retries})...`);
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
@@ -73,6 +75,7 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
       lastError = e;
       if (attempt < retries - 1) {
         log(`Network error, retrying (${attempt + 1}/${retries})...`);
+        status(`Network error, retrying (${attempt + 1}/${retries})...`);
         await new Promise(r => setTimeout(r, backoffMs(attempt)));
         continue;
       }

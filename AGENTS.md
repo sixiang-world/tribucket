@@ -65,7 +65,7 @@ src/
     ├── http.ts           # HTTP client with retry (5x, jittered backoff), proxy, rate limit
     ├── archive.ts        # Archive extraction with zip-slip protection (no --no-absolute-names)
     ├── sha256.ts         # SHA256 computation (fs-based, works in compiled binary)
-    ├── log.ts            # Logging with symbols and NO_COLOR support
+    ├── log.ts            # Logging: verbose `log()`, always-visible `status()`, `error()`, symbols + NO_COLOR
     ├── platform.ts       # Platform detection + resolveBinaryPath/binaryFileName (.exe handling)
     ├── find.ts           # Recursive file search for binary matching
     ├── concurrent.ts     # Concurrent task runner
@@ -85,6 +85,8 @@ src/
 - **File locking**: Atomic lock via `wx` flag with PID stale-process detection
 - **Proxy**: Supports `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` env vars for all HTTP(S) requests and downloads (uses Bun's native `proxy` option)
 - **NO_COLOR support**: `sym()` utility with automatic ASCII fallback
+- **Status output** (`utils/log.ts`): `status(msg)` prints always (to stderr, with `→` prefix); `log(msg)` is verbose-only (`TRIBUCKET_VERBOSE=1`). Use `status()` for user-visible step-by-step progress (install/update flow); `log()` for debug diagnostics.
+- **Startup cleanup**: `cleanupOldTmp()` runs via `setImmediate()` to avoid blocking command startup
 - **HTTP resilience** (`utils/http.httpGet`): 5 retries with full-jitter exponential backoff; retries on 403/429 rate-limiting, not just 5xx.
 - **--json output** (`index.ts`): read via `program.optsWithGlobals()` (not `this`), because the actions are arrow functions and a program-level `--json` would otherwise shadow the command-level option.
 - **SHA256**: Uses `fs.readSync` in chunks with `Bun.CryptoHasher` (not `Bun.CryptoHasher.hash(Bun.file(...))` which fails in compiled binaries)

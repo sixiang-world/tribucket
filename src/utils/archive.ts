@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, lstatSync } from 'fs';
 import { join, resolve } from 'path';
 import { execFileSync } from 'child_process';
+import { log } from './log';
 
 const isWindows = process.platform === 'win32';
 
@@ -24,6 +25,7 @@ function sh(cmd: string, args: string[]): void {
  */
 export function extractArchive(archivePath: string, destDir: string): void {
   mkdirSync(destDir, { recursive: true });
+  log(`Extracting: ${archivePath} -> ${destDir}`);
   const resolvedDest = resolve(destDir);
   const lower = archivePath.toLowerCase();
   const isZip = lower.endsWith('.zip');

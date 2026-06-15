@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { existsSync, statSync } from 'fs';
-import { log } from '../utils/log';
+import { log, status, sym } from '../utils/log';
 
 function getProxyUrl(url: string): string | null {
   const proto = url.startsWith('https') ? 'https' : 'http';
@@ -13,6 +13,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
   const destPath = join(destDir, filename);
 
   log(`Downloading ${filename}...`);
+  status(`Downloading ${filename}...`);
 
   try {
     const headers: Record<string, string> = {
@@ -100,7 +101,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
           const pct = Math.floor(downloaded * 100 / totalSize);
           const mb = (downloaded / (1024 * 1024)).toFixed(1);
           const totalMb = (totalSize / (1024 * 1024)).toFixed(1);
-          process.stdout.write(`\r  ${String(pct).padStart(3)}% (${mb}/${totalMb} MB)`);
+          process.stdout.write(`\r  ${String(pct).padStart(3)}% (${mb}/${totalMb} MB)  ${filename}`);
         }
       }
     } finally {
@@ -114,6 +115,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
 
     const sizeMb = (downloaded / (1024 * 1024)).toFixed(1);
     log(`Download complete: ${sizeMb} MB`);
+    status(`Download complete: ${sizeMb} MB`);
     return destPath;
   } catch (e: any) {
     log(`Download failed: ${e.message}`);

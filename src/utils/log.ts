@@ -7,6 +7,11 @@ export function log(msg: string): void {
   }
 }
 
+/** Always-visible status message (to stderr, not gated by VERBOSE). */
+export function status(msg: string): void {
+  process.stderr.write(`${sym('arrow')} ${msg}\n`);
+}
+
 export function error(category: string, message: string, suggestion?: string): void {
   process.stderr.write(`Error: [${category}] ${message}\n`);
   if (suggestion) {

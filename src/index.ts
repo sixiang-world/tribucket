@@ -300,8 +300,8 @@ program
     configCommand(subcommand || 'list', key, value);
   });
 
-// Cleanup on startup
-cleanupOldTmp();
+// Cleanup old temp files in the background (don't block command startup)
+setImmediate(() => { cleanupOldTmp(); });
 
 // Catch SIGINT globally (matching Python's KeyboardInterrupt handler)
 process.on('SIGINT', () => {

@@ -1,6 +1,6 @@
 import { loadJson, saveJson } from '../config/store';
 import { mirrorCachePath, mirrorConfigPath } from '../config/paths';
-import { log } from '../utils/log';
+import { log, status } from '../utils/log';
 import type { MirrorMode } from '../types';
 
 const DEFAULT_PROVIDERS = [
@@ -147,6 +147,7 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
   }
 
   // Probe all providers + direct
+  status('Testing mirrors...');
   const results: Record<string, { ok: boolean; latency_ms: number }> = {};
 
   for (const p of providers) {
@@ -178,6 +179,7 @@ export async function selectProvider(mirrorMode: MirrorMode = 'auto'): Promise<[
 
   if (bestName === 'direct') return ['direct', null];
   const p = providers.find((x: any) => x.name === bestName);
+  status(`Mirror selected: ${bestName} (${bestLatency}ms)`);
   return p ? [p.name, p.template] : ['direct', null];
 }
 
