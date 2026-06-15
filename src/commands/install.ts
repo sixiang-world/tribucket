@@ -205,6 +205,7 @@ export async function installPackage(
     const isArchive = archivePath.endsWith('.tar.gz') || archivePath.endsWith('.tgz') ||
                       archivePath.endsWith('.tar.bz2') || archivePath.endsWith('.tbz2') ||
                       archivePath.endsWith('.tar.xz') || archivePath.endsWith('.txz') ||
+                      archivePath.endsWith('.tar.zst') || archivePath.endsWith('.tzst') ||
                       archivePath.endsWith('.zip');
 
     if (isArchive) {

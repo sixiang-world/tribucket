@@ -4,9 +4,7 @@ import { join } from 'path';
 export function tribucketHome(): string {
   const env = process.env.TRIBUCKET_HOME;
   if (env && env.trim() !== '') {
-    // Validate and normalize the path to prevent injection
-    const { resolve } = require('path');
-    return resolve(env.trim());
+    return env.trim();
   }
   return join(homedir(), '.tribucket');
 }

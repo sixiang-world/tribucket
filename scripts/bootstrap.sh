@@ -9,6 +9,13 @@ set -euo pipefail
 #   irm https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.ps1 | iex
 
 REPO="${TRIBUCKET_REPO:-sixiang-world/tribucket}"
+# Validate repo format to prevent URL injection
+case "$REPO" in
+  *..*|*[!a-zA-Z0-9_.-]*/[!a-zA-Z0-9_.-]*|*[!a-zA-Z0-9/_.-]*)
+    echo "Error: Invalid TRIBUCKET_REPO format: ${REPO}" >&2
+    exit 1
+    ;;
+esac
 TRIBUCKET_HOME="${TRIBUCKET_HOME:-$HOME/.tribucket}"
 INSTALL_DIR="$TRIBUCKET_HOME/bin"
 RAW_URL="https://raw.githubusercontent.com/${REPO}/main"

@@ -22,7 +22,7 @@ err()   { printf '%b[error]%b %s\n' "$R" "$Z" "$*" >&2; exit 1; }
 TRIBUCKET_REPO="${TRIBUCKET_REPO:-sixiang-world/tribucket}"
 # Validate repo format to prevent URL injection [#101]
 case "$TRIBUCKET_REPO" in
-  *[!a-zA-Z0-9_.-]*/[!a-zA-Z0-9_.-]*|*[!a-zA-Z0-9/_.-]*)
+  *..*|*[!a-zA-Z0-9_.-]*/[!a-zA-Z0-9_.-]*|*[!a-zA-Z0-9/_.-]*)
     err "Invalid TRIBUCKET_REPO format: ${TRIBUCKET_REPO}"
     ;;
 esac

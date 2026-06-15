@@ -10,9 +10,10 @@
 
 import { existsSync, mkdirSync, cpSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Paths
-const ROOT = resolve(import.meta.dir, "..");
+const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const DIST = join(ROOT, "dist");
 const TEMPLATES_DIR = join(ROOT, "website", "templates");
 const STYLES_DIR = join(ROOT, "website", "styles");
@@ -52,7 +53,7 @@ function parseChangelog(changelog: string): string {
       const lines = part.trim().split("\n");
       // First line: version + optional tag
       const headerLine = lines[0].trim();
-      const titleMatch = headerLine.match(/^(.+?)(?:\s*[—–-]\s*(.+))?$/);
+      const titleMatch = headerLine.match(/^(.+?)(?:\s*(?:—|–|-)\s*(.+))?$/);
       const version = titleMatch ? titleMatch[1].trim() : headerLine;
       const tag = titleMatch && titleMatch[2] ? titleMatch[2].trim() : "";
 
