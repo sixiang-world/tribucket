@@ -1,5 +1,25 @@
 # 更新日志
 
+## v3.6.6 — 第4轮代码审查修复
+
+根据审查报告修复 11 个问题：
+
+### 🔴 严重
+- **SIGINT 锁释放**：update.ts SIGINT handler 不再 `process.exit(130)`，改为设置中断标志让 `finally` 块正常清理锁
+- **lock.ts 抛异常**：`acquire()` 改为 `throw Error` 替代 `process.exit()`，调用方自行处理
+- **install.ts extractArchive**：解压调用包裹 try-catch，提供具体的错误信息
+
+### 🟠 高优先级
+- **archive.ts PowerShell 安全加固**：替换 `Expand-Archive` 为 `.NET ZipFile::ExtractToDirectory`，额外转义 `、反引号
+- **Edge Functions 路径穿越**：packages/Formula/bucket 端点增加 `..`、`/`、`\` 显式拒绝
+
+### 🟡 中优先级
+- **self-update symlink 解析**：使用 `realpathSync` 解析符号链接后再判断开发环境
+- **FORBIDDEN 根目录**：Windows 禁止列表增加 `C:\` 根驱动器保护
+- **findBinary 空值检查**：返回空时明确报错而非静默失败
+- **software-source token 隔离**：仅 GitHub raw 请求传递 `GITHUB_TOKEN`，tribucket.hunluan.space 不传递
+- **find.ts Windows 大小写**：`visited` Set 统一小写避免大小写绕过 symlink 环检测
+
 ## v3.6.5 — 最终 UX 修复
 
 根据最终 UX 审查报告修复剩余高/中优先级问题。
