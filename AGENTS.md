@@ -23,7 +23,7 @@ Package definitions live in `packages/*.json` (single source of truth) and gener
 bun install                                     # Install dependencies
 bun build src/index.ts --compile --outfile tribucket  # Build binary
 bun run src/index.ts --help                    # Run CLI
-bun test                                        # Run TypeScript tests (19 passing)
+bun test                                        # Run TypeScript tests (21 passing)
 python scripts/generate.py --only <name>        # Regenerate Formula/bucket for a package
 cp tribucket ~/.tribucket/bin/tribucket         # Install binary
 ```
@@ -88,6 +88,7 @@ src/
 - **HTTP resilience** (`utils/http.httpGet`): 5 retries with full-jitter exponential backoff; retries on 403/429 rate-limiting, not just 5xx.
 - **--json output** (`index.ts`): read via `program.optsWithGlobals()` (not `this`), because the actions are arrow functions and a program-level `--json` would otherwise shadow the command-level option.
 - **SHA256**: Uses `fs.readSync` in chunks with `Bun.CryptoHasher` (not `Bun.CryptoHasher.hash(Bun.file(...))` which fails in compiled binaries)
+- **Download resume**: `engine/download.ts` sends `Range: bytes=N-` when a partial file exists; HTTP 206 → appends remainder, HTTP 200 → rewrites. Tested end-to-end via local HTTP server (`src/__tests__/download.test.ts`) with full RFC 7233 Range support — not relying on external CDN behavior (many CDNs advertise `Accept-Ranges` but ignore Range headers).
 
 ## Known Gotchas
 
@@ -203,6 +204,7 @@ tribucket uninstall <name>
 bun test                                          # TypeScript CLI tests (src/__tests__)
 bun test src/__tests__/utils.test.ts              # Utility/mirror/version tests
 bun test src/__tests__/config.test.ts             # Config store tests
+bun test src/__tests__/download.test.ts            # Download resume (206/200) tests
 python -m pytest tests/test_generate.py          # Generator tests (Python)
 python -m pytest tests/test_checkver.py          # Checkver tests (Python)
 ```
