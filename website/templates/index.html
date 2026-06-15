@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tribucket — 三合一跨平台软件源</title>
   <meta name="description" content="tribucket = tri (三合一) + bucket (包仓库)。一个通用的跨平台软件包仓库，同时提供 Homebrew、Scoop、Shell 脚本三种安装方式。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230969da'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3Et%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
@@ -39,16 +40,16 @@
   <div class="container">
     <h2 class="section-title">安装指南</h2>
 
-    <div class="install-tabs">
-      <button class="install-tab active" data-tab="cli">tribucket CLI</button>
-      <button class="install-tab" data-tab="homebrew">Homebrew</button>
-      <button class="install-tab" data-tab="scoop">Scoop</button>
-      <button class="install-tab" data-tab="script">一键脚本</button>
+    <div class="install-tabs" role="tablist" aria-label="安装方式">
+      <button class="install-tab active" data-tab="cli" role="tab" aria-selected="true" aria-controls="panel-cli" id="tab-cli">tribucket CLI</button>
+      <button class="install-tab" data-tab="homebrew" role="tab" aria-selected="false" aria-controls="panel-homebrew" id="tab-homebrew">Homebrew</button>
+      <button class="install-tab" data-tab="scoop" role="tab" aria-selected="false" aria-controls="panel-scoop" id="tab-scoop">Scoop</button>
+      <button class="install-tab" data-tab="script" role="tab" aria-selected="false" aria-controls="panel-script" id="tab-script">一键脚本</button>
     </div>
 
     <div class="install-content">
       <!-- CLI -->
-      <div class="install-panel active" id="panel-cli">
+      <div class="install-panel active" id="panel-cli" role="tabpanel" aria-labelledby="tab-cli">
         <p class="install-desc">安装 tribucket CLI 后，使用 <code>tribucket install &lt;name&gt;</code> 安装软件包。</p>
         <div class="code-block">
           <button class="copy-btn" data-copy="brew-install">复制</button>
@@ -65,7 +66,7 @@ scoop install tribucket</code></pre>
       </div>
 
       <!-- Homebrew -->
-      <div class="install-panel" id="panel-homebrew">
+      <div class="install-panel" id="panel-homebrew" role="tabpanel" aria-labelledby="tab-homebrew">
         <p class="install-desc">使用 Homebrew 直接安装单个软件包（macOS / Linux）。</p>
         <div class="code-block">
           <button class="copy-btn" data-copy="brew-pkg">复制</button>
@@ -82,7 +83,7 @@ brew install ripgrep</code></pre>
       </div>
 
       <!-- Scoop -->
-      <div class="install-panel" id="panel-scoop">
+      <div class="install-panel" id="panel-scoop" role="tabpanel" aria-labelledby="tab-scoop">
         <p class="install-desc">使用 Scoop 直接安装单个软件包（Windows）。</p>
         <div class="code-block">
           <button class="copy-btn" data-copy="scoop-pkg">复制</button>
@@ -99,7 +100,7 @@ scoop install fzf</code></pre>
       </div>
 
       <!-- Script -->
-      <div class="install-panel" id="panel-script">
+      <div class="install-panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script">
         <p class="install-desc">一键安装脚本，适用于任意平台。</p>
         <div class="code-block">
           <button class="copy-btn" data-copy="bootstrap">复制</button>
@@ -123,11 +124,13 @@ curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/script
         id="pkg-search"
         placeholder="搜索软件包名称或描述…"
         autocomplete="off"
+        aria-label="搜索软件包"
+        role="searchbox"
       >
-      <div class="search-count" id="pkg-count"></div>
+      <div class="search-count" id="pkg-count" aria-live="polite"></div>
     </div>
 
-    <table class="package-table">
+    <table class="package-table" role="table" aria-label="软件包列表">
       <thead>
         <tr>
           <th>名称</th>
@@ -137,7 +140,7 @@ curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/script
       </thead>
       <tbody id="pkg-tbody"></tbody>
     </table>
-    <div class="no-results" id="no-results" style="display:none">没有找到匹配的软件包</div>
+    <div class="no-results" id="no-results" style="display:none">没有找到匹配的软件包。试试其他关键词（如 ripgrep、bat、fzf）</div>
   </div>
 </section>
 
@@ -229,13 +232,16 @@ const pkgCount = document.getElementById('pkg-count');
 const noResults = document.getElementById('no-results');
 
 async function loadPackages() {
+  // Show loading skeleton
+  pkgTbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:32px"><span class="loading-spinner"></span> 正在加载软件包列表…</td></tr>';
   try {
     const resp = await fetch('/api/packages');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     PACKAGES.splice(0, PACKAGES.length, ...data);
   } catch (e) {
-    pkgTbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:32px">加载软件包列表失败</td></tr>';
+    pkgTbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:32px">加载软件包列表失败。' +
+      '<br><br><button onclick="loadPackages()" style="padding:6px 16px;cursor:pointer;border:1px solid var(--color-border);border-radius:var(--radius);background:var(--color-bg);color:var(--color-primary)">点击重试</button></td></tr>';
     return;
   }
   renderPackages('');
@@ -266,7 +272,7 @@ function renderPackages(filter) {
       .map(
         p =>
           '<tr>' +
-          '<td class="pkg-name">' +
+          '<td class="pkg-name" data-repo="' + escHtml(p.repo) + '">' +
           escHtml(p.name) +
           '</td>' +
           '<td class="pkg-desc">' +
@@ -293,27 +299,40 @@ function escHtml(s) {
 // Load packages on page load
 loadPackages();
 
-// Search
+// Search (debounced 150ms to avoid lag on large lists)
+let searchTimer;
 searchInput.addEventListener('input', function () {
-  renderPackages(this.value);
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { renderPackages(this.value); }, 150);
 });
 
 // Tab switching
+// Tab switching (with aria synchronization)
 document.querySelectorAll('.install-tab').forEach(tab => {
   tab.addEventListener('click', function () {
-    document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.install-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
     document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
     this.classList.add('active');
+    this.setAttribute('aria-selected', 'true');
     document.getElementById('panel-' + this.dataset.tab).classList.add('active');
   });
 });
+
+// Fallback copy for insecure contexts (HTTP)
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); return Promise.resolve(); } catch { return Promise.reject(); }
+  finally { document.body.removeChild(ta); }
+}
 
 // Copy buttons
 document.querySelectorAll('.copy-btn').forEach(btn => {
   btn.addEventListener('click', function () {
     const target = document.getElementById(this.dataset.copy);
     if (!target) return;
-    navigator.clipboard.writeText(target.textContent).then(() => {
+    (navigator.clipboard?.writeText || fallbackCopy)(target.textContent).then(() => {
       this.textContent = '已复制';
       this.classList.add('copied');
       setTimeout(() => {
