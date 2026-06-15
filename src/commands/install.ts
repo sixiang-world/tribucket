@@ -90,6 +90,15 @@ export async function installPackage(
       console.log(`  ${sym('arrow')} ${t('error_use_force')}`);
       return false;
     }
+    if (readdirSync(targetDir).length > 0 && options.force) {
+      // Confirm before overwriting
+      const { confirm } = await import('../utils/prompt');
+      const ok = await confirm(t('confirm_force_install', { path: targetDir }));
+      if (!ok) {
+        console.log(`  ${sym('arrow')} ${t('skipped_confirmation')}`);
+        return false;
+      }
+    }
   }
 
   mkdirSync(targetDir, { recursive: true });

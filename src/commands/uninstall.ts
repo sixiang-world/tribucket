@@ -3,16 +3,26 @@ import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { binDir, backupDir } from '../config/paths';
 import { findRepoKey, untrack } from './track';
-import { sym } from '../utils/log';
+import { sym, error } from '../utils/log';
 import { t } from '../utils/locale';
 
-export function uninstallPackage(name: string): boolean {
+export async function uninstallPackage(name: string, options?: { force?: boolean }): Promise<boolean> {
   const config = loadConfig();
   const repoKey = findRepoKey(config, name) || name;
   const info = config.packages[repoKey];
   if (!info) {
-    console.error(`Error: ${t('error_not_tracked_generic', { name })}`);
+    error('not-found', t('error_not_tracked_generic', { name }));
     return false;
+  }
+
+  // Confirm unless --force is set
+  if (!options?.force) {
+    const { confirm } = await import('../utils/prompt');
+    const ok = await confirm(t('confirm_uninstall', { name }));
+    if (!ok) {
+      console.log(`  ${sym('arrow')} ${t('skipped_confirmation')}`);
+      return false;
+    }
   }
 
   const path = info.path;

@@ -51,3 +51,16 @@ export function sym(name: string): string {
   if (!pair) return '';
   return _noColor ? pair[1] : pair[0];
 }
+
+/**
+ * Format a byte count into a human-readable string (KB / MB / GB).
+ * Examples: 1024 → "1.0 KB", 2_500_000 → "2.4 MB"
+ */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  const kb = bytes / 1024;
+  if (kb < 1024) return kb.toFixed(1) + ' KB';
+  const mb = kb / 1024;
+  if (mb < 1024) return mb.toFixed(1) + ' MB';
+  return (mb / 1024).toFixed(1) + ' GB';
+}

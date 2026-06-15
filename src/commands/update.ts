@@ -241,7 +241,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
       } catch (updateError) {
         // Restore from backup on failure
         if (backupPath && existsSync(backupPath)) {
-          log('Update failed, restoring from backup...');
+          status(t('restore_from_backup'));
           try {
             // Remove current files
             const currentEntries = readdirSync(path);
@@ -256,9 +256,9 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
             }
             // Restore from backup
             cpSync(backupPath, path, { recursive: true });
-            log('Restore successful');
+            status(t('restore_success'));
           } catch (restoreError) {
-            error('restore', `Restore also failed: ${restoreError}`);
+            error('restore', t('restore_failed', { error: String(restoreError) }));
           }
         }
         throw updateError;

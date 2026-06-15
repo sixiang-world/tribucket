@@ -74,9 +74,10 @@ program
   .command('uninstall')
   .description('Uninstall a package')
   .argument('<name>', 'Package name')
-  .action(async (name) => {
+  .option('--force', 'Skip confirmation prompt')
+  .action(async (name, opts) => {
     const { uninstallPackage } = await import('./commands/uninstall');
-    if (!uninstallPackage(name)) process.exit(5);
+    if (!await uninstallPackage(name, opts)) process.exit(5);
   });
 
 // track
@@ -139,7 +140,17 @@ program
 
     // Concurrent check (work queue, matching Python's ThreadPoolExecutor)
     const { concurrentMap } = await import('./utils/concurrent');
-    const results = await concurrentMap(names, t => checkPackage(t, opts));
+    const { status } = await import('./utils/log');
+    const { t } = await import('./utils/locale');
+    const checkStart = Date.now();
+    const results = await concurrentMap(names, (n: string) => checkPackage(n, opts), 4,
+      (done, total) => { status(t('checking_packages', { done, total })); },
+    );
+
+    // Clear the status line
+    if (process.stdout.isTTY) {
+      process.stdout.write('\r' + ' '.repeat(60) + '\r');
+    }
 
     // NOTE: read --json via optsWithGlobals(). The program also defines a
     // global --json (index.ts top), and in Commander v15 a command-level
@@ -202,8 +213,14 @@ program
         return;
       }
 
+      // Confirm before bulk update (unless non-interactive)
+      const { confirm } = await import('./utils/prompt');
+      const ok = await confirm(t('confirm_update_all', { count: names.length }));
+      if (!ok) { console.log(`  ${sym('arrow')} ${t('skipped_confirmation')}`); return; }
+
       // Concurrent update (work queue, matching Python's ThreadPoolExecutor)
       const { concurrentMap } = await import('./utils/concurrent');
+      const { status } = await import('./utils/log');
       let success = 0, failed = 0;
       const updateOne = async (n: string) => {
         const { updatePackage } = await import('./commands/update');
@@ -212,9 +229,11 @@ program
           else { failed++; console.error(`[error] ${n}: update failed`); }
         } catch (e) { failed++; console.error(`[error] ${n}: ${e}`); }
       };
-      await concurrentMap(names, updateOne);
+      await concurrentMap(names, updateOne, 4,
+        (done, total) => { status(t('updating_packages', { done, total })); },
+      );
 
-      console.log(`\n${success} updated, ${failed} failed.`);
+      console.log(`\n${t('update_summary', { ok: success, failed })}`);
       process.exit(failed > 0 ? 1 : 0);
       return;
     }
@@ -240,34 +259,10 @@ program
   .command('info')
   .description('Show package details')
   .argument('<name>', 'Package name')
-  .action(async (name) => {
-    const { loadConfig } = await import('./config/store');
-    const { existsSync, readFileSync } = await import('fs');
-    const { join } = await import('path');
-
-    const config = loadConfig();
-    const { findRepoKey } = await import('./commands/track');
-    const repoKey = findRepoKey(config, name) || name;
-    const info = config.packages[repoKey];
-    if (!info) { console.error(`Error: '${name}' is not tracked.`); process.exit(3); }
-
-    console.log(`Name:        ${name}`);
-    const tjPath = join(info.path, 'tribucket.json');
-    if (existsSync(tjPath)) {
-      try {
-        const tj = JSON.parse(readFileSync(tjPath, 'utf-8'));
-        console.log(`Repo:        ${tj.repo || '?'}`);
-        console.log(`Description: ${tj.description || '?'}`);
-        console.log(`Binary:      ${tj.binary || '?'}`);
-        console.log(`License:     ${tj.license || '?'}`);
-        console.log(`Homepage:    ${tj.homepage || '?'}`);
-        console.log(`Install:     ${tj.install_type || 'binary'}`);
-      } catch {}
-    }
-    console.log(``);
-    console.log(`Installed:   ${info.path}`);
-    console.log(`Version:     ${info.version || '?'}`);
-    console.log(`Tracked at:  ${info.installed_at || '?'}`);
+  .option('--json', 'JSON output')
+  .action(async (name, opts) => {
+    const { showInfo } = await import('./commands/info');
+    if (!await showInfo(name, opts)) process.exit(3);
   });
 
 // self-update
@@ -305,7 +300,8 @@ setImmediate(() => { cleanupOldTmp(); });
 
 // Catch SIGINT globally (matching Python's KeyboardInterrupt handler)
 process.on('SIGINT', () => {
-  console.error('\nInterrupted.');
+  const { t } = require('./utils/locale');
+  console.error(`\n${t('interrupted_sigint')}`);
   process.exit(130);
 });
 
