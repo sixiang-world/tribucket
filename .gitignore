@@ -59,4 +59,4 @@ wintest.bat
 ".ci-jobs.txt"  
 checkassets.log  
 
-.edgeone
+.edgeone.tmp-scripts/  

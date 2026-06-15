@@ -20,7 +20,7 @@ export function getCachedRemoteVersion(repo: string): string | null {
   const entry = cache[repo];
   if (!entry) return null;
   const checkedAt = new Date(entry.checked_at);
-  const ttl = entry.ttl_seconds || 3600;
+  const ttl = entry.ttl_seconds ?? 3600;
   if (Date.now() - checkedAt.getTime() < ttl * 1000) {
     // Normalize on read so cached values written by older (pre-fix) versions
     // that stored raw tag names (e.g. "jq-1.8.1") self-heal into a comparable

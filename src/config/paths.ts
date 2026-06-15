@@ -2,7 +2,13 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 export function tribucketHome(): string {
-  return process.env.TRIBUCKET_HOME || join(homedir(), '.tribucket');
+  const env = process.env.TRIBUCKET_HOME;
+  if (env && env.trim() !== '') {
+    // Validate and normalize the path to prevent injection
+    const { resolve } = require('path');
+    return resolve(env.trim());
+  }
+  return join(homedir(), '.tribucket');
 }
 
 export function configPath(): string {

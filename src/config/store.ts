@@ -1,5 +1,6 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, copyFileSync } from 'fs';
 import { dirname } from 'path';
+import { log } from '../utils/log';
 import type { Config } from '../types';
 import { configPath } from './paths';
 

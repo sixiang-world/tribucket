@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, unlinkSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { lockDir } from '../config/paths';
-import { error } from '../utils/log';
+import { error, log } from '../utils/log';
 import { EXIT_ERROR } from '../types';
 
 export class PackageLock {
@@ -19,13 +19,17 @@ export class PackageLock {
     // Check for stale lock from a dead process
     if (existsSync(this.lockPath)) {
       try {
-        const pid = parseInt(readFileSync(this.lockPath, 'utf-8').trim());
-        if (pid && this.isProcessAlive(pid)) {
+        const rawPid = readFileSync(this.lockPath, 'utf-8').trim();
+        const pid = parseInt(rawPid);
+        if (!pid || isNaN(pid)) {
+          // Corrupted lock file — log and remove
+          log(`Corrupted lock file for '${this.name}', removing: ${rawPid}`);
+        } else if (this.isProcessAlive(pid)) {
           error('locked', `Another update for '${this.name}' is in progress.`);
           process.exit(EXIT_ERROR);
         }
-      } catch {}
-      // Stale lock — remove it
+      } catch (e: any) { log(`Failed to read lock file: ${e.message}`); }
+      // Stale or corrupted lock — remove it
       try { unlinkSync(this.lockPath); } catch {}
     }
 
@@ -45,6 +49,10 @@ export class PackageLock {
   }
 
   private isProcessAlive(pid: number): boolean {
+    // NOTE: process.kill(pid, 0) is unreliable on Windows — it may throw
+    // for alive processes or succeed for dead-but-recycled PIDs.
+    // This is a known limitation; the `wx` atomic create on acquire()
+    // provides the primary mutual exclusion guarantee.
     try {
       process.kill(pid, 0);
       return true;
