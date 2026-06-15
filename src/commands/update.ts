@@ -18,14 +18,6 @@ import { findBinary } from '../utils/find';
 import { t } from '../utils/locale';
 import type { PackageMeta } from '../types';
 
-// SIGINT handler for graceful interrupt
-let sigintHandler: NodeJS.SignalsHandler | null = null;
-
-function handleSigint() {
-  console.log(`\n${t('interrupted')}`);
-  process.exit(130);
-}
-
 export async function updatePackage(name: string, options: { force?: boolean; mirror?: string; backup?: boolean }): Promise<boolean> {
   const config = loadConfig();
   const repoKey = findRepoKey(config, name);
@@ -118,8 +110,11 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   status(provider === 'direct' ? t('using_direct_download') : t('using_mirror', { name: provider }));
   log(`Download URL (${provider}): ${url}`);
 
-  // Install SIGINT handler
-  sigintHandler = handleSigint;
+  // Install SIGINT handler (per-call local variable)
+  const sigintHandler = () => {
+    console.log(`\n${t('interrupted')}`);
+    process.exit(130);
+  };
   process.on('SIGINT', sigintHandler);
 
   const lock = new PackageLock(name);
@@ -296,9 +291,6 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   } finally {
     lock.release();
     // Remove SIGINT handler
-    if (sigintHandler) {
-      process.removeListener('SIGINT', sigintHandler);
-      sigintHandler = null;
-    }
+    process.removeListener('SIGINT', sigintHandler);
   }
 }

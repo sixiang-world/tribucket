@@ -40,7 +40,7 @@ export async function uninstallPackage(name: string, options?: { force?: boolean
       try {
         if (lstatSync(link).isSymbolicLink()) {
           const target = readlinkSync(link);
-          if (target.startsWith(path)) {
+          if (target === path || target.startsWith(path + '/') || target.startsWith(path + '\\')) {
             unlinkSync(link);
             console.log(t('removed_symlink', { path: link }));
           }
