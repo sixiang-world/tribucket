@@ -2,11 +2,12 @@ import { loadConfig, saveConfig } from '../config/store';
 import { t } from '../utils/locale';
 
 function coerceValue(s: string): any {
-  if (/^(true|yes|on)$/i.test(s)) return true;
-  if (/^(false|no|off)$/i.test(s)) return false;
+  // Only coerce explicit boolean/string literals, not arbitrary strings.
+  if (s === 'true' || s === 'yes' || s === 'on') return true;
+  if (s === 'false' || s === 'no' || s === 'off') return false;
   if (s === '') return s;
   const num = Number(s);
-  if (!isNaN(num)) return num;
+  if (!isNaN(num) && s.trim() !== '') return num;
   return s;
 }
 

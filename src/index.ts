@@ -5,14 +5,19 @@ import { setNoColor, sym, VERBOSE } from './utils/log';
 import { detectPlatform } from './utils/platform';
 
 import { VERSION } from './version';
+// Global flag for --yes mode (checked by prompt.ts)
+process.env.TRIBUCKET_YES = _yesMode ? '1' : '';
 
 const program = new Command();
+const _yesMode = process.argv.includes('--yes') || process.argv.includes('-y');
+
 program
   .name('tribucket')
   .description('Lightweight portable package manager')
   .option('--json', 'JSON output (with --version)')
   .option('--no-color', 'Disable colored output')
-  .option('--proxy <url>', 'Proxy URL for all HTTP requests (e.g. http://127.0.0.1:7897)');
+  .option('--proxy <url>', 'Proxy URL for all HTTP requests (e.g. http://127.0.0.1:7897)')
+  .option('-y, --yes', 'Skip confirmation prompts (for scripting)');
 
 // Handle --version and --proxy before commander processes args,
 // so they work even if no subcommand is given.

@@ -165,6 +165,9 @@ def('unset', 'Unset {key}', '已取消设置 {key}');
 // -- Interrupt --
 def('interrupted', 'Interrupted. Partial download saved. Run the same command again to resume.', '已中断。部分下载已保存。再次运行相同命令即可续传。');
 def('interrupted_sigint', 'Interrupted.', '已中断。');
+def('error_self_update_dev', 'Cannot self-update in development mode.', '开发模式下无法自更新。');
+def('error_self_update_dev_hint', 'Run the compiled binary (tribucket) instead of `bun run src/index.ts`.', '请运行编译后的二进制文件 (tribucket)，而不是 `bun run src/index.ts`。');
+
 
 // -- Info command --
 def('info_name', 'Name', '名称');

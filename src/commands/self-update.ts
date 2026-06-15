@@ -42,6 +42,16 @@ export async function selfUpdate(): Promise<void> {
     console.error(`${sym('err')} ${t('error_cannot_determine_path')}`);
     process.exit(1);
   }
+  // Detect dev mode: when running via `bun run src/index.ts`, process.argv[1]
+  # points to the bun binary, not the compiled tribucket binary. Self-update
+  would overwrite bun, which is catastrophic.
+  const isDev = scriptPath.endsWith('bun') || scriptPath.endsWith('bun.exe') ||
+                scriptPath.includes('node_modules') || scriptPath.endsWith('.ts');
+  if (isDev) {
+    console.error(`${sym('err')} ${t('error_self_update_dev')}`);
+    console.error(`  ${sym('arrow')} ${t('error_self_update_dev_hint')}`);
+    process.exit(1);
+  }
 
   try {
     // Download new binary — detect platform for correct asset name

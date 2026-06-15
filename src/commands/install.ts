@@ -297,6 +297,7 @@ export async function installPackage(
         // Windows: creating symlinks requires admin or Developer Mode enabled.
         // Give a clear, actionable message instead of a generic failure.
         const isWin = process.platform === 'win32';
+        log(''); // blank line for visibility
         const hint = isWin && (e?.code === 'EPERM' || e?.code === 'EACCES')
           ? t('error_windows_symlink_hint')
           : '';

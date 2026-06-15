@@ -14,6 +14,8 @@ import { createInterface } from 'readline';
  * @returns `true` if confirmed, `false` if denied or non-TTY.
  */
 export async function confirm(question: string): Promise<boolean> {
+  // If --yes was passed globally, skip prompt and return true.
+  if (process.env.TRIBUCKET_YES === '1') return true;
   // In non-TTY mode (piped input), skip the prompt and return false.
   if (!process.stdin.isTTY) return false;
 
@@ -23,7 +25,12 @@ export async function confirm(question: string): Promise<boolean> {
   });
 
   return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      rl.close();
+      resolve(false); // timeout = reject
+    }, 30000);
     rl.question(`${question} [y/N] `, (answer) => {
+      clearTimeout(timer);
       rl.close();
       resolve(answer.trim().toLowerCase().startsWith('y'));
     });
