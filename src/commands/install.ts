@@ -100,7 +100,7 @@ export async function installPackage(
   const platform = detectPlatform();
   if (!platform) { error('platform', t('error_unsupported_platform')); return false; }
 
-  const version = pkg.version || '0.0.0';
+  let version = pkg.version || '0.0.0';
   const repo = pkg.repo || '';
 
   // Fetch the latest release once, up front. We need:
@@ -246,11 +246,13 @@ export async function installPackage(
     };
     writeFileSync(join(targetDir, 'tribucket.json'), JSON.stringify(tributableJson, null, 2) + '\n');
 
-    // Generate install.sh
-    const installSh = generateInstallSh(pkg.name, pkg.repo || '', pkg.binary || name, version);
-    const installShPath = join(targetDir, 'install.sh');
-    writeFileSync(installShPath, installSh);
-    try { chmodSync(installShPath, 0o755); } catch { /* Windows: ignore */ }
+    // Generate install.sh (Unix only)
+    if (process.platform !== 'win32') {
+      const installSh = generateInstallSh(pkg.name, pkg.repo || '', pkg.binary || name, version);
+      const installShPath = join(targetDir, 'install.sh');
+      writeFileSync(installShPath, installSh);
+      chmodSync(installShPath, 0o755);
+    }
 
     // Generate cmd/tribucket-update.bat
     const cmdDir = join(targetDir, 'cmd');

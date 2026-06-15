@@ -30,7 +30,7 @@ export async function findSha256FromRelease(
     const nameLower = (asset.name || '').toLowerCase();
     if (!CHECKSUM_PATTERNS.some(p => nameLower.includes(p))) continue;
     try {
-      const body = await httpGet(asset.browser_download_url, { timeout: 15000 });
+      const body = await httpGet(asset.browser_download_url, { timeout: 15000, retries: 1, silent: true });
       const content = new TextDecoder().decode(body);
       for (const line of content.trim().split('\n')) {
         const parts = line.trim().split(/\s+/);

@@ -7,12 +7,12 @@ function getProxyUrl(url: string): string | null {
   return process.env[envKey] || process.env['ALL_PROXY'] || null;
 }
 
-export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number; method?: string }): Promise<Uint8Array> {
+export async function httpGet(url: string, options?: { token?: string; retries?: number; timeout?: number; method?: string; silent?: boolean }): Promise<Uint8Array> {
   // Default to 5 retries with jittered exponential backoff — GitHub metadata
   // (api.github.com, raw.githubusercontent.com) is frequently flaky on
   // restricted networks (e.g. China), where 3 retries were not enough in
   // practice and caused spurious "Package not found" / install failures.
-  const { token, retries = 5, timeout = 30000, method = 'GET' } = options || {};
+  const { token, retries = 5, timeout = 30000, method = 'GET', silent = false } = options || {};
   const headers: Record<string, string> = {
     'User-Agent': 'Mozilla/5.0 (compatible; tribucket/2.0)',
   };
@@ -58,14 +58,14 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         // rate-limited networks without a token.
         if ((response.status === 403 || response.status === 429) && attempt < retries - 1) {
           log(`HTTP ${response.status} (rate limited), retrying (${attempt + 1}/${retries})...`);
-          status(t('rate_limited_retrying', { n: attempt + 1, total: retries }));
+          if (!silent) status(t('rate_limited_retrying', { n: attempt + 1, total: retries }));
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
         if (response.status === 403) throw new Error(`HTTP 403: Rate limited`);
         if (response.status >= 500 && attempt < retries - 1) {
           log(`HTTP ${response.status}, retrying (${attempt + 1}/${retries})...`);
-          status(t('server_error_retrying', { n: attempt + 1, total: retries }));
+          if (!silent) status(t('server_error_retrying', { n: attempt + 1, total: retries }));
           await new Promise(r => setTimeout(r, backoffMs(attempt)));
           continue;
         }
@@ -78,7 +78,7 @@ export async function httpGet(url: string, options?: { token?: string; retries?:
         // Extract a short error code for the status line (e.g. ECONNREFUSED, ETIMEDOUT)
         const code = e?.cause?.code || e?.code || e?.name || 'unknown';
         log(`Network error: ${e.message}${e.cause ? ` (cause: ${e.cause})` : ''}, retrying (${attempt + 1}/${retries})...`);
-        status(t('network_error_retrying', { code, n: attempt + 1, total: retries }));
+        if (!silent) status(t('network_error_retrying', { code, n: attempt + 1, total: retries }));
         await new Promise(r => setTimeout(r, backoffMs(attempt)));
         continue;
       }
