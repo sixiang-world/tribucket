@@ -1,6 +1,6 @@
 {
   "name": "tribucket",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "description": "Lightweight portable package manager",
   "main": "src/index.ts",
   "bin": {
