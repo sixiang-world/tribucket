@@ -42,7 +42,6 @@ export async function selfUpdate(): Promise<void> {
   // Resolve symlinks to get the actual binary path
   try { const { realpathSync } = await import('fs'); scriptPath = realpathSync(rawPath); } catch {}
   if (!scriptPath) {
-  if (!scriptPath) {
     console.error(`${sym('err')} ${t('error_cannot_determine_path')}`);
     process.exit(1);
   }

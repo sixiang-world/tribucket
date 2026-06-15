@@ -1,5 +1,15 @@
 # 更新日志
 
+## v3.6.7 — 第5轮代码审查 + 严重回归修复
+
+### 🔴 严重 — 回归修复
+- **self-update.ts 语法错误**：修复第4轮引入的重复 `if (!scriptPath) {` 导致 GitHub Actions 编译失败
+- **install.ts 完全丢失**：修复第4轮 `fix-round4.py` 脚本将整个 `src/commands/install.ts` 错误替换为 `locale.ts` 内容，导致 `tribucket install` 命令彻底崩溃。已从提交 `65440bb` 恢复原始 375 行代码，并重新应用第4轮应有修改
+
+### 🟡 中优先级 — 代码缺陷
+- **software-source.ts token 未定义**：`fetchPackageDef()` 中 `{ token }` 引用了未声明的变量，GitHub raw 回退路径无法传递 `GITHUB_TOKEN`，修复为显式读取 `process.env.GITHUB_TOKEN`
+- **find.ts realpathSync 未导入**：`findFiles()` 中使用了 `realpathSync()` 但未从 `fs` 导入，导致 symlink 环检测静默失败（被空 catch 吞没），修复为显式导入
+
 ## v3.6.6 — 第4轮代码审查修复
 
 根据审查报告修复 11 个问题：

@@ -29,6 +29,7 @@ export async function fetchPackageDef(name: string): Promise<PackageMeta | null>
   } catch {
     // 2. Fall back to GitHub raw
     try {
+      const token = process.env.GITHUB_TOKEN;
       return await httpGetJson<PackageMeta>(`${GITHUB_RAW_PACKAGES}/${name}.json`, { token });
     } catch {
       return null;
