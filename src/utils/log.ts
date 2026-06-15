@@ -1,4 +1,3 @@
-declare const DEBUG_BUILD: boolean | undefined;
 export const VERBOSE = typeof DEBUG_BUILD !== 'undefined'
   ? DEBUG_BUILD
   : process.env.TRIBUCKET_VERBOSE === '1';
