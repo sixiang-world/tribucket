@@ -1,5 +1,33 @@
 # 更新日志
 
+## v3.6.2 — 第二轮代码审查修复
+
+根据第二轮全量代码审查修复了 21 个问题（含 6 个高优先级）：
+
+### 严重/高优先级（6 个）
+- **`sha256.ts`**: `Bun.CryptoHasher` 添加 Node.js `crypto.createHash` 回退，支持双运行时
+- **`find.ts`**: 递归文件搜索添加符号链接环检测（`Set<realpath>`），防止栈溢出崩溃
+- **`find.ts`**: `findBinary` 单次全量遍历替代 6 次重复遍历，性能提升
+- **`install.ts`**: 空归档检测（`entries.length === 0`），防止 `undefined` 路径
+- **`install.ts`**: 硬编码 `C:\` 盘符替换为动态 `SystemRoot` 环境变量
+- **`install.ts`**: `resolveReal` 回退路径添加安全性校验，防止 symlink 穿越
+
+### 中优先级（6 个）
+- **`cache.ts`**: `ttl_seconds || 3600` 改为 `?? 3600`，修复 `ttl:0` 被当 1 小时
+- **`lock.ts`**: 添加损坏锁文件检测日志 + Windows `process.kill` 限制注释
+- **`paths.ts`**: `TRIBUCKET_HOME` 空字符串防护，防止路径回退到 CWD
+- **`store.ts`**: Windows 原子写入添加 `.bak` 回退，防止 `renameSync` 失败丢数据
+- **`lock.ts`**: 锁文件 PID 异常时记录警告日志
+
+### 低优先级（9 个）
+- **`install.sh`**: `TRIBUCKET_REPO` 增加 `..` 路径穿越拒绝
+- **`bootstrap.sh`**: 添加与 install.sh 相同的 `TRIBUCKET_REPO` 格式校验
+- **`install.sh`**: grep 正则 key 转义，防止元字符注入
+- **`install.ts`**: 新增 `.tar.zst`/`.tzst` 归档格式支持
+- **`cleanup.ts`**: 复用 `statSync` 结果，消除重复 I/O
+- **`build.ts`**: 正则范围 `[—–-]` 改为显式 alternation，消除意外字符匹配
+- **`build.ts`**: `import.meta.dir` 改为 `fileURLToPath`，消除 Bun 独有 API 依赖
+
 ## v3.6.1 — Bug fixes (code review)
 
 根据全量代码审查报告修复了 7 个真实问题（含 2 个高优先级 BUG）：
