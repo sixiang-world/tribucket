@@ -40,16 +40,18 @@ export function extractArchive(archivePath: string, destDir: string): void {
       } catch (e1) {
         errors.push(e1 as Error);
         // Fallback: PowerShell Expand-Archive (available on all Win10+).
-        // Escape single quotes by doubling them (PowerShell escape rule)
-        const escapedPath = archivePath.replace(/'/g, "''");
-        const escapedDest = destDir.replace(/'/g, "''");
+        // Escape special characters in PowerShell paths
+        const escapePs = (s: string) => s.replace(/'/g, "''").replace(/\$/g, '`$').replace(/`/g, '``');
+        const escapedPath = escapePs(archivePath);
+        const escapedDest = escapePs(destDir);
         const psCmd =
-          "Expand-Archive -LiteralPath '" + escapedPath +
-          "' -DestinationPath '" + escapedDest + "' -Force";
+          "Add-Type -AssemblyName System.IO.Compression.FileSystem;" +
+          "[System.IO.Compression.ZipFile]::ExtractToDirectory('" + escapedPath +
+          "', '" + escapedDest + "', $true)";
         try {
           execFileSync(
             'powershell.exe',
-            ['-NoProfile', '-Command', psCmd],
+            ['-NoProfile', '-NonInteractive', '-Command', psCmd],
             { stdio: 'pipe', shell: false },
           );
         } catch (e2) {

@@ -16,8 +16,9 @@ export function findFiles(
     let entries: string[];
     try {
       const real = realpathSync(current);
-      if (visited.has(real)) return; // symlink loop detected
-      visited.add(real);
+      const normalized = process.platform === 'win32' ? real.toLowerCase() : real;
+      if (visited.has(normalized)) return; // symlink loop detected
+      visited.add(normalized);
     } catch {}
     try {
       entries = readdirSync(current);

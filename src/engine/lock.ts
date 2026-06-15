@@ -33,8 +33,7 @@ export class PackageLock {
       if (!pid || isNaN(pid)) {
         log(`Corrupted lock file for '${this.name}', removing: ${rawPid}`);
       } else if (this.isProcessAlive(pid)) {
-        error('locked', `Another update for '${this.name}' is in progress.`);
-        process.exit(EXIT_ERROR);
+        throw new Error(`Lock conflict: another update for '${this.name}' is in progress.`);
       }
     } catch (e: any) { log(`Failed to read lock file: ${e.message}`); }
     // Stale or corrupted lock — overwrite

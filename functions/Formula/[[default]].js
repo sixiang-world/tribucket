@@ -24,6 +24,9 @@ export async function onRequestGet(context) {
     const url = new URL(context.request.url);
     let name = url.pathname.replace('/Formula/', '').replace('.rb', '');
 
+    if (name.includes('/') || name.includes('\\') || name.includes('..')) {
+      return new Response('Invalid package name', { status: 400, headers: CORS });
+    }
     if (!name || !KEY_REGEX.test(nameToKey(name))) {
       return new Response('Invalid package name', {
         status: 400,

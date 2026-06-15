@@ -23,10 +23,9 @@ const GITHUB_RAW_PACKAGES = 'https://raw.githubusercontent.com/sixiang-world/tri
  * Returns the PackageMeta, or null if both sources fail.
  */
 export async function fetchPackageDef(name: string): Promise<PackageMeta | null> {
-  const token = process.env.GITHUB_TOKEN;
-  // 1. Try tribucket.hunluan.space first
+  // 1. Try tribucket.hunluan.space first — no token needed
   try {
-    return await httpGetJson<PackageMeta>(`${TRIBUCKET_SITE}/packages/${name}.json`, { token });
+    return await httpGetJson<PackageMeta>(`${TRIBUCKET_SITE}/packages/${name}.json`);
   } catch {
     // 2. Fall back to GitHub raw
     try {

@@ -24,6 +24,13 @@ export async function onRequestGet(context) {
     const url = new URL(context.request.url);
     let name = url.pathname.replace('/packages/', '').replace('.json', '');
 
+    // Additional security: reject path traversal characters before regex check
+    if (name.includes('/') || name.includes('\\') || name.includes('..')) {
+      return new Response(JSON.stringify({ error: 'Invalid package name' }), {
+        status: 400,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      });
+    }
     if (!name || !KEY_REGEX.test(nameToKey(name))) {
       return new Response(JSON.stringify({ error: 'Invalid package name' }), {
         status: 400,

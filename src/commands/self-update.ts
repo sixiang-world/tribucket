@@ -37,7 +37,11 @@ export async function selfUpdate(): Promise<void> {
 
   console.log(t('current_latest', { current: VERSION, latest }));
 
-  const scriptPath = process.argv[1];
+  const rawPath = process.argv[1];
+  let scriptPath = rawPath;
+  // Resolve symlinks to get the actual binary path
+  try { const { realpathSync } = await import('fs'); scriptPath = realpathSync(rawPath); } catch {}
+  if (!scriptPath) {
   if (!scriptPath) {
     console.error(`${sym('err')} ${t('error_cannot_determine_path')}`);
     process.exit(1);

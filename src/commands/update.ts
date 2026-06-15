@@ -111,14 +111,22 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
   log(`Download URL (${provider}): ${url}`);
 
   // Install SIGINT handler (per-call local variable)
+  let _interrupted = false;
   const sigintHandler = () => {
     console.log(`\n${t('interrupted')}`);
-    process.exit(130);
+    _interrupted = true;
+    // No process.exit() — let the finally block release the lock
   };
   process.on('SIGINT', sigintHandler);
 
   const lock = new PackageLock(name);
-  lock.acquire();
+  try {
+    lock.acquire();
+  } catch (e: any) {
+    error('locked', e.message || String(e));
+    process.removeListener('SIGINT', sigintHandler);
+    return false;
+  }
 
   try {
     const { tmpdir } = await import('os');
@@ -126,6 +134,7 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
     mkdirSync(tmpDir, { recursive: true });
 
     try {
+      if (_interrupted) return false;
       const archivePath = await downloadFile(url, tmpDir);
       if (!archivePath) { error('network', t('download_failed')); return false; }
 
