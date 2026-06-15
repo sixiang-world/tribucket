@@ -10,7 +10,7 @@ import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { findRepoKey } from './track';
 import { detectVersion } from '../engine/version';
-import { sym } from '../utils/log';
+import { sym, error } from '../utils/log';
 import { t } from '../utils/locale';
 
 interface InfoOpts {
@@ -38,7 +38,7 @@ export async function showInfo(name: string, opts: InfoOpts): Promise<boolean> {
   const info = config.packages[repoKey];
 
   if (!info) {
-    console.error(`Error: ${t('error_not_tracked', { name })}`);
+    error('not-found', t('error_not_tracked', { name }));
     return false;
   }
 

@@ -192,11 +192,6 @@ def('packages_check_complete', 'Check complete: {ok} up-to-date, {outdated} outd
 // -- Update progress --
 def('updating_packages', 'Updating packages... ({done}/{total})', '正在更新包... ({done}/{total})');
 def('update_summary', '{ok} updated, {failed} failed.', '{ok} 个更新成功，{failed} 个失败。');
-def('already_up_to_date_all', 'All packages up to date.', '所有包已是最新版本。');
-def('would_update', '{n} package(s) would be updated:', '{n} 个包将被更新：');
-
-// -- Download --
-def('download_speed', '{speed} MB/s {eta}s remaining', '{speed} MB/s 剩余 {eta}s');
 
 // -- Restore messages (previously hardcoded English) --
 def('restore_from_backup', 'Update failed, restoring from backup...', '更新失败，正在从备份恢复...');

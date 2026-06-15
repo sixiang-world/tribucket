@@ -300,9 +300,13 @@ setImmediate(() => { cleanupOldTmp(); });
 
 // Catch SIGINT globally (matching Python's KeyboardInterrupt handler)
 process.on('SIGINT', () => {
-  const { t } = require('./utils/locale');
-  console.error(`\n${t('interrupted_sigint')}`);
-  process.exit(130);
+  import('./utils/locale').then(({ t }) => {
+    console.error(`\n${t('interrupted_sigint')}`);
+    process.exit(130);
+  }).catch(() => {
+    console.error('\nInterrupted.');
+    process.exit(130);
+  });
 });
 
 // Handle uncaught rejections gracefully

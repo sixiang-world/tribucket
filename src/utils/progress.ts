@@ -8,7 +8,7 @@
  * logs still show progress.
  */
 
-import { isNoColor } from './log';
+import { formatBytes } from './log';
 
 /** Number of discrete progress lines emitted (non-TTY mode). */
 let _nonTtyLineCount = 0;
@@ -159,7 +159,6 @@ export class ProgressBar {
   }
 
   private _bytes(n: number): string {
-    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
-    return (n / (1024 * 1024)).toFixed(1);
+    return formatBytes(n);
   }
 }

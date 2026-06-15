@@ -54,7 +54,7 @@ export function sym(name: string): string {
 
 /**
  * Format a byte count into a human-readable string (KB / MB / GB).
- * Examples: 1024 → "1.0 KB", 2_500_000 → "2.4 MB"
+ * Used by download progress display.
  */
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return bytes + ' B';
