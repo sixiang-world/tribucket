@@ -13,10 +13,9 @@ import { binDir } from '../config/paths';
 import { computeSha256, findSha256FromRelease } from '../utils/sha256';
 import { findRepoKey } from './track';
 import { findBinary } from '../utils/find';
+import { fetchPackageDef } from '../utils/software-source';
 import { versionFromTag } from '../engine/version';
 import { t } from '../utils/locale';
-
-const REPO_URL = 'https://raw.githubusercontent.com/sixiang-world/tribucket/main/packages';
 
 export async function installPackage(
   name: string,
@@ -33,11 +32,9 @@ export async function installPackage(
     }
   }
 
-  let pkg: PackageMeta;
-  try {
+  const pkg = await fetchPackageDef(name);
+  if (!pkg) {
     status(t('resolving_package', { name }));
-    pkg = await httpGetJson<PackageMeta>(`${REPO_URL}/${name}.json`);
-  } catch {
     error('not-found', t('error_not_found', { name }));
     return false;
   }

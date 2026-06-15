@@ -16,6 +16,8 @@ Package definitions live in `packages/*.json` (single source of truth) and gener
 2. All package changes go into `packages/*.json`  
 3. Set `GITHUB_TOKEN` for higher API rate limits (5000 req/hr vs 60)  
 4. Set `HTTPS_PROXY` / `ALL_PROXY` for GitHub downloads from China (e.g., `http://127.0.0.1:7897`)
+5. **Never edit** `dist/*` directly — it is the build output of `website/build.ts` (gitignored). Edit `website/templates/index.html` + `website/build.ts` and rebuild
+6. **Changelog lives in `CHANGELOG.md`** (not README). The website builder parses `## vX.Y.Z` headings from it
 
 ## Quick Commands
 
@@ -24,6 +26,7 @@ bun install                                     # Install dependencies
 bun build src/index.ts --compile --outfile tribucket  # Build binary
 bun run src/index.ts --help                    # Run CLI
 bun test                                        # Run TypeScript tests (21 passing)
+npm run build:web                              # Build static website → dist/ (Bun script)
 python scripts/generate.py --only <name>        # Regenerate Formula/bucket for a package
 cp tribucket ~/.tribucket/bin/tribucket         # Install binary
 ```
@@ -34,6 +37,15 @@ cp tribucket ~/.tribucket/bin/tribucket         # Install binary
 ```
 packages/*.json  →  [generator]  →  Formula/*.rb (Homebrew)
                                 →  bucket/*.json (Scoop)
+
+[website/build.ts]  →  dist/  (deployed to tribucket.hunluan.space)
+                         ├── index.html + styles/
+                         ├── packages/*.json   ←── CLI fetchPackageDef(name)
+                         ├── Formula/*.rb
+                         └── bucket/*.json     ←── CLI fetchRemoteVersion(name, repo)
+
+CLI software source priority:
+  tribucket.hunluan.space  →  GitHub (raw / API)
 ```
 
 ### TypeScript Source Structure
@@ -69,9 +81,36 @@ src/
     ├── log.ts            # Logging: verbose `log()`, always-visible `status()`, `error()`, symbols + NO_COLOR
     ├── platform.ts       # Platform detection + resolveBinaryPath/binaryFileName (.exe handling)
     ├── find.ts           # Recursive file search for binary matching
+    ├── software-source.ts # Software source priority: tribucket.hunluan.space → GitHub
     ├── concurrent.ts     # Concurrent task runner
     └── cleanup.ts        # Temp directory cleanup
 ```
+
+### Static Website (tribucket.hunluan.space)
+
+```
+website/
+├── build.ts                # Bun build script: reads packages/*.json + CHANGELOG.md,
+│                           #   injects into template, copies Formula/bucket → dist/
+├── templates/
+│   └── index.html          # HTML template with {{VERSION}}/{{PACKAGES_JSON}}/{{CHANGELOG}} placeholders
+└── styles/
+    └── main.css            # Clean tech-doc style (responsive, NO_COLOR-friendly)
+
+dist/                       # Build output (gitignored, deployed to EdgeOne)
+├── index.html              # Landing page (hero + install tabs + searchable package list + CLI ref + changelog)
+├── styles/main.css
+├── packages/*.json         # Copied from packages/ (software source for the CLI)
+├── Formula/*.rb            # Copied from Formula/ (Homebrew tap)
+└── bucket/*.json           # Copied from bucket/ (Scoop bucket)
+
+edgeone.json                # EdgeOne edge-deploy config (build command, output dir, cache + security headers)
+```
+
+- **Build flow**: `npm run build:web` → `website/build.ts` → wipes `dist/`, reads `src/version.ts` for VERSION, reads all `packages/*.json` (sorted by name), parses `CHANGELOG.md` (`## vX.Y.Z` entries, H1 filtered out, `**bold**` → `<strong>`), injects into template, copies `packages/` + `Formula/` + `bucket/` + `styles/` to `dist/`.
+- **No framework**: pure static HTML/CSS/JS. The 107 packages are embedded as a JSON array in the page; search filtering is client-side JS in `index.html`.
+- **Template placeholders**: `{{VERSION}}`, `{{PACKAGES_JSON}}`, `{{CHANGELOG}}` — replaced verbatim by `build.ts`. Adding a placeholder requires updating both the template and the injector in `build.ts`.
+- **Changelog parser**: splits on `\n## `, filters chunks whose first line doesn't start with a version (`/^v?\d/i`) — this drops the `# 更新日志` H1 and any non-version sections.
 
 ### Key Design Decisions
 - **Security**: Block system directories (`/`, `/usr`, `/bin`, `/etc`, `/var`, `/tmp`)
@@ -96,6 +135,9 @@ src/
 - **--json output** (`index.ts`): read via `program.optsWithGlobals()` (not `this`), because the actions are arrow functions and a program-level `--json` would otherwise shadow the command-level option.
 - **SHA256**: Uses `fs.readSync` in chunks with `Bun.CryptoHasher` (not `Bun.CryptoHasher.hash(Bun.file(...))` which fails in compiled binaries)
 - **Download resume**: `engine/download.ts` sends `Range: bytes=N-` when a partial file exists; HTTP 206 → appends remainder, HTTP 200 → rewrites. Tested end-to-end via local HTTP server (`src/__tests__/download.test.ts`) with full RFC 7233 Range support — not relying on external CDN behavior (many CDNs advertise `Accept-Ranges` but ignore Range headers).
+- **Software source priority** (`utils/software-source.ts`): CLI fetches package definitions and version info from `tribucket.hunluan.space` first, falls back to GitHub sources — avoiding GitHub API rate limits (60 req/hr without token). Two functions:
+  - `fetchPackageDef(name)` → `tribucket.hunluan.space/packages/<name>.json` → `raw.githubusercontent.com/.../packages/<name>.json`. Used by `install.ts`.
+  - `fetchRemoteVersion(name, repo)` → `tribucket.hunluan.space/bucket/<name>.json` (version field) → `api.github.com/repos/<repo>/releases/latest`. Used by `check.ts` and `update.ts`. Prerelease packages skip the bucket path and go directly to GitHub API. Update also short-circuits: if the software-source version matches local, the GitHub API call for asset resolution is skipped entirely.
 
 ## Known Gotchas
 

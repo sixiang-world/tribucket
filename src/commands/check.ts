@@ -4,6 +4,7 @@ import { join } from 'path';
 import { loadConfig } from '../config/store';
 import { detectVersion, versionFromTag } from '../engine/version';
 import { httpGetJson } from '../utils/http';
+import { fetchRemoteVersion } from '../utils/software-source';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findBinary } from '../utils/find';
 import { resolveBinaryPath } from '../utils/platform';
@@ -52,12 +53,8 @@ async function checkTracked(name: string, info: any, options: { refresh?: boolea
         if (cached) remoteVer = cached;
       }
       if (!remoteVer) {
-        try {
-          const token = process.env.GITHUB_TOKEN;
-          const data = await httpGetJson<any>(`https://api.github.com/repos/${info.repo}/releases/latest`, { token });
-          remoteVer = versionFromTag(data.tag_name);
-          if (remoteVer) saveRemoteVersionCache(info.repo, remoteVer);
-        } catch (e: any) { log(`Failed to fetch remote version for ${info.repo}: ${e.message}`); }
+        remoteVer = await fetchRemoteVersion(info.name || name, info.repo);
+        if (remoteVer) saveRemoteVersionCache(info.repo, remoteVer);
       }
     }
 
@@ -80,7 +77,6 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
 
   let remoteVer: string | null = null;
   if (!options.localOnly) {
-    const token = process.env.GITHUB_TOKEN;
     const repo = tj.repo || '';
     if (repo) {
       if (!options.refresh) {
@@ -88,18 +84,20 @@ async function checkWithTributableJson(name: string, path: string, tj: PackageMe
         if (cached) { remoteVer = cached; }
       }
       if (!remoteVer) {
-        try {
-          const includePrerelease = tj.version_check?.include_prerelease || false;
-          let data: any;
-          if (includePrerelease) {
+        const includePrerelease = tj.version_check?.include_prerelease || false;
+        if (includePrerelease) {
+          // Prerelease: still call GitHub API (bucket file doesn't track pre-release)
+          try {
+            const token = process.env.GITHUB_TOKEN;
             const releases = await httpGetJson<any[]>(`https://api.github.com/repos/${repo}/releases`, { token });
-            data = Array.isArray(releases) && releases.length > 0 ? releases[0] : null;
-          } else {
-            data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-          }
-          remoteVer = versionFromTag(data?.tag_name);
+            const data = Array.isArray(releases) && releases.length > 0 ? releases[0] : null;
+            remoteVer = versionFromTag(data?.tag_name);
+            if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
+          } catch (e: any) { log(`Failed to fetch remote version for ${repo}: ${e.message}`); }
+        } else {
+          remoteVer = await fetchRemoteVersion(name, repo);
           if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
-        } catch (e: any) { log(`Failed to fetch remote version for ${repo}: ${e.message}`); }
+        }
       }
     } else if (tj.download_url) {
       // download_url packages: try HEAD request to check reachability

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tribucket — 三合一跨平台软件源</title>
+  <meta name="description" content="tribucket = tri (三合一) + bucket (包仓库)。一个通用的跨平台软件包仓库，同时提供 Homebrew、Scoop、Shell 脚本三种安装方式。">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="logo">
+      tribucket<span>v{{VERSION}}</span>
+    </div>
+    <nav>
+      <a href="#install">安装</a>
+      <a href="#packages">软件包</a>
+      <a href="#cli">命令</a>
+      <a href="#changelog">更新日志</a>
+      <a href="https://github.com/sixiang-world/tribucket" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>tribucket</h1>
+    <p class="tagline">三合一跨平台软件源 — 多种安装方式，一个仓库</p>
+    <span class="version-badge">v{{VERSION}}</span>
+  </div>
+</section>
+
+<!-- Install -->
+<section id="install" class="section">
+  <div class="container">
+    <h2 class="section-title">安装指南</h2>
+
+    <div class="install-tabs">
+      <button class="install-tab active" data-tab="cli">tribucket CLI</button>
+      <button class="install-tab" data-tab="homebrew">Homebrew</button>
+      <button class="install-tab" data-tab="scoop">Scoop</button>
+      <button class="install-tab" data-tab="script">一键脚本</button>
+    </div>
+
+    <div class="install-content">
+      <!-- CLI -->
+      <div class="install-panel active" id="panel-cli">
+        <p class="install-desc">安装 tribucket CLI 后，使用 <code>tribucket install &lt;name&gt;</code> 安装软件包。</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="brew-install">复制</button>
+          <pre><code id="brew-install"># Homebrew (macOS / Linux)
+brew install sixiang-world/tribucket/tribucket</code></pre>
+        </div>
+        <br>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="scoop-install">复制</button>
+          <pre><code id="scoop-install"># Scoop (Windows)
+scoop bucket add tribucket https://github.com/sixiang-world/tribucket
+scoop install tribucket</code></pre>
+        </div>
+      </div>
+
+      <!-- Homebrew -->
+      <div class="install-panel" id="panel-homebrew">
+        <p class="install-desc">使用 Homebrew 直接安装单个软件包（macOS / Linux）。</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="brew-pkg">复制</button>
+          <pre><code id="brew-pkg">brew tap sixiang-world/tribucket
+brew install &lt;package-name&gt;</code></pre>
+        </div>
+        <br>
+        <p class="install-desc">例如：</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="brew-example">复制</button>
+          <pre><code id="brew-example">brew tap sixiang-world/tribucket
+brew install ripgrep</code></pre>
+        </div>
+      </div>
+
+      <!-- Scoop -->
+      <div class="install-panel" id="panel-scoop">
+        <p class="install-desc">使用 Scoop 直接安装单个软件包（Windows）。</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="scoop-pkg">复制</button>
+          <pre><code id="scoop-pkg">scoop bucket add tribucket https://github.com/sixiang-world/tribucket
+scoop install &lt;package-name&gt;</code></pre>
+        </div>
+        <br>
+        <p class="install-desc">例如：</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="scoop-example">复制</button>
+          <pre><code id="scoop-example">scoop bucket add tribucket https://github.com/sixiang-world/tribucket
+scoop install fzf</code></pre>
+        </div>
+      </div>
+
+      <!-- Script -->
+      <div class="install-panel" id="panel-script">
+        <p class="install-desc">一键安装脚本，适用于任意平台。</p>
+        <div class="code-block">
+          <button class="copy-btn" data-copy="bootstrap">复制</button>
+          <pre><code id="bootstrap"># Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/sixiang-world/tribucket/main/scripts/bootstrap.sh | bash</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Packages -->
+<section id="packages" class="section">
+  <div class="container">
+    <h2 class="section-title">软件包列表</h2>
+
+    <div class="search-box">
+      <input
+        type="text"
+        class="search-input"
+        id="pkg-search"
+        placeholder="搜索软件包名称或描述…"
+        autocomplete="off"
+      >
+      <div class="search-count" id="pkg-count"></div>
+    </div>
+
+    <table class="package-table">
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>描述</th>
+          <th>GitHub</th>
+        </tr>
+      </thead>
+      <tbody id="pkg-tbody"></tbody>
+    </table>
+    <div class="no-results" id="no-results" style="display:none">没有找到匹配的软件包</div>
+  </div>
+</section>
+
+<!-- CLI Reference -->
+<section id="cli" class="section">
+  <div class="container">
+    <h2 class="section-title">CLI 命令参考</h2>
+    <div class="cli-grid">
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket install &lt;name&gt;</div>
+        <div class="cli-desc">安装软件包</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket uninstall &lt;name&gt;</div>
+        <div class="cli-desc">卸载软件包</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket update &lt;name&gt;</div>
+        <div class="cli-desc">更新指定软件包</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket update --all</div>
+        <div class="cli-desc">更新所有已跟踪的包</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket check [name...]</div>
+        <div class="cli-desc">检查版本（可指定包名或 --all）</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket list</div>
+        <div class="cli-desc">列出所有已跟踪的包</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket info &lt;name&gt;</div>
+        <div class="cli-desc">查看包详情</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket track &lt;name&gt; &lt;path&gt;</div>
+        <div class="cli-desc">跟踪已有的安装</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket clean</div>
+        <div class="cli-desc">清理过期条目</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket self-update</div>
+        <div class="cli-desc">更新 tribucket 自身</div>
+      </div>
+      <div class="cli-row">
+        <div class="cli-cmd">tribucket config list</div>
+        <div class="cli-desc">查看配置</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Changelog -->
+<section id="changelog" class="section">
+  <div class="container">
+    <h2 class="section-title">更新日志</h2>
+    <ul class="changelog-list" id="changelog-list">
+      {{CHANGELOG}}
+    </ul>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <p>
+      <a href="https://github.com/sixiang-world/tribucket" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;
+      <span>MIT License</span>
+      &nbsp;·&nbsp;
+      <span>tribucket.hunluan.space</span>
+    </p>
+  </div>
+</footer>
+
+<!-- Inline JS (built by build.ts) -->
+<script>
+// Package data injected by build
+const PACKAGES = {{PACKAGES_JSON}};
+
+// DOM refs
+const searchInput = document.getElementById('pkg-search');
+const pkgTbody = document.getElementById('pkg-tbody');
+const pkgCount = document.getElementById('pkg-count');
+const noResults = document.getElementById('no-results');
+
+function renderPackages(filter) {
+  const q = (filter || '').toLowerCase().trim();
+  const filtered = q
+    ? PACKAGES.filter(
+        p =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.repo.toLowerCase().includes(q)
+      )
+    : PACKAGES;
+
+  if (filtered.length === 0) {
+    pkgTbody.innerHTML = '';
+    noResults.style.display = 'block';
+    pkgCount.textContent = '';
+  } else {
+    noResults.style.display = 'none';
+    pkgCount.textContent = q
+      ? '找到 ' + filtered.length + ' / ' + PACKAGES.length + ' 个软件包'
+      : '共 ' + PACKAGES.length + ' 个软件包';
+
+    const rows = filtered
+      .map(
+        p =>
+          '<tr>' +
+          '<td class="pkg-name">' +
+          escHtml(p.name) +
+          '</td>' +
+          '<td class="pkg-desc">' +
+          escHtml(p.description) +
+          '</td>' +
+          '<td class="pkg-repo"><a href="https://github.com/' +
+          escHtml(p.repo) +
+          '" target="_blank" rel="noopener">' +
+          escHtml(p.repo) +
+          '</a></td>' +
+          '</tr>'
+      )
+      .join('');
+    pkgTbody.innerHTML = rows;
+  }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Initial render
+renderPackages('');
+
+// Search
+searchInput.addEventListener('input', function () {
+  renderPackages(this.value);
+});
+
+// Tab switching
+document.querySelectorAll('.install-tab').forEach(tab => {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+  });
+});
+
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const target = document.getElementById(this.dataset.copy);
+    if (!target) return;
+    navigator.clipboard.writeText(target.textContent).then(() => {
+      this.textContent = '已复制';
+      this.classList.add('copied');
+      setTimeout(() => {
+        this.textContent = '复制';
+        this.classList.remove('copied');
+      }, 1500);
+    });
+  });
+});
+</script>
+
+</body>
+</html>

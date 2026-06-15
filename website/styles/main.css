@@ -1,0 +1,495 @@
+/* ===== tribucket website — clean tech-doc style ===== */
+
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f7f8fa;
+  --color-border: #e1e4e8;
+  --color-text: #24292f;
+  --color-text-secondary: #656d76;
+  --color-text-muted: #8b949e;
+  --color-primary: #0969da;
+  --color-primary-hover: #0550ae;
+  --color-accent: #1a7f37;
+  --color-code-bg: #f6f8fa;
+  --color-code-border: #d0d7de;
+  --color-tag: #ddf4ff;
+  --color-tag-text: #0969da;
+  --color-hero-bg: #f6f8fa;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC",
+    Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --max-width: 960px;
+  --radius: 6px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+/* ===== Layout ===== */
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ===== Header / Nav ===== */
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.site-header .logo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.site-header .logo span {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.8125rem;
+  margin-left: 6px;
+}
+
+.site-header nav a {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin-left: 20px;
+}
+
+.site-header nav a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* ===== Hero ===== */
+
+.hero {
+  background: var(--color-hero-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: 48px 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hero .tagline {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.hero .version-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  padding: 2px 10px;
+  border-radius: 16px;
+  background: var(--color-tag);
+  color: var(--color-tag-text);
+  border: 1px solid #b6d8ff;
+}
+
+/* ===== Sections ===== */
+
+.section {
+  padding: 40px 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--color-border);
+}
+
+.section-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-primary);
+  display: inline-block;
+}
+
+/* ===== Install Tabs ===== */
+
+.install-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.install-tab {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.install-tab:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.install-tab.active {
+  color: var(--color-primary);
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  position: relative;
+  top: 1px;
+}
+
+.install-content {
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--color-bg);
+}
+
+.install-panel {
+  display: none;
+  padding: 20px;
+}
+
+.install-panel.active {
+  display: block;
+}
+
+.install-panel .install-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+/* ===== Code Block ===== */
+
+.code-block {
+  position: relative;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.code-block pre {
+  padding: 16px 48px 16px 16px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.code-block code {
+  color: var(--color-text);
+  background: transparent;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-code-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.copy-btn.copied {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ===== Search ===== */
+
+.search-box {
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 14px 8px 36px;
+  font-size: 0.9375rem;
+  font-family: var(--font-sans);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 110-10 5 5 0 010 10z'/%3E%3C/svg%3E")
+    12px center no-repeat;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-count {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* ===== Package Table ===== */
+
+.package-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.package-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.package-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.package-table tr:last-child td {
+  border-bottom: none;
+}
+
+.package-table tr:hover td {
+  background: var(--color-surface);
+}
+
+.package-table .pkg-name {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.package-table .pkg-desc {
+  color: var(--color-text-secondary);
+}
+
+.package-table .pkg-repo {
+  white-space: nowrap;
+}
+
+.package-table .pkg-repo a {
+  font-size: 0.8125rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* ===== CLI Reference ===== */
+
+.cli-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cli-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(200px, 2fr);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+.cli-row:last-child {
+  border-bottom: none;
+}
+
+.cli-row:hover {
+  background: var(--color-surface);
+}
+
+.cli-cmd {
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  border-right: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.cli-desc {
+  padding: 10px 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== Changelog ===== */
+
+.changelog-list {
+  list-style: none;
+}
+
+.changelog-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.changelog-item:last-child {
+  border-bottom: none;
+}
+
+.changelog-version {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.changelog-version .tag {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin-left: 8px;
+}
+
+.changelog-item ul {
+  list-style: disc;
+  padding-left: 20px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.changelog-item ul li::marker {
+  color: var(--color-text-muted);
+}
+
+/* ===== Footer ===== */
+
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding: 24px 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.site-footer a {
+  color: var(--color-text-secondary);
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 640px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero .tagline {
+    font-size: 1rem;
+  }
+
+  .install-tabs {
+    flex-wrap: wrap;
+  }
+
+  .install-tab {
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .cli-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cli-cmd {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 4px;
+  }
+
+  .cli-desc {
+    padding-top: 4px;
+  }
+
+  .code-block pre {
+    font-size: 0.8125rem;
+    padding: 12px 40px 12px 12px;
+  }
+
+  .package-table th:nth-child(3),
+  .package-table td:nth-child(3) {
+    display: none;
+  }
+}

@@ -11,6 +11,7 @@ import { backupDir } from '../config/paths';
 import { PackageLock } from '../engine/lock';
 import { detectPlatform, resolveBinaryPath, binaryFileName } from '../utils/platform';
 import { httpGetJson } from '../utils/http';
+import { fetchRemoteVersion } from '../utils/software-source';
 import { getCachedRemoteVersion, saveRemoteVersionCache } from '../config/cache';
 import { findRepoKey } from './track';
 import { findBinary } from '../utils/find';
@@ -64,17 +65,30 @@ export async function updatePackage(name: string, options: { force?: boolean; mi
     if (cached) remoteVer = cached;
   }
 
-  // Fetch from API if not cached
+  // Try software source (tribucket.hunluan.space) first
   if (!remoteVer) {
-    try {
-      status(t('fetching_latest_release_for', { name }));
-      const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
-      releaseData = data;
-      remoteTag = data.tag_name || null;
+    remoteVer = await fetchRemoteVersion(name, repo);
+    if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
+  }
+
+  // If already up to date (from cache or software source), skip API call
+  if (remoteVer && localVer === remoteVer && !options.force) {
+    console.log(t('already_up_to_date_pkg', { name, version: localVer }));
+    return true;
+  }
+
+  // Fetch full release data from GitHub API (needed for asset resolution
+  // and download URL building). Also serves as fallback for version check.
+  try {
+    if (!remoteVer) status(t('fetching_latest_release_for', { name }));
+    const data = await httpGetJson<any>(`https://api.github.com/repos/${repo}/releases/latest`, { token });
+    releaseData = data;
+    remoteTag = data.tag_name || null;
+    if (!remoteVer) {
       remoteVer = versionFromTag(remoteTag);
       if (remoteVer) saveRemoteVersionCache(repo, remoteVer);
-    } catch { error('network', t('cannot_check_remote_version', { repo })); return false; }
-  }
+    }
+  } catch { error('network', t('cannot_check_remote_version', { repo })); return false; }
 
   if (!remoteVer) { error('network', t('cannot_check_remote_version', { repo })); return false; }
   log(`Remote version: ${remoteVer}`);

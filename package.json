@@ -1,6 +1,6 @@
 {
   "name": "tribucket",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "Lightweight portable package manager",
   "main": "src/index.ts",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts --compile --outfile tribucket",
+    "build:web": "bun run website/build.ts",
     "dev": "bun run src/index.ts",
     "test": "bun test"
   },
