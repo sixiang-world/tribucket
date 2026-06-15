@@ -1,5 +1,16 @@
 # 更新日志
 
+## v3.6.0 — Release/Debug 双构建模式
+
+CI 流水线现在同时构建 release 和 debug 两种二进制，debug 版本内置始终开启的详细日志（`VERBOSE=1`），方便问题排查。
+
+- **编译时常量 `DEBUG_BUILD`**：通过 Bun 的 `--define DEBUG_BUILD=true` 注入，零运行时开销
+- **`VERBOSE` 行为优化**：debug 构建始终为 `true`，release 构建兜底到 `TRIBUCKET_VERBOSE` 环境变量
+- **自更新识别**：debug 二进制运行时自动匹配 `-debug` 后缀的发布资源，不会错误地更新为 release 版本
+- **全平台覆盖**：GitHub Actions + CNB 两种 CI 流水线均为 5 个平台（linux amd64/arm64、darwin amd64/arm64、windows amd64）构建 debug 二进制
+- **`package.json` 新增 `build:debug` 脚本**：本地也可编译 debug 版本
+- **类型安全**：`declare const DEBUG_BUILD` 抽到 `src/env.d.ts`，避免跨文件重复声明
+
 ## v3.5.0 — CLI 用户体验大修
 
 全面提升交互体验，下载 / 检查 / 更新每一步都有更好的反馈。

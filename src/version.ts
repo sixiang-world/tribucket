@@ -2,4 +2,4 @@
  * tribucket version — single source of truth.
  * Matches packages/tribucket.json and lib/tribucket/__init__.py.
  */
-export const VERSION = '3.5.0';
+export const VERSION = '3.6.0';
