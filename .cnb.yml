@@ -83,14 +83,14 @@ main:
               printf '```\n'
               cat sha256sums.txt
               printf '```\n'
-            } > /tmp/release_notes.md
+            } > release_notes.md
 
         - name: create-release
           type: git:release
           options:
             tag: $TAG
             overlying: true
-            descriptionFromFile: /tmp/release_notes.md
+            descriptionFromFile: release_notes.md
 
         - name: upload-attachments
           image: cnbcool/attachments:latest
@@ -176,13 +176,13 @@ $:
               printf '```\n'
               cat sha256sums.txt
               printf '```\n'
-            } > /tmp/release_notes.md
+            } > release_notes.md
 
         - name: create-release
           type: git:release
           options:
             overlying: true
-            descriptionFromFile: /tmp/release_notes.md
+            descriptionFromFile: release_notes.md
 
         - name: upload-attachments
           image: cnbcool/attachments:latest

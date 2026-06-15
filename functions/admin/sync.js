@@ -34,7 +34,14 @@ export async function onRequestPost(context) {
   const token = auth.replace('Bearer ', '').trim();
   const expected = context.env?.ADMIN_SYNC_KEY;
 
-  if (!expected || token !== expected) {
+  // Constant-time comparison to prevent timing attacks
+  function safeCompare(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+    let result = 0;
+    for (let i = 0; i < a.length; i++) result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return result === 0;
+  }
+  if (!expected || !safeCompare(token, expected)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...CORS, 'Content-Type': 'application/json' },

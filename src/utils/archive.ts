@@ -40,9 +40,12 @@ export function extractArchive(archivePath: string, destDir: string): void {
       } catch (e1) {
         errors.push(e1 as Error);
         // Fallback: PowerShell Expand-Archive (available on all Win10+).
+        // Escape single quotes by doubling them (PowerShell escape rule)
+        const escapedPath = archivePath.replace(/'/g, "''");
+        const escapedDest = destDir.replace(/'/g, "''");
         const psCmd =
-          "Expand-Archive -LiteralPath '" + archivePath +
-          "' -DestinationPath '" + destDir + "' -Force";
+          "Expand-Archive -LiteralPath '" + escapedPath +
+          "' -DestinationPath '" + escapedDest + "' -Force";
         try {
           execFileSync(
             'powershell.exe',
