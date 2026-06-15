@@ -1,0 +1,148 @@
+# .cnb.yml — CNB 云原生构建流水线
+# 推送 v* tag 时构建全平台二进制并发布 Release
+# 也支持 web_trigger 手动触发（需指定 TAG 环境变量）
+# 利用 Bun --target 交叉编译，单节点完成所有平台构建
+
+main:
+  web_trigger:
+    - name: manual-build-and-release
+      docker:
+        image: oven/bun:latest
+      stages:
+        - name: validate-tag
+          script: |
+            if [ -z "$TAG" ]; then
+              echo "ERROR: TAG environment variable is required (e.g. TAG=v3.0.0)"
+              exit 78
+            fi
+            if ! echo "$TAG" | grep -q "^v"; then
+              echo "ERROR: TAG must start with 'v' (e.g. TAG=v3.0.0)"
+              exit 78
+            fi
+            echo "Building release for tag: $TAG"
+
+        - name: install-deps
+          script: bun install
+
+        - name: build-linux-amd64
+          script: bun build src/index.ts --compile --target bun-linux-x64 --outfile tribucket-linux-amd64
+
+        - name: build-linux-arm64
+          script: bun build src/index.ts --compile --target bun-linux-arm64 --outfile tribucket-linux-arm64
+
+        - name: build-darwin-arm64
+          script: bun build src/index.ts --compile --target bun-darwin-arm64 --outfile tribucket-darwin-arm64
+
+        - name: build-darwin-amd64
+          script: bun build src/index.ts --compile --target bun-darwin-x64 --outfile tribucket-darwin-amd64
+
+        - name: build-windows-amd64
+          script: |
+            bun build src/index.ts --compile --target bun-windows-x64 --outfile tribucket-windows-amd64.exe
+
+        - name: compute-sha256
+          script: |
+            sha256sum tribucket-* | tee sha256sums.txt
+
+        - name: generate-release-notes
+          script: |
+            TAG="$TAG"
+            {
+              printf '## tribucket %s\n' "$TAG"
+              printf '\n'
+              printf '### Platform binaries\n'
+              printf -- '- `tribucket-linux-amd64` — Linux x86_64\n'
+              printf -- '- `tribucket-linux-arm64` — Linux ARM64\n'
+              printf -- '- `tribucket-darwin-arm64` — macOS Apple Silicon\n'
+              printf -- '- `tribucket-darwin-amd64` — macOS Intel\n'
+              printf -- '- `tribucket-windows-amd64.exe` — Windows x86_64\n'
+              printf '\n'
+              printf '### SHA256 Checksums\n'
+              printf '```\n'
+              cat sha256sums.txt
+              printf '```\n'
+            } > /tmp/release_notes.md
+
+        - name: create-release
+          type: git:release
+          options:
+            tag: $TAG
+            overlying: true
+            descriptionFromFile: /tmp/release_notes.md
+
+        - name: upload-attachments
+          image: cnbcool/attachments:latest
+          settings:
+            tag: $TAG
+            attachments:
+              - "./tribucket-*"
+              - "./sha256sums.txt"
+
+$:
+  tag_push:
+    - name: build-and-release
+      docker:
+        image: oven/bun:latest
+      stages:
+        - name: validate-tag
+          script: |
+            if ! echo "$CNB_BRANCH" | grep -q "^v"; then
+              echo "Not a v-prefixed tag ($CNB_BRANCH), skipping release pipeline."
+              exit 78
+            fi
+            echo "Building release for tag: $CNB_BRANCH"
+
+        - name: install-deps
+          script: bun install
+
+        - name: build-linux-amd64
+          script: bun build src/index.ts --compile --target bun-linux-x64 --outfile tribucket-linux-amd64
+
+        - name: build-linux-arm64
+          script: bun build src/index.ts --compile --target bun-linux-arm64 --outfile tribucket-linux-arm64
+
+        - name: build-darwin-arm64
+          script: bun build src/index.ts --compile --target bun-darwin-arm64 --outfile tribucket-darwin-arm64
+
+        - name: build-darwin-amd64
+          script: bun build src/index.ts --compile --target bun-darwin-x64 --outfile tribucket-darwin-amd64
+
+        - name: build-windows-amd64
+          script: |
+            bun build src/index.ts --compile --target bun-windows-x64 --outfile tribucket-windows-amd64.exe
+
+        - name: compute-sha256
+          script: |
+            sha256sum tribucket-* | tee sha256sums.txt
+
+        - name: generate-release-notes
+          script: |
+            TAG="$CNB_BRANCH"
+            {
+              printf '## tribucket %s\n' "$TAG"
+              printf '\n'
+              printf '### Platform binaries\n'
+              printf -- '- `tribucket-linux-amd64` — Linux x86_64\n'
+              printf -- '- `tribucket-linux-arm64` — Linux ARM64\n'
+              printf -- '- `tribucket-darwin-arm64` — macOS Apple Silicon\n'
+              printf -- '- `tribucket-darwin-amd64` — macOS Intel\n'
+              printf -- '- `tribucket-windows-amd64.exe` — Windows x86_64\n'
+              printf '\n'
+              printf '### SHA256 Checksums\n'
+              printf '```\n'
+              cat sha256sums.txt
+              printf '```\n'
+            } > /tmp/release_notes.md
+
+        - name: create-release
+          type: git:release
+          options:
+            overlying: true
+            descriptionFromFile: /tmp/release_notes.md
+
+        - name: upload-attachments
+          image: cnbcool/attachments:latest
+          settings:
+            attachments:
+              - "./tribucket-*"
+              - "./sha256sums.txt"
