@@ -64,3 +64,5 @@ checkassets.log
 .tmp-scripts/  
 tmp-scripts/  
 tmp/  
+"tribucket-test-full.exe"  
+"tribucket-test.exe"  
