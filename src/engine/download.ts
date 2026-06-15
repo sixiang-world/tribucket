@@ -2,12 +2,15 @@ import { join } from 'path';
 import { existsSync, statSync } from 'fs';
 import { log, status } from '../utils/log';
 import { t } from '../utils/locale';
+import { ProgressBar } from '../utils/progress';
 
 function getProxyUrl(url: string): string | null {
   const proto = url.startsWith('https') ? 'https' : 'http';
   const envKey = proto === 'https' ? 'HTTPS_PROXY' : 'HTTP_PROXY';
   return process.env[envKey] || process.env['ALL_PROXY'] || process.env['all_proxy'] || null;
 }
+
+const _progress = new ProgressBar();
 
 export async function downloadFile(url: string, destDir: string): Promise<string | null> {
   const filename = url.split('/').pop()?.split('?')[0] || 'download';
@@ -89,6 +92,11 @@ export async function downloadFile(url: string, destDir: string): Promise<string
     const { openSync, writeSync, closeSync } = await import('fs');
     const fd = openSync(destPath, appendMode ? 'a' : 'w');
 
+    // Start the progress bar
+    if (totalSize > 0) {
+      _progress.start(totalSize, filename);
+    }
+
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -97,12 +105,9 @@ export async function downloadFile(url: string, destDir: string): Promise<string
         writeSync(fd, value);
         downloaded += value.length;
 
-        // Progress display on TTY
-        if (totalSize > 0 && process.stdout.isTTY) {
-          const pct = Math.floor(downloaded * 100 / totalSize);
-          const mb = (downloaded / (1024 * 1024)).toFixed(1);
-          const totalMb = (totalSize / (1024 * 1024)).toFixed(1);
-          process.stdout.write(`\r  ${String(pct).padStart(3)}% (${mb}/${totalMb} MB)  ${filename}`);
+        // Update progress bar (throttled internally)
+        if (totalSize > 0) {
+          _progress.update(downloaded);
         }
       }
     } finally {
@@ -110,9 +115,7 @@ export async function downloadFile(url: string, destDir: string): Promise<string
     }
 
     // Clear progress line
-    if (process.stdout.isTTY && totalSize > 0) {
-      process.stdout.write('\r' + ' '.repeat(50) + '\r');
-    }
+    _progress.done();
 
     const sizeMb = (downloaded / (1024 * 1024)).toFixed(1);
     log(`Download complete: ${sizeMb} MB`);

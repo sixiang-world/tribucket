@@ -164,6 +164,39 @@ def('unset', 'Unset {key}', '已取消设置 {key}');
 
 // -- Interrupt --
 def('interrupted', 'Interrupted. Partial download saved. Run the same command again to resume.', '已中断。部分下载已保存。再次运行相同命令即可续传。');
+def('interrupted_sigint', 'Interrupted.', '已中断。');
+
+// -- Info command --
+def('info_name', 'Name', '名称');
+def('info_repo', 'Repo', '仓库');
+def('info_description', 'Description', '描述');
+def('info_binary', 'Binary', '二进制');
+def('info_license', 'License', '许可证');
+def('info_homepage', 'Homepage', '主页');
+def('info_install_type', 'Install type', '安装类型');
+def('info_installed_path', 'Installed at', '安装位置');
+def('info_version', 'Version', '版本');
+def('info_tracked_at', 'Tracked at', '跟踪时间');
+def('info_stale', 'Path no longer exists — package is stale', '路径已不存在 — 包已过期');
+
+// -- Confirmation prompts --
+def('confirm_uninstall', 'Are you sure you want to uninstall \'{name}\'?', '确定要卸载 \'{name}\' 吗？');
+def('confirm_force_install', 'Directory {path} already exists and is not empty. Overwrite?', '目录 {path} 已存在且非空。是否覆盖？');
+def('confirm_update_all', 'Update all {count} packages?', '更新全部 {count} 个包？');
+def('skipped_confirmation', 'Skipping confirmation (non-interactive)', '跳过确认（非交互模式）');
+
+// -- Check progress --
+def('checking_packages', 'Checking packages... ({done}/{total})', '正在检查包... ({done}/{total})');
+def('packages_check_complete', 'Check complete: {ok} up-to-date, {outdated} outdated, {errors} errors', '检查完成：{ok} 个最新，{outdated} 个过期，{errors} 个错误');
+
+// -- Update progress --
+def('updating_packages', 'Updating packages... ({done}/{total})', '正在更新包... ({done}/{total})');
+def('update_summary', '{ok} updated, {failed} failed.', '{ok} 个更新成功，{failed} 个失败。');
+
+// -- Restore messages (previously hardcoded English) --
+def('restore_from_backup', 'Update failed, restoring from backup...', '更新失败，正在从备份恢复...');
+def('restore_success', 'Restore successful.', '恢复成功。');
+def('restore_failed', 'Restore also failed: {error}', '恢复也失败了: {error}');
 
 // ---------- Public API ----------
 
