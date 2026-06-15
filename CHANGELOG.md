@@ -1,5 +1,23 @@
 # 更新日志
 
+## v3.4.0 — 数据文件迁移到 EdgeOne KV（节省构建额度）
+
+数据文件（packages/Formula/bucket）不再打包到 `dist/`，改为存入 EdgeOne KV，由 Edge Function 运行时服务。从此 packages 更新不再触发 EdgeOne 构建，只做 KV 同步。
+
+- **`website/build.ts` 大幅简化**：不再复制 packages/Formula/bucket 到 `dist/`，构建产物仅含 `index.html` + `styles/main.css`
+- **新增 `functions/` Edge Function 目录**（5 个文件）：
+  - `functions/api/packages.js` — 返回全量包元数据 JSON（网站包列表用）
+  - `functions/packages/[[default]].js` — 服务 `/packages/<name>.json`（CLI install 用）
+  - `functions/Formula/[[default]].js` — 服务 `/Formula/<name>.rb`（Homebrew tap 用）
+  - `functions/bucket/[[default]].js` — 服务 `/bucket/<name>.json`（Scoop + CLI check 用）
+  - `functions/admin/sync.js` — 受保护的 KV 写入端点（CI 同步用）
+- **新增 `scripts/kv-sync.py`**：CI 中读取本地 packages/Formula/bucket，批量 POST 到 `/admin/sync` 写入 KV
+- **包列表改为运行时 fetch**：网站 JS 在页面加载时请求 `/api/packages`，不再构建时内联
+- **KV 键命名**：全部使用 `tri_` 前缀（`tri_packages_idx`、`tri_p_<name>`、`tri_f_<name>`、`tri_b_<name>`），避免与其他数据冲突
+- **新增环境变量**：`ADMIN_SYNC_SECRET`（CI 同步密钥）、`ADMIN_SYNC_KEY`（EdgeOne 环境变量）
+- **CI 更新**：`generate.yml` 在 Formula/bucket 生成后自动执行 `kv-sync.py` 同步到 KV
+- **`AGENTS.md`** 更新为新的架构文档，新增 EdgeOne Pages 配置说明与已知问题
+
 ## v3.3.0 — 软件源网站（EdgeOne 部署）
 
 将软件源 + 项目介绍部署为一个静态网站（tribucket.hunluan.space），网页与 Formula/bucket 同站托管。
