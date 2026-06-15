@@ -1,5 +1,18 @@
 # 更新日志
 
+## v3.5.0 — CLI 用户体验大修
+
+全面提升交互体验，下载 / 检查 / 更新每一步都有更好的反馈。
+
+- **下载进度条升级**：新增 `ProgressBar` 类，TTY 环境实时渲染进度条 `[====>]` + 速度 MB/s + ETA 估算
+  - 非 TTY 环境（管道/重定向）输出逐行进度，不再完全静默
+- **交互确认提示**：`uninstall`、`install --force`、`update --all` 等破坏性操作前弹出 `[y/N]` 确认
+  - 非 TTY 环境自动跳过，`--force` / `--yes` 参数可跳过确认
+- **`info` 命令重构**：提取为独立模块，所有标签 i18n 化，新增 `--json` 输出和运行时版本检测
+- **并发操作实时进度**：`check --all` 和 `update --all` 时实时显示 `→ Checking packages... (3/12)`
+- **i18n 补全**：修复 SIGINT 消息、update restore 消息等 4 处硬编码英文
+- **代码清理**：修复 code review 发现的 5 个遗留问题（无用导入、死代码等）
+
 ## v3.4.0 — 数据文件迁移到 EdgeOne KV（节省构建额度）
 
 数据文件（packages/Formula/bucket）不再打包到 `dist/`，改为存入 EdgeOne KV，由 Edge Function 运行时服务。从此 packages 更新不再触发 EdgeOne 构建，只做 KV 同步。
