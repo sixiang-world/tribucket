@@ -60,3 +60,5 @@ wintest.bat
 checkassets.log  
 
 .edgeone.tmp-scripts/  
+.edgeone/  
+.tmp-scripts/  
