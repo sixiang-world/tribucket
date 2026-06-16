@@ -145,20 +145,15 @@ jobs:
             fi
             printf '\n'
             printf '%s\n' "### What's new (${{ steps.version.outputs.tag }})"
-            printf '%s\n' "Cross-platform stability overhaul — 12 blocking/high-risk bugs fixed,"
-            printf '%s\n' "verified end-to-end on Windows + Linux (WSL Ubuntu 24.04):"
-            printf '\n'
-            printf '%s\n' "- **Download URLs** no longer hardcode a \`v\` tag prefix (fixed \`jq-1.8.1\`, \`15.1.0\`-style tags 404'ing)."
-            printf '%s\n' "- **Asset resolution**: \`asset_pattern\` is now matched against the real release asset list (literal / glob \`*\` / suffix)."
-            printf '%s\n' "- **Linux tar extraction**: removed the unsupported \`--no-absolute-names\` flag that crashed every \`.tar.*\` install."
-            printf '%s\n' "- **Windows binaries**: installed as \`<name>.exe\`; version detection probes the \`.exe\` path."
-            printf '%s\n' "- **\`--json\`** output for \`check\`/\`list\` fixed (was shadowed by the global option)."
-            printf '%s\n' "- **\`--all\`** iterates by package name, not repo key."
-            printf '%s\n' "- **Version comparison** via \`versionFromTag\`; cached remote versions self-heal on read."
-            printf '%s\n' "- **HTTP resilience**: 5 retries with jittered backoff; 403/429 retried too."
-            printf '%s\n' "- **Post-update probe** retries and skips the unreliable Windows \`X_OK\` check (no more spurious \"Version mismatch\")."
-            printf '\n'
-            printf '%s\n' "Tests: unit 19/19, Linux end-to-end 12/12, Windows end-to-end 9/9."
+            # Extract CHANGELOG entry for this version
+            VERSION_NUM="${{ steps.version.outputs.version }}"
+            if [ -f CHANGELOG.md ]; then
+              awk -v ver="$VERSION_NUM" '
+                /^## v/ { found = (index($0, "v" ver) > 0 || index($0, "v" ver) == 3) }
+                found { print }
+                /^## v/ && found && NR > 1 { found = 0; exit }
+              ' CHANGELOG.md | head -50
+            fi
           } > /tmp/release_body.md
 
           # Emit as a multiline GITHUB_OUTPUT value.

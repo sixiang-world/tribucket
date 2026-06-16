@@ -63,8 +63,11 @@ main:
         - name: generate-release-notes
           script: |
             TAG="$TAG"
+            VERSION="${TAG#v}"
             {
-              printf '## tribucket %s\n' "$TAG"
+              printf '## tribucket %s\n\n' "$TAG"
+              printf '### CHANGELOG\n'
+              awk "/^## v${VERSION}/"'{flag=1; next} /^## v[0-9]/{flag=0} flag' CHANGELOG.md 2>/dev/null || echo "(No changelog entry found)"
               printf '\n'
               printf '### Platform binaries\n'
               printf -- '- `tribucket-linux-amd64` — Linux x86_64\n'
@@ -156,8 +159,11 @@ $:
         - name: generate-release-notes
           script: |
             TAG="$CNB_BRANCH"
+            VERSION="${TAG#v}"
             {
-              printf '## tribucket %s\n' "$TAG"
+              printf '## tribucket %s\n\n' "$TAG"
+              printf '### CHANGELOG\n'
+              awk "/^## v${VERSION}/"'{flag=1; next} /^## v[0-9]/{flag=0} flag' CHANGELOG.md 2>/dev/null || echo "(No changelog entry found)"
               printf '\n'
               printf '### Platform binaries\n'
               printf -- '- `tribucket-linux-amd64` — Linux x86_64\n'

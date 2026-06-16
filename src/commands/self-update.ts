@@ -10,6 +10,11 @@ import { t } from '../utils/locale';
 
 const REPO = 'sixiang-world/tribucket';
 
+/** Escape regex special characters in a string. */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export async function selfUpdate(): Promise<void> {
   console.log(t('checking_for_updates'));
 
@@ -66,35 +71,75 @@ export async function selfUpdate(): Promise<void> {
     const isDebug = typeof DEBUG_BUILD !== 'undefined' && DEBUG_BUILD;
     const debugSuffix = isDebug ? '-debug' : '';
     const expectedName = `tribucket-${os}-${arch}${debugSuffix}${ext}`;
+    const tag = releaseData.tag_name;
 
-    const assets = releaseData.assets || [];
-    const binaryAsset = assets.find((a: any) =>
-      // Try platform-specific name first, then fallback to generic
-      a.name === expectedName || a.name === `tribucket${ext}`
-    );
+    // --- Strategy: CNB first, then GitHub fallback ---
+    let newBinary: Buffer;
+    let binaryName = expectedName;
+    let useCnb = false;
 
-    if (!binaryAsset) {
-      console.error(`${sym('err')} ${t('error_binary_asset_not_found', { filename: expectedName })}`);
-      process.exit(1);
-    }
-
-    console.log(t('downloading', { filename: binaryAsset.name }));
-    const newBinary = await httpGet(binaryAsset.browser_download_url, { timeout: 60000 });
-
-    // SHA256 verification
-    const expectedHash = await findSha256FromRelease(releaseData, binaryAsset.name);
-    if (expectedHash) {
-      const tmpPath = join(tmpdir(), `tribucket-update-${Date.now()}`);
-      writeFileSync(tmpPath, newBinary);
-      const actualHash = await computeSha256(tmpPath);
-      unlinkSync(tmpPath);
-      if (actualHash !== expectedHash) {
-        console.error(`${sym('err')} ${t('error_sha256_corrupted')}`);
+    // 1. Try CNB release first (China-friendly CDN, no token needed)
+    const cnbUrl = `https://cnb.cool/shisheng820/tribucket/-/releases/download/${tag}/${expectedName}`;
+    try {
+      newBinary = await httpGet(cnbUrl, { timeout: 60000 });
+      useCnb = true;
+      log(`Downloaded from CNB: ${cnbUrl}`);
+    } catch {
+      // 2. Fall back to GitHub release
+      const assets = releaseData.assets || [];
+      const binaryAsset = assets.find((a: any) =>
+        a.name === expectedName || a.name === `tribucket${ext}`
+      );
+      if (!binaryAsset) {
+        console.error(`${sym('err')} ${t('error_binary_asset_not_found', { filename: expectedName })}`);
         process.exit(1);
       }
-      log('SHA256 verification OK');
+      binaryName = binaryAsset.name;
+      console.log(t('downloading', { filename: binaryAsset.name }));
+      newBinary = await httpGet(binaryAsset.browser_download_url, { timeout: 60000 });
+    }
+
+    // SHA256 verification — source-appropriate checksum
+    if (useCnb) {
+      // CNB: fetch sha256sums.txt and match our file
+      try {
+        const cksumUrl = `https://cnb.cool/shisheng820/tribucket/-/releases/download/${tag}/sha256sums.txt`;
+        const cksumBody = await httpGet(cksumUrl, { timeout: 15000 });
+        const cksumText = new TextDecoder().decode(cksumBody);
+        const re = new RegExp('^([a-f0-9]{64})\\s+' + escapeRegex(binaryName) + '$', 'm');
+        const match = cksumText.match(re);
+        if (match) {
+          const tmpPath = join(tmpdir(), `tribucket-update-${Date.now()}`);
+          writeFileSync(tmpPath, newBinary);
+          const actualHash = await computeSha256(tmpPath);
+          unlinkSync(tmpPath);
+          if (actualHash !== match[1]) {
+            console.error(`${sym('err')} ${t('error_sha256_corrupted')}`);
+            process.exit(1);
+          }
+          log('SHA256 verified via CNB checksum');
+        } else {
+          log('No matching checksum in CNB sha256sums.txt, skipping verification');
+        }
+      } catch {
+        log('Could not fetch CNB checksums, skipping verification');
+      }
     } else {
-      log('No checksum file in release — skipping verification');
+      // GitHub: existing SHA256 verification from release assets
+      const expectedHash = await findSha256FromRelease(releaseData, binaryName);
+      if (expectedHash) {
+        const tmpPath = join(tmpdir(), `tribucket-update-${Date.now()}`);
+        writeFileSync(tmpPath, newBinary);
+        const actualHash = await computeSha256(tmpPath);
+        unlinkSync(tmpPath);
+        if (actualHash !== expectedHash) {
+          console.error(`${sym('err')} ${t('error_sha256_corrupted')}`);
+          process.exit(1);
+        }
+        log('SHA256 verification OK');
+      } else {
+        log('No checksum file in release, skipping verification');
+      }
     }
 
     // Backup current binary

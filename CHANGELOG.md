@@ -1,5 +1,23 @@
 # 更新日志
 
+## v3.7.0 — CNB 双源优先 + Release Notes 自动附带 CHANGELOG
+
+### 🚀 新功能
+- **CLI 自更新 CNB 优先**：`tribucket self-update` 现在先尝试从 CNB 下载（`cnb.cool/shisheng820/tribucket/-/releases/download/...`），CNB 失败后自动回退 GitHub Releases
+- **CNB 二进制公开可下载**：确认 `https://cnb.cool/.../releases/download/<tag>/<filename>` 无需 token，GET + `-L` 跟随 CDN 重定向即可下载
+- **GitHub Actions Release Notes 自动注入 CHANGELOG**：发布时自动从 `CHANGELOG.md` 提取当前版本内容追加到 Release Note 正文
+- **CNB pipeline Release Notes 自动注入 CHANGELOG**：`.cnb.yml` 的 `generate-release-notes` 步骤改为动态读取 `CHANGELOG.md`
+
+### ⚙️ 变更
+- `self-update.ts`：CNB → GitHub 双源下载策略，SHA256 验证按源区分
+- `.github/workflows/release.yml`：移除硬编码的 "What's new" 固定公告，改为 `awk` 提取 CHANGELOG
+- `.cnb.yml`：两个 `generate-release-notes`（web_trigger + tag_push）均改为动态 CHANGELOG 注入
+
+### 📝 调查结论
+- **CNB raw 文件服务不可用**：`/raw/main` 路径返回 Next.js 页面，不是纯文件内容，不适合作为元数据 source fallback
+- **Homebrew Formula mirror 不适合**：CNB 与 GitHub 二进制 SHA256 不同，Homebrew 的 `mirror` 关键字要求 hash 一致
+- **三源角色**：`tribucket.hunluan.space`（元数据）→ CNB（二进制主源）→ GitHub（二进制回退源）
+
 ## v3.6.8 — 第5轮审查补充修复：Generator/CI/网站
 
 ### 🔴 Bug 修复
