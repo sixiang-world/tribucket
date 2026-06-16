@@ -382,7 +382,7 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
         this.textContent = '复制';
         this.classList.remove('copied');
       }, 1500);
-    });
+    }).catch(() => {});
   });
 });
 </script>

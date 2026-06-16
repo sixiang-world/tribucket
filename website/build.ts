@@ -105,7 +105,6 @@ function main() {
   //    /api/packages.json via EdgeOne KV — only version + changelog are inlined)
   const html = template
     .replace(/\{\{VERSION\}\}/g, version)
-    .replace("{{PACKAGES_JSON}}", JSON.stringify([]))
     .replace("{{CHANGELOG}}", changelog);
 
   // 5. Write output files

@@ -227,7 +227,7 @@ def parse_checksum_file(content, target_filename):
     """Extract SHA256 hash for target_filename from a checksum file."""
     for line in content.strip().splitlines():
         parts = line.strip().split()
-        if len(parts) >= 2 and target_filename in parts[-1]:
+        if len(parts) >= 2 and parts[-1] == target_filename:
             return parts[0].lower()
     return None
 
@@ -306,14 +306,16 @@ def autoupdate_url(url, version):
     """Derive a Scoop autoupdate URL by replacing the version segment with $version.
 
     Handles both 'v1.2.3' and '1.2.3' in the URL path.
+    Only replaces within the /releases/download/ path segments (tag + filename)
+    to avoid matching org/repo names that happen to contain the version string.
     """
-    # Try v-prefixed first
-    v_str = f"v{version}"
-    if v_str in url:
-        return url.replace(v_str, "v$version", 1)
-    # Try bare version
-    if version in url:
-        return url.replace(version, "v$version", 1)
+    if "/releases/download/" in url:
+        prefix, suffix = url.split("/releases/download/", 1)
+        v_str = f"v{version}"
+        if v_str in suffix:
+            return prefix + "/releases/download/" + suffix.replace(v_str, "v$version")
+        if version in suffix:
+            return prefix + "/releases/download/" + suffix.replace(version, "v$version")
     return url
 
 
@@ -392,7 +394,7 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
                     print(f"  [checksum hit] {filename} = {sha}")
                 write_cache(cache_dir, pkg_name, version, filename, sha)
                 return sha
-        except Exception:
+        except (urllib.error.URLError, http.client.HTTPException, urllib.error.HTTPError):
             continue
 
     # Fallback: download and compute

@@ -104,7 +104,7 @@ def sync(items, index):
                 print(f"  ✗ Server returned error: {result}")
                 sys.exit(1)
     except urllib.error.HTTPError as e:
-        print(f"  ✗ HTTP {e.code}: {e.read().decode('utf-8')}")
+        print(f"  ✗ HTTP {e.code}: {e.read().decode('utf-8', errors='replace')}")
         sys.exit(1)
     except urllib.error.URLError as e:
         print(f"  ✗ Connection failed: {e.reason}")

@@ -1,5 +1,19 @@
 # 更新日志
 
+## v3.6.8 — 第5轮审查补充修复：Generator/CI/网站
+
+### 🔴 Bug 修复
+- **release.yml 两处版本硬编码**：对比链接始终指向 v3.1.0，发布说明标题始终显示 v3.2.0。已修复为动态获取上一个 tag + 使用当前版本号
+- **generate.py autoupdate_url 越界替换**：当仓库名包含版本号（如 `my1.0.0-tool`）时，`str.replace` 会替换错误路径段。已限定仅在 `/releases/download/` 后的路径中替换
+- **kv-sync.py HTTP 错误解码崩溃**：`e.read().decode('utf-8')` 遇到非 UTF-8 响应体抛出 `DecodeError`，已加 `errors='replace'`
+- **generate.py parse_checksum_file 假阳性匹配**：使用子串匹配（`in`）而非精确匹配，可能返回错误的 SHA256。已改为 `==` 精确匹配
+
+### 🟡 质量改进
+- **generate.py SHA256 循环异常捕获过宽**：`except Exception` 静默吞没所有异常，缩小为 `(URLError, HTTPException, HTTPError)`
+- **build.ts 死代码**：移除对模板中不存在占位符 `{{PACKAGES_JSON}}` 的 `.replace()` 调用
+- **index.html 剪贴板 Promise**：添加 `.catch(() => {})` 处理复制失败时的未处理 Promise rejection
+- **release.yml bun-version**：从 `latest` 固定到 `"1.3"`，避免不可预期的构建环境变化
+
 ## v3.6.7 — 第5轮代码审查 + 严重回归修复
 
 ### 🔴 严重 — 回归修复
