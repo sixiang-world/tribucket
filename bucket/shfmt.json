@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/mvdan/sh/releases/download/v$version/shfmt_v3.13.1_windows_amd64.exe"
+        "url": "https://github.com/mvdan/sh/releases/download/v$version/shfmt_v$version_windows_amd64.exe"
       }
     }
   },

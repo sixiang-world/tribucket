@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-pc-windows-msvc.zip",
-      "hash": "sha256"
+      "hash": "124510b94b6baa3380d051fdf4650eaa80a302c876d611e9dba0b2e18d87493a"
     },
     "arm64": {
       "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-aarch64-pc-windows-msvc.zip",
-      "hash": "sha256"
+      "hash": "00d931fb5237c9696ca49308818edb76d8eb6fc132761cb2a1bd616b2df02f8e"
     }
   },
   "bin": [
@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-15.1.0-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-v$version-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-15.1.0-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/BurntSushi/ripgrep/releases/download/v$version/ripgrep-v$version-aarch64-pc-windows-msvc.zip"
       }
     }
   },

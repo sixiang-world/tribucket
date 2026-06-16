@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/surrealdb/surrealdb/releases/download/v$version/surreal-v3.1.4.windows-amd64.exe"
+        "url": "https://github.com/surrealdb/surrealdb/releases/download/v$version/surreal-v$version.windows-amd64.exe"
       }
     }
   },

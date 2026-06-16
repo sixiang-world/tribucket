@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/denoland/deno/releases/download/v2.8.3/deno-x86_64-pc-windows-msvc.zip",
-      "hash": "path"
+      "hash": "7fdd1f42e6b0855421ecf27bb406e2492ade1087c85e30ebf0deab6280ea743c"
     },
     "arm64": {
       "url": "https://github.com/denoland/deno/releases/download/v2.8.3/deno-aarch64-pc-windows-msvc.zip",
-      "hash": "path"
+      "hash": "243f478ac577ade1bbd980ecf510607a10ed8cc977b462083ada48e5f6580de1"
     }
   },
   "bin": [

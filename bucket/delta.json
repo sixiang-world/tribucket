@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/dandavison/delta/releases/download/v$version/delta-0.19.2-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/dandavison/delta/releases/download/v$version/delta-v$version-x86_64-pc-windows-msvc.zip"
       }
     }
   },

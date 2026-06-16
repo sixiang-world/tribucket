@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.31-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v$version-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v0.9.31-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/AlexsJones/llmfit/releases/download/v$version/llmfit-v$version-aarch64-pc-windows-msvc.zip"
       }
     }
   },

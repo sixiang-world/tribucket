@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.6.10-windows-x64.zip"
+        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v$version-windows-x64.zip"
       },
       "arm64": {
-        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v2026.6.10-windows-arm64.zip"
+        "url": "https://github.com/jdx/mise/releases/download/v$version/mise-v$version-windows-arm64.zip"
       }
     }
   },

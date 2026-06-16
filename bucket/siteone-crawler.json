@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/janreges/siteone-crawler/releases/download/v$version/siteone-crawler-v2.3.0-win-x64.zip"
+        "url": "https://github.com/janreges/siteone-crawler/releases/download/v$version/siteone-crawler-v$version-win-x64.zip"
       },
       "arm64": {
-        "url": "https://github.com/janreges/siteone-crawler/releases/download/v$version/siteone-crawler-v2.3.0-win-arm64.zip"
+        "url": "https://github.com/janreges/siteone-crawler/releases/download/v$version/siteone-crawler-v$version-win-arm64.zip"
       }
     }
   },

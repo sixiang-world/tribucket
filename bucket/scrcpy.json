@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/Genymobile/scrcpy/releases/download/v$version/scrcpy-win64-v4.0.zip"
+        "url": "https://github.com/Genymobile/scrcpy/releases/download/v$version/scrcpy-win64-v$version.zip"
       }
     }
   },
