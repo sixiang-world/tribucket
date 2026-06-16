@@ -148,10 +148,10 @@ jobs:
             # Extract CHANGELOG entry for this version
             VERSION_NUM="${{ steps.version.outputs.version }}"
             if [ -f CHANGELOG.md ]; then
+              # Extract CHANGELOG entry for this version, excluding header line
               awk -v ver="$VERSION_NUM" '
-                /^## v/ { found = (index($0, "v" ver) > 0 || index($0, "v" ver) == 3) }
+                /^## v[0-9]/ { if (index($0, "v" ver) > 0) { found = 1; next } else if (found) exit }
                 found { print }
-                /^## v/ && found && NR > 1 { found = 0; exit }
               ' CHANGELOG.md | head -50
             fi
           } > /tmp/release_body.md

@@ -1,6 +1,6 @@
 import { httpGet } from './http';
 
-import { openSync, readSync, closeSync, statSync } from 'fs';
+import { openSync, readSync, closeSync } from 'fs';
 import { createHash } from 'crypto';
 
 export async function computeSha256(filepath: string): Promise<string> {
@@ -11,20 +11,16 @@ export async function computeSha256(filepath: string): Promise<string> {
   const buf = Buffer.alloc(64 * 1024);
   let bytesRead: number;
   const useBun = typeof Bun !== 'undefined' && typeof Bun.CryptoHasher !== 'undefined';
-  const hasher = useBun ? new Bun.CryptoHasher('sha256') : createHash('sha256');
+  const hasher: { update(data: Buffer): void; digest(encoding: 'hex'): string } =
+    useBun ? new Bun.CryptoHasher('sha256') : createHash('sha256');
   try {
     while ((bytesRead = readSync(fd, buf, 0, buf.length, null)) > 0) {
-      const chunk = buf.subarray(0, bytesRead);
-      if (useBun) {
-        hasher.update(chunk);
-      } else {
-        hasher.update(chunk);
-      }
+      hasher.update(buf.subarray(0, bytesRead));
     }
   } finally {
     closeSync(fd);
   }
-  return useBun ? hasher.digest('hex') : hasher.digest('hex');
+  return hasher.digest('hex');
 }
 
 const CHECKSUM_PATTERNS = ['sha256sums', 'sha256', 'checksums.txt', '.sha256'];

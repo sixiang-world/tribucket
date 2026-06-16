@@ -341,3 +341,273 @@ Use these in `asset_pattern`:
 - `darwin_amd64`, `darwin_arm64`
 - `windows_amd64`, `windows_arm64`
 - Value `"NO_MATCH"` means unsupported on that platform
+
+---
+
+## Release Workflow
+
+### Version Bump → Tag → Release
+
+```
+Step 1: Bump version
+  - Edit src/version.ts  → VERSION = 'X.Y.Z'
+  - Edit VERSION file    → X.Y.Z
+  - Edit package.json    → "version": "X.Y.Z"
+  - Edit packages/tribucket.json → "version": "X.Y.Z"
+
+Step 2: Update CHANGELOG.md
+  - Add ## vX.Y.Z — Title heading at top
+  - Categorize changes: 🚀 新功能 / 🔴 Bug 修复 / 🟡 质量改进 / ⚙️ 变更 / 📝 调查结论
+  - Verify website build parses it: bun run website/build.ts
+
+Step 3: Commit & push
+  - git add -A && git commit -m "feat: vX.Y.Z ..."
+  - git push origin main
+
+Step 4: Tag & release
+  - git tag vX.Y.Z && git push origin vX.Y.Z
+  - This triggers:
+    1. GitHub Actions release.yml → builds 5 platforms → creates GitHub Release (with CHANGELOG注入)
+    2. CNB .cnb.yml tag_push → builds 5 platforms → creates CNB Release
+    3. generate.yml (via workflow_run) → regenerates Formula/bucket → syncs to EdgeOne KV
+
+Step 5: Post-release verification
+  - GitHub Release page: 5 binaries + sha256sums.txt + Release Notes
+  - CNB Release page: same artifacts
+  - KV sync: curl https://tribucket.hunluan.space/api/packages.json | head
+  - Website: https://tribucket.hunluan.space shows new version
+  - CLI: tribucket self-update detects new version
+```
+
+### Version Sources (must stay in sync)
+
+| File | Field |
+|------|-------|
+| `src/version.ts` | `export const VERSION = '...'` |
+| `package.json` | `"version"` |
+| `VERSION` (root) | plain text |
+| `packages/tribucket.json` | `"version"` |
+| Git tag | `vX.Y.Z` |
+
+---
+
+## CI Architecture Overview
+
+Three CI pipelines work together for release + data sync:
+
+```
+                    ┌──────────────────────────────────────┐
+                    │  1. release.yml (GitHub Actions)      │
+                    │     Trigger: v* tag / workflow_dispatch│
+                    │     Does: bun build --compile ×5      │
+                    │     Output: GitHub Release (5 binaries │
+                    │       + debug variants + SHA256)       │
+                    └──────────────┬───────────────────────┘
+                                   │ workflow_run (on success)
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  2. generate.yml (GitHub Actions)                                │
+│     Trigger: packages/** push / cron 6h / release done          │
+│     Does: python generate.py → git commit → kv-sync.py          │
+│     Output: Updated Formula/ + bucket/ → EdgeOne KV             │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  3. .cnb.yml (CNB 云原生构建)                                    │
+│     Trigger: v* tag (tag_push) / web_trigger (manual)           │
+│     Does: bun build --target ×10 (5 platforms × release+debug)  │
+│     Output: CNB Release + Release Notes (CHANGELOG 注入)         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Key points:
+- **Dual CI release strategy**: Both GH Actions and CNB build on tag push — either one succeeding is sufficient for a valid release. This provides redundancy for China network conditions.
+- **generate.yml** is triggered by three sources: changes to `packages/`, 6-hour cron (for upstream version bumps), and after release.yml completes.
+- **kv-sync.py** runs at the end of generate.yml, writing `tri_packages_idx` last for atomic index updates.
+
+---
+
+## Adding a Package (Full Reference)
+
+### 5-Step Flow
+
+```bash
+# 1. Create package definition
+touch packages/<name>.json
+
+# 2. Edit JSON (see field reference below)
+#    - For GitHub Release source: repo + asset_pattern
+#    - For custom download URL: version + download_url [+ checkver + autoupdate]
+
+# 3. Generate Formula + Bucket
+python scripts/generate.py --only <name>
+
+# 4. Local verification
+tribucket install <name>
+
+# 5. Commit
+git add packages/<name>.json Formula/<name>.rb bucket/<name>.json
+git commit -m "pkg: add <name>"
+```
+
+### Package JSON Field Reference
+
+**GitHub Release source (standard):**
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `name` | ✅ | string | Package name, matches filename |
+| `repo` | ✅ | string | GitHub `owner/repo` |
+| `description` | ✅ | string | One-line description |
+| `binary` | ✅ | string | Executable name after install |
+| `license` | ✅ | string | SPDX license identifier |
+| `homepage` | ✅ | string | Project URL |
+| `asset_pattern` | ✅ | object | `{ platform: pattern }` — 6 platforms or `NO_MATCH` |
+
+**Custom download source (non-GitHub Release):**
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `version` | ✅ | string | Current version (required when `download_url` exists) |
+| `download_url` | ❌ | object | `{ platform: url }` — direct download URLs |
+| `checkver` | ❌ | string\|object | `"github"` or object with `url`/`jsonpath`/`regex`/`replace` |
+| `autoupdate` | ❌ | object | `{ platform: url_template }` — with `${version}` / named groups |
+
+### checkver Configuration
+
+```json
+{
+  "checkver": {
+    "url": "https://api.example.com/version",
+    "jsonpath": "$.version",
+    "regex": "(?P<ver>\\d+\\.\\d+\\.\\d+)",
+    "replace": "${ver}"
+  }
+}
+```
+
+- `"checkver": "github"` — auto-detect from repo's GitHub API (default behavior, can omit)
+- `jsonpath`: minimal JSONPath resolver supports `$.key`, `$[0].key`, `$.a.b.c`
+- `regex`: supports named capture groups `(?P<name>...)`
+- `replace`: default `"${1}"` if not specified
+
+### autoupdate URL Templates
+
+```json
+{
+  "autoupdate": {
+    "linux_amd64": "https://example.com/dl/go${ver}.linux-amd64.tar.gz",
+    "windows_amd64": "https://example.com/dl/go${ver}.windows-amd64.zip"
+  }
+}
+```
+
+Supports `${version}` (full version from checkver) and named capture group variables `${name}`.
+
+### Platform Coverage Rules
+
+- All 6 platform keys must be present: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, `windows_amd64`, `windows_arm64`
+- Use `"NO_MATCH"` for explicitly unsupported platforms (don't omit the key)
+- `asset_pattern` matching: literal exact match → glob (`*`) → pure-suffix match (see mirror.ts)
+
+---
+
+## Code Review Checklist (Project-Specific)
+
+### Every PR must pass these checks:
+
+```
+### Functional
+- [ ] New packages: `python scripts/generate.py --only <name>` runs without error
+- [ ] New packages: `tribucket install <name>` completes successfully
+- [ ] CLI changes: all existing commands still work (install/update/check/list/info/track/untrack/config/clean)
+- [ ] Error paths produce user-visible messages (status()), not silent failures or bare throws
+
+### i18n
+- [ ] All new user-visible strings defined in `utils/locale.ts` (both EN and ZH)
+- [ ] No hardcoded English strings in command files
+- [ ] locale.ts keys follow naming convention: `error_*` for errors, `confirm_*` for prompts, etc.
+
+### Cross-Platform
+- [ ] Windows: `.exe` suffix handled via `binaryFileName()` / `resolveBinaryPath()`
+- [ ] Windows: `accessSync(X_OK)` NOT used for version detection
+- [ ] Linux: `--no-absolute-names` NOT passed to tar
+- [ ] Paths use `path.join()` not string concatenation
+- [ ] System directory protection handles both `/usr` (POSIX) and `C:\Windows` (Windows)
+
+### Compilation
+- [ ] `bun build src/index.ts --compile --outfile /dev/null` succeeds (or temp path on Windows)
+- [ ] No `Bun.file()` usage (doesn't work in compiled binary)
+- [ ] No `import.meta.dir` usage (use `fileURLToPath(import.meta.url)` instead)
+
+### Security
+- [ ] Path traversal protection via `realpathSync` + `startsWith` check
+- [ ] No `..` acceptance in user-provided paths without resolution
+- [ ] No command injection vectors (shell commands use arrays, not string interpolation)
+- [ ] Constant-time comparison for auth tokens (admin/sync.js)
+
+### CI
+- [ ] Changes to `release.yml` reflected in `.cnb.yml` (or vice versa) for shared build stages
+- [ ] CHANGELOG.md updated if user-facing behavior changed
+
+### Tests
+- [ ] `bun test` passes (21 tests)
+- [ ] New functionality has corresponding test coverage
+```
+
+---
+
+## Common Bug Patterns (Historical Reference)
+
+Patterns from past code reviews that frequently recur:
+
+| Pattern | Example | Fix |
+|---------|---------|-----|
+| **Commander --json shadow** | `opts.json` is `undefined` | Use `program.optsWithGlobals().json` |
+| **const vs let for version** | `const version` prevents update from release tag | Use `let version` |
+| **GitHub tag v prefix assumption** | Hardcoding `v` in download URL | Use raw `tag_name`, templates use `{tag}` |
+| **Bun.file() in compiled binary** | `Bun.CryptoHasher.hash('sha256', Bun.file(p))` | Manual `fs.readSync` + `hasher.update()` |
+| **Empty archive handling** | No check for `entries.length === 0` | Guard with early return / error |
+| **TOCTOU lock race** | `existsSync → unlinkSync → writeFileSync` | Use atomic `wx` flag only |
+| **SIGINT shared state** | Multiple SIGINT handlers overwrite each other | Use module-level flag, not `process.exit()` |
+| **KV key hyphens** | `tri_p_ripgrep-all` (invalid) | Convert `-` to `_` in key names |
+| **403 misidentified as rate-limit** | All 403 retried unnecessarily | Check `X-RateLimit-Remaining: 0` header |
+| **status() vs log() misuse** | Debug info shown to all users | User progress → `status()`; debug → `log()` (verbose only) |
+
+---
+
+## Development Workflow
+
+### Branch Naming
+
+```
+feat/<short-desc>     # New feature (e.g. feat/resume-download)
+fix/<short-desc>      # Bug fix (e.g. fix/json-shadow)
+pkg/<name>            # New package (e.g. pkg/bat)
+docs/<desc>           # Documentation
+chore/<desc>          # CI/build/tooling
+refactor/<desc>       # Refactoring
+```
+
+### Commit Message Convention
+
+```
+type(scope): brief description
+
+- Use conventional commits: feat / fix / docs / refactor / perf / test / chore / pkg
+- Scope is optional: (install), (mirror), (ci), etc.
+- Body explains motivation, not what (code is self-documenting)
+```
+
+### PR Lifecycle
+
+```
+1. Create branch from main
+2. Make changes + commit (conventional commits)
+3. Run bun test (must pass)
+4. Run python scripts/generate.py --dry-run (if packages changed)
+5. Push → CI runs automatically
+6. Create PR with description + test evidence
+7. Self-review against checklist above
+8. Merge to main (squash merge recommended)
+```

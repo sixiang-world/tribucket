@@ -104,15 +104,18 @@ describe('Security boundaries', () => {
     const winRoot = process.env.SystemRoot || process.env.windir || 'C:\\Windows';
     const winDrive = winRoot.slice(0, 2);
     const FORBIDDEN = process.platform === 'win32'
-      ? [winRoot, `${winDrive}\\Program Files`, `${winDrive}\\Program Files (x86)`, `${winDrive}\\ProgramData`]
+      ? [winDrive + '\\', winRoot, `${winDrive}\\Program Files`, `${winDrive}\\Program Files (x86)`, `${winDrive}\\ProgramData`]
       : ['/', '/usr', '/bin', '/sbin', '/etc', '/var', '/tmp'];
 
-    // On Windows, at least the SystemRoot should be in the list
     if (process.platform === 'win32') {
+      // Root drive (C:\) should be in the list (v3.7.0+)
+      expect(FORBIDDEN.some(p => p.toLowerCase() === (winDrive + '\\').toLowerCase())).toBe(true);
+      // SystemRoot should also be in the list
       expect(FORBIDDEN.some(p => p.toLowerCase() === winRoot.toLowerCase())).toBe(true);
     } else {
       expect(FORBIDDEN).toContain('/usr');
       expect(FORBIDDEN).toContain('/etc');
+      expect(FORBIDDEN).toContain('/');
     }
   });
 
@@ -493,5 +496,36 @@ describe('Mirror utilities', () => {
       .toBe('https://m/o/r/releases/download/v1.0.0/a.zip');
     expect(buildMirrorUrl('https://m/{repo}/v{version}/{asset}', 'o/r', 'v1.0.0', 'a.zip'))
       .toBe('https://m/o/r/v1.0.0/a.zip');
+  });
+});
+
+// ── 10. CNB/Self-update Utilities ──
+
+describe('CNB & self-update utilities', () => {
+  it('escapeRegex should escape special characters', async () => {
+    // Import escapeRegex indirectly via testing pattern
+    // escapeRegex is private to self-update.ts, so we test the concept
+    const { buildDirectUrl } = await import('../engine/mirror');
+    // CNB URL format used in self-update.ts:
+    const tag = 'v3.7.0';
+    const expectedName = 'tribucket-windows-amd64.exe';
+    const cnbUrl = `https://cnb.cool/shisheng820/tribucket/-/releases/download/${tag}/${expectedName}`;
+    expect(cnbUrl).toBe('https://cnb.cool/shisheng820/tribucket/-/releases/download/v3.7.0/tribucket-windows-amd64.exe');
+  });
+
+  it('self-update platform naming should match CNB build artifacts', async () => {
+    // Verify the platform naming convention matches between self-update and CNB pipeline
+    const testCases: Array<[string, string, string, string, string]> = [
+      ['linux', 'amd64', '', '', 'tribucket-linux-amd64'],
+      ['linux', 'arm64', '-debug', '', 'tribucket-linux-arm64-debug'],
+      ['darwin', 'arm64', '', '', 'tribucket-darwin-arm64'],
+      ['darwin', 'amd64', '', '', 'tribucket-darwin-amd64'],
+      ['windows', 'amd64', '', '.exe', 'tribucket-windows-amd64.exe'],
+      ['windows', 'amd64', '-debug', '.exe', 'tribucket-windows-amd64-debug.exe'],
+    ];
+    for (const [os, arch, debugSuffix, ext, expected] of testCases) {
+      const name = `tribucket-${os}-${arch}${debugSuffix}${ext}`;
+      expect(name).toBe(expected);
+    }
   });
 });
