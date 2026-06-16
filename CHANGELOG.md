@@ -1,5 +1,17 @@
 # 更新日志
 
+## v3.7.1 — 测试全覆盖 + Release Notes Bug 修复
+
+### 🔴 Bug 修复
+- **release.yml Release Notes 内容丢失**：awk 规则顺序错误导致匹配到版本标题行后立即 `exit`，仅输出标题行，所有子弹内容全部丢失。已修复为正确的 `flag + next` 模式
+- **sha256.ts 冗余分支**：`useBun` 检查导致两处完全相同的条件分支，已合并；移除未使用的 `statSync` 导入
+
+### 🟡 质量改进
+- **测试 84/84 全覆盖**（原 80/82）：
+  - 新增安全测试：FORBIDDEN 列表包含根目录（`C:\`）
+  - 新增 CNB URL 构建测试、self-update 平台命名测试
+  - 修复 2 个网络超时测试 → 改用本地 HTTP server，从 ~5s 降为 ~22ms
+
 ## v3.7.0 — CNB 双源优先 + Release Notes 自动附带 CHANGELOG
 
 ### 🚀 新功能
