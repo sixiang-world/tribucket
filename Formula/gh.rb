@@ -1,28 +1,28 @@
 class Gh < Formula
   desc "GitHub CLI — GitHub from the command line"
   homepage "https://github.com/cli/cli"
-  version "2.94.0"
+  version "2.95.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/cli/cli/releases/download/v2.94.0/gh_2.94.0_macOS_arm64.zip"
-      sha256 "4f9bc1a5e77500737290a307b40b4c396a4d23729f55340f2a83f414410165a1"
+      url "https://github.com/cli/cli/releases/download/v2.95.0/gh_2.95.0_macOS_arm64.zip"
+      sha256 "3677f9c27965825f9c7d50395473c134edaea4b484373ef6b25de653570a0489"
     end
     on_intel do
-      url "https://github.com/cli/cli/releases/download/v2.94.0/gh_2.94.0_macOS_amd64.zip"
-      sha256 "733ee8fa49247d27cd94a6c7384455bdecaa82172a3bcfad63ac1ecc2867251d"
+      url "https://github.com/cli/cli/releases/download/v2.95.0/gh_2.95.0_macOS_amd64.zip"
+      sha256 "985707e9ac60c95ed51cddd808c338b481abe69fffa77e9d6547c3750045f77e"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/cli/cli/releases/download/v2.94.0/gh_2.94.0_linux_arm64.tar.gz"
-      sha256 "705a23b70b0f1b7ba4c302fdcef392ce3edaacfa7ce8e85e4d93d72ea800a538"
+      url "https://github.com/cli/cli/releases/download/v2.95.0/gh_2.95.0_linux_arm64.tar.gz"
+      sha256 "d41e0b3b6218e5741c8bb4db39b16e53a59e0e06299a8489bd38f623ef7ebaae"
     end
     on_intel do
-      url "https://github.com/cli/cli/releases/download/v2.94.0/gh_2.94.0_linux_amd64.tar.gz"
-      sha256 "a757f1ba6db18f4de8cbadb244843a5f89bc75b5e7c6fc127d2bd77fbd12ed62"
+      url "https://github.com/cli/cli/releases/download/v2.95.0/gh_2.95.0_linux_amd64.tar.gz"
+      sha256 "25d1e4729e8808c9ed3d613e96ebd3f3e44446f2d368c89d878a71a36ddb3d8c"
     end
   end
 
