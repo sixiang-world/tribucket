@@ -1,28 +1,28 @@
 class Ccx < Formula
   desc "Claude / Codex / Gemini API Proxy and Gateway"
   homepage "https://github.com/BenedictKing/ccx"
-  version "2.9.11"
+  version "2.9.14"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.11/ccx-darwin-arm64"
-      sha256 "8c62fc8dc3440398c97a7c4aa6b5aaca604a2559d28d760f035a68db28797d7d"
+      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.14/ccx-darwin-arm64"
+      sha256 "09d15042c49bbfff542d7253b3f982f1156e3ed438b80b0462f1b9eaec7a488a"
     end
     on_intel do
-      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.11/ccx-darwin-amd64"
-      sha256 "6e1360e4e20a245c2fddc8e349216174082902fb1173ec0611b5899559d1d38d"
+      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.14/ccx-darwin-amd64"
+      sha256 "4166ada5f8fe777e8d9282a97461fb3184ac180cf60f0fbc942fd2b5961955e4"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.11/ccx-linux-arm64"
-      sha256 "1f9f1035a76612a76749612beb6d78bb5ef782c9fc9b68b25f12737033ec1891"
+      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.14/ccx-linux-arm64"
+      sha256 "d1c2988c6ef42a4a3dcabdb24114d12fda021ce7e6359c30ab21c5fd89f59afa"
     end
     on_intel do
-      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.11/ccx-linux-amd64"
-      sha256 "e27a0e68b86a4a017d8c912483c610e93d7b425321994df575f948f482b1796a"
+      url "https://github.com/BenedictKing/ccx/releases/download/v2.9.14/ccx-linux-amd64"
+      sha256 "2b73f40cbc59a81bc0cb22af0e61cbb89aa0354a3e19d1dadc43905df28231a4"
     end
   end
 
