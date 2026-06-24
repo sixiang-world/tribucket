@@ -1,28 +1,28 @@
 class Ruff < Formula
   desc "An extremely fast Python linter and formatter"
   homepage "https://github.com/astral-sh/ruff"
-  version "0.15.18"
+  version "0.15.19"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/astral-sh/ruff/releases/download/0.15.18/ruff-aarch64-apple-darwin.tar.gz"
-      sha256 "f0cc66c2df37f2a11c99a85b59b8fde21b37f61df062404a0afaed387b56dad0"
+      url "https://github.com/astral-sh/ruff/releases/download/0.15.19/ruff-aarch64-apple-darwin.tar.gz"
+      sha256 "c7253342f2ffbe2a0eaadaacd3424c3a24331b0307e57cc54031bc7ccd35d83a"
     end
     on_intel do
-      url "https://github.com/astral-sh/ruff/releases/download/0.15.18/ruff-x86_64-apple-darwin.tar.gz"
-      sha256 "229d2c192718fde76794185ab9339515b75a55cc1337e4ca9d60309e2c506900"
+      url "https://github.com/astral-sh/ruff/releases/download/0.15.19/ruff-x86_64-apple-darwin.tar.gz"
+      sha256 "aaf50afd2a76be2674b8dd24b305e42a33a99269c2c43e334f6a940b29ca291c"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/astral-sh/ruff/releases/download/0.15.18/ruff-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "c9636879455e940fc92edb95dd6e475d683da833987d1f0c147f39e521ae98a2"
+      url "https://github.com/astral-sh/ruff/releases/download/0.15.19/ruff-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "b00f8c17424c0abea8f87ca52880b864d10ae8e5c5d09ee61730a80ee3874a97"
     end
     on_intel do
-      url "https://github.com/astral-sh/ruff/releases/download/0.15.18/ruff-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "1ffb1d5e04e60347be17c514cbb19303d6d8c75f629060ed481a150337dbf060"
+      url "https://github.com/astral-sh/ruff/releases/download/0.15.19/ruff-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "0bfabff71f317e0e3b8c363043b888f045eff092073d5d9bd0ac7f8ede465711"
     end
   end
 
