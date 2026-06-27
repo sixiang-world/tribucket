@@ -1,16 +1,16 @@
 {
-  "version": "2.1.193",
+  "version": "2.1.195",
   "description": "Claude Code — agentic coding tool by Anthropic",
   "homepage": "https://github.com/anthropics/claude-code",
   "license": "Apache-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/anthropics/claude-code/releases/download/v2.1.193/claude-win32-x64.zip",
-      "hash": "5b763b71f26e01a450d9e29e8d43e75575027ec53b57ddbf5c90f7ee283f4ddc"
+      "url": "https://github.com/anthropics/claude-code/releases/download/v2.1.195/claude-win32-x64.zip",
+      "hash": "0e62b5f9bbdb7d194f715b93d083e0ae99ec58beb86733ee17c484fedb63256c"
     },
     "arm64": {
-      "url": "https://github.com/anthropics/claude-code/releases/download/v2.1.193/claude-win32-arm64.zip",
-      "hash": "4009034676f599998f2edf7b10205264ac6517b85da7752b1931b2996c71c10f"
+      "url": "https://github.com/anthropics/claude-code/releases/download/v2.1.195/claude-win32-arm64.zip",
+      "hash": "f7cc0bba252f0ffc9b0f08df06a3950bb5caad434108dceb77f37b9153756274"
     }
   },
   "bin": [
