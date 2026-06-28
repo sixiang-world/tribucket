@@ -1,28 +1,28 @@
 class Starship < Formula
   desc "Cross-shell prompt customization"
   homepage "https://github.com/starship/starship"
-  version "1.25.1"
+  version "1.26.0"
   license "ISC"
 
   on_macos do
     on_arm do
-      url "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-apple-darwin.tar.gz"
-      sha256 "1062a2363489b9335529b83204472f02633c08fc3609f1b325be5eba36feb631"
+      url "https://github.com/starship/starship/releases/download/v1.26.0/starship-aarch64-apple-darwin.tar.gz"
+      sha256 "c40b27b11f580411e068f2fa6c1be7830a387c0bc47a94d1d37f32b054c5361d"
     end
     on_intel do
-      url "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-apple-darwin.tar.gz"
-      sha256 "f86fbe7a3b9f262bcf34ca61e9e996243da511c5500dcd81a1e4daa542869276"
+      url "https://github.com/starship/starship/releases/download/v1.26.0/starship-x86_64-apple-darwin.tar.gz"
+      sha256 "5548f406a4b6f5695903bdea83f77ce47ec12c8c0e62dabd33122d8f133e4207"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "01517aab398959ea9ea73bdb4f032ea4dbb51dff5c8e5eb05b4a1b9b7ab872b8"
+      url "https://github.com/starship/starship/releases/download/v1.26.0/starship-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "dc30189378d2f2e287384e8a692d3f95ad1df64cf0e8c36aa9201516028aed6b"
     end
     on_intel do
-      url "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "4488c11ca632327d1f1f16fb2f102c0646094c35479cd5435991385da43c61ac"
+      url "https://github.com/starship/starship/releases/download/v1.26.0/starship-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "321f0dd7af8340a5f2e6a8fec6538a04f617486f9ec70d878f91c09cd8deef22"
     end
   end
 
