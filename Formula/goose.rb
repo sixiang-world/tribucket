@@ -1,28 +1,28 @@
 class Goose < Formula
   desc "Open-source AI agent by Block — extensible, runs in terminal"
   homepage "https://github.com/block/goose"
-  version "1.40.0"
+  version "1.41.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/aaif-goose/goose/releases/download/v1.40.0/goose-aarch64-apple-darwin.tar.gz"
-      sha256 "1792256d8947bfd378a1749d76a21df9e1cf5bd613c9dc55edea33ec379f3cf4"
+      url "https://github.com/aaif-goose/goose/releases/download/v1.41.0/goose-aarch64-apple-darwin.tar.gz"
+      sha256 "19109847ae2bc7fe2c124a4fd06f02f2918477bbb1c4dc90ba6209614277a67c"
     end
     on_intel do
-      url "https://github.com/aaif-goose/goose/releases/download/v1.40.0/goose-x86_64-apple-darwin.tar.gz"
-      sha256 "646d56d24678a92c25a6a09e5d0d58fd74525786c930fb430a6701d48229c498"
+      url "https://github.com/aaif-goose/goose/releases/download/v1.41.0/goose-x86_64-apple-darwin.tar.gz"
+      sha256 "70399e0eafe0415d1e8b9a876ff31904e5b792d6e9aa958d0462564ca6fa10da"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/aaif-goose/goose/releases/download/v1.40.0/goose-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "c4bd4222799beb5ad124dde80b458574e17734cfb054edb50591a5a9c24facd0"
+      url "https://github.com/aaif-goose/goose/releases/download/v1.41.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "0b2cb6ac7dd2795897eaaf619068da236869e1128858412155e03cabbb94348e"
     end
     on_intel do
-      url "https://github.com/aaif-goose/goose/releases/download/v1.40.0/goose-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "e9a0dbdcbe4c75ef4fa4cfca97e507f53c86bae19a3e0c76e6807eaaa04a05b8"
+      url "https://github.com/aaif-goose/goose/releases/download/v1.41.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "cd8e78455734d68cc43abc6dacea8e38ae00160fc1245ce959c3558fd61898a5"
     end
   end
 
