@@ -1,17 +1,17 @@
 {
-  "version": "3.1.5",
+  "version": "3.2.0",
   "description": "Scalable, distributed document-graph database",
   "homepage": "https://github.com/surrealdb/surrealdb",
   "license": "BSL-1.1",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/surrealdb/surrealdb/releases/download/v3.1.5/surreal-v3.1.5.windows-amd64.exe",
-      "hash": "b77ca0cb221c810aedbf66bf25706a3b5cc3245bf60fb031a68e307081dbfeac"
+      "url": "https://github.com/surrealdb/surrealdb/releases/download/v3.2.0/surreal-v3.2.0.windows-amd64.exe",
+      "hash": "9382a851a54df09aaf39c74c0b010a14b09f2565651f620e83c21dc1f1bca8d3"
     }
   },
   "bin": [
     [
-      "surreal-v3.1.5.windows-amd64.exe",
+      "surreal-v3.2.0.windows-amd64.exe",
       "surreal"
     ]
   ],
