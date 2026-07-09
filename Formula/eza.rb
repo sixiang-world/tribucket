@@ -1,17 +1,17 @@
 class Eza < Formula
   desc "A modern replacement for ls"
   homepage "https://github.com/eza-community/eza"
-  version "0.23.4"
+  version "0.23.5"
   license "MIT"
 
   on_linux do
     on_arm do
-      url "https://github.com/eza-community/eza/releases/download/v0.23.4/eza_aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "366e8430225f9955c3dc659b452150c169894833ccfef455e01765e265a3edda"
+      url "https://github.com/eza-community/eza/releases/download/v0.23.5/eza_aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "40b87ae8628aa2ff0f0d2dc24ab52f689631366385c3da630bae745671fd71ec"
     end
     on_intel do
-      url "https://github.com/eza-community/eza/releases/download/v0.23.4/eza_x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "0c38665440226cd8bef5d1d4f3bc6ff77c927fb0d68b752739105db7ab5b358d"
+      url "https://github.com/eza-community/eza/releases/download/v0.23.5/eza_x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "35c70c5c43c29108075e58b893234c67ef585f0b53a7eaf8e9e7d4eec9f339b4"
     end
   end
 
