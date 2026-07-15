@@ -1,28 +1,28 @@
 class Ripgrep < Formula
   desc "Recursively search directories for a regex pattern (rg)"
   homepage "https://github.com/BurntSushi/ripgrep"
-  version "15.1.0"
+  version "15.2.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-aarch64-apple-darwin.tar.gz"
-      sha256 "378e973289176ca0c6054054ee7f631a065874a352bf43f0fa60ef079b6ba715"
+      url "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-aarch64-apple-darwin.tar.gz"
+      sha256 "3750b2e93f37e0c692657da574d7019a101c0084da05a790c83fd335bad973e4"
     end
     on_intel do
-      url "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-apple-darwin.tar.gz"
-      sha256 "64811cb24e77cac3057d6c40b63ac9becf9082eedd54ca411b475b755d334882"
+      url "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-apple-darwin.tar.gz"
+      sha256 "af7825fcc69a2afc7a7aea55fc9af90e26421d8f20fe59df32e233c0b8a231c1"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "2b661c6ef508e902f388e9098d9c4c5aca72c87b55922d94abdba830b4dc885e"
+      url "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "a740b91c82eaf9914cfedd353572f2791cbe0162c84101ee0951058f4dcbc90d"
     end
     on_intel do
-      url "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "1c9297be4a084eea7ecaedf93eb03d058d6faae29bbc57ecdaf5063921491599"
+      url "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "33e15bcf1624b25cdd2a55813a47a2f95dbe126268203e76aa6a585d1e7b149c"
     end
   end
 
