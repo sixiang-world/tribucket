@@ -1,28 +1,28 @@
 class Llmfit < Formula
   desc "LLM fitness evaluation tool"
   homepage "https://github.com/AlexsJones/llmfit"
-  version "1.1.4"
+  version "1.1.6"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.4/llmfit-v1.1.4-aarch64-apple-darwin.tar.gz"
-      sha256 "6efef2fe91b67830f50f6a601d28c9bf5cd3f4bf9d0635d38889f95b287af7ab"
+      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.6/llmfit-v1.1.6-aarch64-apple-darwin.tar.gz"
+      sha256 "8c3e3a239df717221da9102cdb62e02519d4f95af58d1a45c380c6aa917c3faf"
     end
     on_intel do
-      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.4/llmfit-v1.1.4-x86_64-apple-darwin.tar.gz"
-      sha256 "c4991576184dd293a31d3d9dee14e5e0956328feefe12fd8667d36e13073f2cb"
+      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.6/llmfit-v1.1.6-x86_64-apple-darwin.tar.gz"
+      sha256 "096720e6b611d3f4ced61b75f8ceb3eae3dd6b46965f2bc07ac6237fdf480eeb"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.4/llmfit-v1.1.4-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "51a7708c7ca4c5c47ad7657c7f1afac89bd84b31aab53b947f5baab60a3216b3"
+      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.6/llmfit-v1.1.6-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "f1a2c47a8907f2c4312bdb9ae2b26ffb2ffff8d4521c1c58ef2fbe53af328346"
     end
     on_intel do
-      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.4/llmfit-v1.1.4-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "7573762da09e883e5141b4ebf4ddedc2ae34f156963ea011fe7af784184f8b1d"
+      url "https://github.com/AlexsJones/llmfit/releases/download/v1.1.6/llmfit-v1.1.6-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "1e09232a128455596a2d348ab5893741d04b94aa6d924f1253462dc13304f7c6"
     end
   end
 

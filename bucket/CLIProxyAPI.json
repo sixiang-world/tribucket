@@ -1,31 +1,31 @@
 {
-  "version": "7.2.92",
+  "version": "7.2.93",
   "description": "CLI proxy API tool with wide platform support",
   "homepage": "https://github.com/router-for-me/CLIProxyAPI",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.2.92/CLIProxyAPI_7.2.92_windows_amd64.zip",
-      "hash": "52c956cc8742c8347857ab51ec7aa70c8309cc5a9f4bc1d7ba289eda126d60c4"
+      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.2.93/CLIProxyAPI_7.2.93_windows_amd64.zip",
+      "hash": "2f7a88887ae227bbc9d6bba141187eb8f83d0ae74ddec60413978ef75e33005c"
     },
     "arm64": {
-      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.2.92/CLIProxyAPI_7.2.92_windows_aarch64.zip",
-      "hash": "a3d994a018964725175ebb74bdec778da7394361eab85eafdb77708f24e9d907"
+      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.2.93/CLIProxyAPI_7.2.93_windows_aarch64.zip",
+      "hash": "761fbd154d7bedf7c98651cef392d61ee3cba85b702fb489ea0190fc99dba7e4"
     }
   },
   "bin": [
     [
-      "CLIProxyAPI_7.2.92_windows_amd64.zip",
+      "CLIProxyAPI_7.2.93_windows_amd64.zip",
       "CLIProxyAPI"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v$version/CLIProxyAPI_7.2.92_windows_amd64.zip"
+        "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v$version/CLIProxyAPI_7.2.93_windows_amd64.zip"
       },
       "arm64": {
-        "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v$version/CLIProxyAPI_7.2.92_windows_aarch64.zip"
+        "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v$version/CLIProxyAPI_7.2.93_windows_aarch64.zip"
       }
     }
   },
