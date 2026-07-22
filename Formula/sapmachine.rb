@@ -1,24 +1,24 @@
 class Sapmachine < Formula
   desc "SAP's distribution of OpenJDK"
   homepage "https://github.com/SAP/SapMachine"
-  version "sapmachine-25.0.4"
+  version "sapmachine-17.0.20"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.4/sapmachine-jdk-25.0.4_macos-aarch64_bin.tar.gz"
-      sha256 "015045629129c68ec9bf91c4659b3cc3a9a9a783aec55ca01577ab3397e51bc1"
+      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20/sapmachine-jdk-17.0.20_macos-aarch64_bin.tar.gz"
+      sha256 "9c84d766eeb257208ccbb852b00ed3a88b5a92cc5ead6796266ba4d60ebbc574"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.4/sapmachine-jdk-25.0.4_linux-aarch64_bin.tar.gz"
-      sha256 "b9e14cbc9e66714162d9b13b8fd9e6568e9d8db5f518988f58e8256b9e677171"
+      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20/sapmachine-jdk-17.0.20_linux-aarch64_bin.tar.gz"
+      sha256 "267791d3d14c00af4596949642c6849e72d6ecef37d6a651d0cea81c3e849f2c"
     end
     on_intel do
-      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.4/sapmachine-jdk-25.0.4_linux-x64_bin.tar.gz"
-      sha256 "fc3851ec41715a4fccb30820a10c8ceaac161175567ea784de7dffae47eedc3a"
+      url "https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20/sapmachine-jdk-17.0.20_linux-x64_bin.tar.gz"
+      sha256 "0219434d3528a6092add15926d2df7d10c55a8032a318ef3f7875fcb407ff4bc"
     end
   end
 

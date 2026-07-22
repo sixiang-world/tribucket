@@ -1,31 +1,31 @@
 {
-  "version": "21.0.11",
+  "version": "21.0.12",
   "description": "Azul Zulu - certified build of OpenJDK",
   "homepage": "https://www.azul.com/products/zulu-community/",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_x64.zip",
-      "hash": "84c73a4dcf8400ac01c1fe2d622cc319199e93c1856c200cb50c1bc16dc7dc97"
+      "url": "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-win_x64.zip",
+      "hash": "3c06e6693fd6fa725b985e66798a6a8293c75f52b793490754ad3c54d3d8b5a6"
     },
     "arm64": {
-      "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_aarch64.zip",
-      "hash": "64603c9cd13306ea5d79b11f0de4e0eca64e31f900555be02eccfb28f083df2c"
+      "url": "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-win_aarch64.zip",
+      "hash": "d75658d371e025bb6378231551b4d53d1f5312cb0fccf7aa3b039d91ce1f0b7e"
     }
   },
   "bin": [
     [
-      "zulu21.50.19-ca-jdk21.0.11-win_x64.zip",
+      "zulu21.52.15-ca-jdk21.0.12-win_x64.zip",
       "java"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_x64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-win_x64.zip"
       },
       "arm64": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu21.50.19-ca-jdk21.0.11-win_aarch64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-win_aarch64.zip"
       }
     }
   }

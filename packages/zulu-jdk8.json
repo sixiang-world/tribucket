@@ -1,7 +1,7 @@
 {
   "name": "zulu-jdk8",
   "repo": "azul/zulu-builds",
-  "version": "8.0.492",
+  "version": "8.0.502",
   "description": "Azul Zulu JDK 8 - certified build of OpenJDK",
   "binary": "java",
   "license": "GPL-2.0",
@@ -15,12 +15,11 @@
     "windows_arm64": "NO_MATCH"
   },
   "download_url": {
-    "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jdk8.0.492-linux_x64.tar.gz",
-    "linux_arm64": "https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jdk8.0.492-linux_aarch64.tar.gz",
-    "darwin_amd64": "https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jdk8.0.492-macosx_x64.tar.gz",
-    "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jdk8.0.492-macosx_aarch64.tar.gz",
-    "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jdk8.0.492-win_x64.zip",
-    "windows_arm64": "NO_MATCH"
+    "linux_amd64": "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-linux_x64.tar.gz",
+    "linux_arm64": "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-linux_aarch64.tar.gz",
+    "darwin_amd64": "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-macosx_x64.tar.gz",
+    "darwin_arm64": "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-macosx_aarch64.tar.gz",
+    "windows_amd64": "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-win_x64.zip"
   },
   "checkver": {
     "url": "https://api.azul.com/metadata/v1/zulu/packages/?java_version=8&os=linux&arch=x64&archive_type=tar.gz&java_package_type=jdk&javafx_bundled=false&crac_supported=false&release_type=PSU&latest=true&page_size=1",
