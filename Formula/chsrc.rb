@@ -1,28 +1,28 @@
 class Chsrc < Formula
   desc "Full-platform universal source changing tool and framework"
   homepage "https://github.com/RubyMetric/chsrc"
-  version "0.2.5"
+  version "0.2.6"
   license "GPL-3.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.5/chsrc-aarch64-macos"
-      sha256 "b46f2fb54af6e44b13889ba809ac09e7a242d6039438d89ad3957a62878f195f"
+      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.6/chsrc-aarch64-macos"
+      sha256 "9ca5b2fd01ac341aa435414a622fef96a77e5f025c1517ee84476625680977cf"
     end
     on_intel do
-      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.5/chsrc-x64-macos"
-      sha256 "d4d4b0c0c30cb928edad2e6464d294bc78502e2b73b58023ed0d27902449cc5f"
+      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.6/chsrc-x64-macos"
+      sha256 "4ac581f462c63c116f3abe703607cfca898e09753fc9f1c9fb7d24713f18b7d5"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.5/chsrc-aarch64-linux"
-      sha256 "d65a46f970cbe3f1f584076a8979309dee6509ae44c04146a7a76b55fed70436"
+      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.6/chsrc-aarch64-linux"
+      sha256 "9c469b3fe63a66eca60aff1b3be77747763f8c4893e44185b743c5338a693741"
     end
     on_intel do
-      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.5/chsrc-x64-linux"
-      sha256 "60d170f779adec36e31d33ebc931db92fa246b7730fbabeb5b6373530febf2cd"
+      url "https://github.com/RubyMetric/chsrc/releases/download/v0.2.6/chsrc-x64-linux"
+      sha256 "6b34e8f6b1ae7ea1434b12ab22df992bcc14dbbf2fdced2783c0d17cbae19673"
     end
   end
 

@@ -1,12 +1,12 @@
 {
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Full-platform universal source changing tool and framework",
   "homepage": "https://github.com/RubyMetric/chsrc",
   "license": "GPL-3.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/RubyMetric/chsrc/releases/download/v0.2.5/chsrc-x64-windows.exe",
-      "hash": "9d1429abe57dfe951230900169a64c4998776261f88f62dfd63cbcc0090cff81"
+      "url": "https://github.com/RubyMetric/chsrc/releases/download/v0.2.6/chsrc-x64-windows.exe",
+      "hash": "11bf00186ef496579e4fa9000ab6d655abc10feb467193b29162f338542f65de"
     }
   },
   "bin": [
