@@ -18,11 +18,11 @@ class Cloudflarespeedtest < Formula
   on_linux do
     on_arm do
       url "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v2.3.5/cfst_linux_arm64.tar.gz"
-      sha256 "5ad47fa92f87467cae0b7ba8ab1d340728b381462a5bbc1390f864cf9cf1262e"
+      sha256 "0ac992fcf24d4684caed33620deb9b83ce82f32d2418dc1f90be490ce5900300"
     end
     on_intel do
       url "https://github.com/XIU2/CloudflareSpeedTest/releases/download/v2.3.5/cfst_linux_amd64.tar.gz"
-      sha256 "1b1a2caa09246da589e1555a4a0aa7e4d84958dcb76d46e27b7f1216a4607e39"
+      sha256 "c4c8fc76b4e1bf2bdb5ced8b765956d82dda7bc4eb59df5c04053f0f7db98d90"
     end
   end
 
