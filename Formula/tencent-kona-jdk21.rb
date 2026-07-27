@@ -1,28 +1,28 @@
 class TencentKonaJdk21 < Formula
   desc "Tencent Kona - Tencent's distribution of OpenJDK"
   homepage "https://cloud.tencent.com/product/tkjdk"
-  version "TencentKona-21.0.11"
+  version "TencentKona-21.0.12"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.11/TencentKona-21.0.11.b1_jdk_macosx-aarch64_notarized.tar.gz"
-      sha256 "9914e81e33811f50bd23aebd8115f9c1c70944950b62fca4e65bee73e6544eb6"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1_jdk_macosx-aarch64_notarized.tar.gz"
+      sha256 "cfbfee68e8236adee8006e8816b1aa98a59d0ae7a2db276ae475a4fa7fbfdf8c"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.11/TencentKona-21.0.11.b1_jdk_macosx-x86_64_notarized.tar.gz"
-      sha256 "eda1ba746a8deb872b6d203346429c08dd1604c71215bd8ae769aa724c717c91"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1_jdk_macosx-x86_64_notarized.tar.gz"
+      sha256 "4032c58da90fc6aae8dedeb7236003798606ed830fededfe98512c525309763c"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.11/TencentKona-21.0.11.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "c3bc896aa66bd3883da383e9ede2a9e66cf3897674548b7a942056424b63c3b0"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "7594bf9c6c6aae8826dd9335479ddcc9a2c760ae693e61f1ec65b8c1247f8c76"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.11/TencentKona-21.0.11.b1-jdk_linux-x86_64.tar.gz"
-      sha256 "96f71aabef907853673f8d79189570d28eb668aea41904f40905f4b7e0619f51"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1-jdk_linux-x86_64.tar.gz"
+      sha256 "22ee6933c7110af5814edcdae25c85605cf7dd08f94419b7c6fa9ff7f0065f2e"
     end
   end
 

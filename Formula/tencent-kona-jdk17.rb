@@ -1,28 +1,28 @@
 class TencentKonaJdk17 < Formula
   desc "Tencent Kona JDK 17 - Tencent's distribution of OpenJDK"
   homepage "https://cloud.tencent.com/product/tkjdk"
-  version "TencentKona-17.0.19"
+  version "TencentKona-17.0.20"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.19/TencentKona-17.0.19.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "639303ec313f6624b936c9ba59a23c226c60ec40463406e1dc491a41ae323d84"
+      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.20/TencentKona-17.0.20.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "ee54c46fb304762357d9604574f2a76f45654ec349b2e3cdb1e6b84cd1dfacdd"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.19/TencentKona-17.0.19.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "639303ec313f6624b936c9ba59a23c226c60ec40463406e1dc491a41ae323d84"
+      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.20/TencentKona-17.0.20.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "ee54c46fb304762357d9604574f2a76f45654ec349b2e3cdb1e6b84cd1dfacdd"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.19/TencentKona-17.0.19.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "639303ec313f6624b936c9ba59a23c226c60ec40463406e1dc491a41ae323d84"
+      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.20/TencentKona-17.0.20.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "ee54c46fb304762357d9604574f2a76f45654ec349b2e3cdb1e6b84cd1dfacdd"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.19/TencentKona-17.0.19.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "639303ec313f6624b936c9ba59a23c226c60ec40463406e1dc491a41ae323d84"
+      url "https://github.com/Tencent/TencentKona-17/releases/download/TencentKona-17.0.20/TencentKona-17.0.20.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "ee54c46fb304762357d9604574f2a76f45654ec349b2e3cdb1e6b84cd1dfacdd"
     end
   end
 

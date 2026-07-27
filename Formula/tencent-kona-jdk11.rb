@@ -1,28 +1,28 @@
 class TencentKonaJdk11 < Formula
   desc "Tencent Kona JDK 11 - Tencent's distribution of OpenJDK"
   homepage "https://cloud.tencent.com/product/tkjdk"
-  version "kona11.0.31"
+  version "kona11.0.32"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.31/TencentKona-11.0.31.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "9f3cf6a5eb28a1b6e02ebc25191c651fb072d2e2566638e8b732230faff7d9a7"
+      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.32/TencentKona-11.0.32.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "b5f54768b553f9c77b30ada044a737a4aed89f71648962568f63b6474a04baf3"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.31/TencentKona-11.0.31.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "9f3cf6a5eb28a1b6e02ebc25191c651fb072d2e2566638e8b732230faff7d9a7"
+      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.32/TencentKona-11.0.32.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "b5f54768b553f9c77b30ada044a737a4aed89f71648962568f63b6474a04baf3"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.31/TencentKona-11.0.31.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "9f3cf6a5eb28a1b6e02ebc25191c651fb072d2e2566638e8b732230faff7d9a7"
+      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.32/TencentKona-11.0.32.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "b5f54768b553f9c77b30ada044a737a4aed89f71648962568f63b6474a04baf3"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.31/TencentKona-11.0.31.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "9f3cf6a5eb28a1b6e02ebc25191c651fb072d2e2566638e8b732230faff7d9a7"
+      url "https://github.com/Tencent/TencentKona-11/releases/download/kona11.0.32/TencentKona-11.0.32.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "b5f54768b553f9c77b30ada044a737a4aed89f71648962568f63b6474a04baf3"
     end
   end
 
