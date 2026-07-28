@@ -12,6 +12,10 @@ class TemurinJdk17 < Formula
   end
 
   on_linux do
+    on_arm do
+      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.20_8.tar.gz"
+      sha256 "d143936f473a4cb24e3b0e247d6d0775769d55ec9775c339540e753059a8d77a"
+    end
     on_intel do
       url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.20_8.tar.gz"
       sha256 "be7668bc030d578b83d6d5ef9221d6d6729bbbca8cf94a7d52e16ac68b5a5a35"
