@@ -1,28 +1,28 @@
 class TencentKonaJdk8 < Formula
   desc "Tencent Kona JDK 8 - Tencent's distribution of OpenJDK"
   homepage "https://cloud.tencent.com/product/tkjdk"
-  version "8.0.26-GA"
+  version "8.0.27-GA"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.26-GA/TencentKona8.0.26.b1_jdk_linux-aarch64_8u492.tar.gz"
-      sha256 "4928cbe8cb7c393c1b8dc94a2453afa6682dd372d64d445930b7f3808a31ffad"
+      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.27-GA/TencentKona8.0.27.b1_jdk_linux-aarch64_8u502.tar.gz"
+      sha256 "881a945775f29a1c3bb242bb0340f7d40a298f3e38fed1c389cd88738c9cab27"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.26-GA/TencentKona8.0.26.b1_jdk_linux-aarch64_8u492.tar.gz"
-      sha256 "4928cbe8cb7c393c1b8dc94a2453afa6682dd372d64d445930b7f3808a31ffad"
+      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.27-GA/TencentKona8.0.27.b1_jdk_linux-aarch64_8u502.tar.gz"
+      sha256 "881a945775f29a1c3bb242bb0340f7d40a298f3e38fed1c389cd88738c9cab27"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.26-GA/TencentKona8.0.26.b1_jdk_linux-aarch64_8u492.tar.gz"
-      sha256 "4928cbe8cb7c393c1b8dc94a2453afa6682dd372d64d445930b7f3808a31ffad"
+      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.27-GA/TencentKona8.0.27.b1_jdk_linux-aarch64_8u502.tar.gz"
+      sha256 "881a945775f29a1c3bb242bb0340f7d40a298f3e38fed1c389cd88738c9cab27"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.26-GA/TencentKona8.0.26.b1_jdk_linux-aarch64_8u492.tar.gz"
-      sha256 "4928cbe8cb7c393c1b8dc94a2453afa6682dd372d64d445930b7f3808a31ffad"
+      url "https://github.com/Tencent/TencentKona-8/releases/download/8.0.27-GA/TencentKona8.0.27.b1_jdk_linux-aarch64_8u502.tar.gz"
+      sha256 "881a945775f29a1c3bb242bb0340f7d40a298f3e38fed1c389cd88738c9cab27"
     end
   end
 
