@@ -4,6 +4,13 @@ class TemurinJdk21 < Formula
   version "jdk-21.0.12+8"
   license "GPL-2.0"
 
+  on_macos do
+    on_intel do
+      url "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_mac_hotspot_21.0.12_8.pkg"
+      sha256 "b1be778ed2376da8c44797afd11a492c0e207f6307a4fd84b72cbe452a46b4a5"
+    end
+  end
+
   on_linux do
     on_arm do
       url "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.12_8.tar.gz"
