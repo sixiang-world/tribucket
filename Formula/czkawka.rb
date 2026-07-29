@@ -1,24 +1,24 @@
 class Czkawka < Formula
   desc "Multi functional app to find duplicates, empty folders, similar images etc."
   homepage "https://github.com/qarmin/czkawka"
-  version "12.0.0"
+  version "12.0.1"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/qarmin/czkawka/releases/download/12.0.0/mac_czkawka_cli_arm64"
-      sha256 "9a08888d329fe39d5b00a15bf0bbbfdc80c5f480465edc63a94a13a3b4e1f312"
+      url "https://github.com/qarmin/czkawka/releases/download/12.0.1/mac_czkawka_cli_arm64"
+      sha256 "465ba2ea8f6ce0378adc412e7d8012903e8bfc6d3bded29320db3ed02723c905"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/qarmin/czkawka/releases/download/12.0.0/linux_czkawka_cli_arm64"
-      sha256 "2d7a66cf626d64ae578e2ef502df5ea9e82aeab3d890853a2e15118c430d8a37"
+      url "https://github.com/qarmin/czkawka/releases/download/12.0.1/linux_czkawka_cli_arm64"
+      sha256 "82bcbb671b1cd833e0ecbdd57a39c1e729880fb1bc938ba6075d8d9a771d96d9"
     end
     on_intel do
-      url "https://github.com/qarmin/czkawka/releases/download/12.0.0/linux_czkawka_cli_x86_64"
-      sha256 "ad21a5428aee09fad88fb6d35fb1c656b9e0b8cdafee2de107618ddb5a9997ff"
+      url "https://github.com/qarmin/czkawka/releases/download/12.0.1/linux_czkawka_cli_x86_64"
+      sha256 "612fdb68c245775b02c34cb52aa7a350ea89cd11fe7a3daf7fd947a26a679d2b"
     end
   end
 
