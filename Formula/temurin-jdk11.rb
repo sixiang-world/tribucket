@@ -4,6 +4,17 @@ class TemurinJdk11 < Formula
   version "jdk-11.0.32+9"
   license "GPL-2.0"
 
+  on_macos do
+    on_arm do
+      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32%2B9/OpenJDK11U-jdk_aarch64_mac_hotspot_11.0.32_9.pkg"
+      sha256 "4d40fb153a4d962b7f2bdab5839d1bb6d53b797419cc68691585cfd48e646c2b"
+    end
+    on_intel do
+      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32%2B9/OpenJDK11U-jdk_x64_mac_hotspot_11.0.32_9.pkg"
+      sha256 "02d722c7e90e79dd42e54f005de04386176e2f5632d5ed708e5326a9d3214fcd"
+    end
+  end
+
   on_linux do
     on_arm do
       url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32%2B9/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.32_9.tar.gz"

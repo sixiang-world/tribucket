@@ -5,6 +5,10 @@ class TemurinJdk17 < Formula
   license "GPL-2.0"
 
   on_macos do
+    on_arm do
+      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.20_8.pkg"
+      sha256 "33b9c3e8fa3c74742fe01454f3e54279978fac1b736a3fbf7c2710574339fbad"
+    end
     on_intel do
       url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_x64_mac_hotspot_17.0.20_8.pkg"
       sha256 "d074b50af1b3674942b48a4939fc854c577bf8e96a2be0f1102fca573cce2f8a"
