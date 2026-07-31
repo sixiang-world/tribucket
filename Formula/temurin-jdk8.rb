@@ -1,24 +1,24 @@
 class TemurinJdk8 < Formula
   desc "Eclipse Temurin JDK 8 - OpenJDK binaries by Adoptium"
   homepage "https://adoptium.net"
-  version "jdk8u492-b09"
+  version "jdk8u502-b07"
   license "GPL-2.0"
 
   on_macos do
     on_intel do
-      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u492-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u492b09.pkg"
-      sha256 "8d70d1bdc7a8666ed550e5db3c2e4acc5f67f3d16dadf47ce46d352d6d54dc18"
+      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u502-b07/OpenJDK8U-jdk_x64_mac_hotspot_8u502b07.pkg"
+      sha256 "95b897f7aaad33c5097c24bb4cab582f6031dd5e038ffb0902e90d81b0a06ebd"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u492-b09/OpenJDK8U-jdk_aarch64_linux_hotspot_8u492b09.tar.gz"
-      sha256 "3c2253b986909c20f79d6de7a0cb957f89c243df57615897836046e24d2e5257"
+      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u502-b07/OpenJDK8U-jdk_aarch64_linux_hotspot_8u502b07.tar.gz"
+      sha256 "34912db17786f7144dab274f040a42028e25da6e7a6a09780d7013339a56bdb2"
     end
     on_intel do
-      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u492-b09/OpenJDK8U-jdk_x64_linux_hotspot_8u492b09.tar.gz"
-      sha256 "da257f161d7f8c6ca5b0e5d9e4090f65ac28c5e398072e68b8ae87988b1d1a2e"
+      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u502-b07/OpenJDK8U-jdk_x64_linux_hotspot_8u502b07.tar.gz"
+      sha256 "b8f5440f64f50193c01f67dacba55c9660caffe13b908baf6bd1955f4dd4c3ea"
     end
   end
 

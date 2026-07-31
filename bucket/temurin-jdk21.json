@@ -7,6 +7,10 @@
     "64bit": {
       "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.msi",
       "hash": "845a30ebafdb4cbc4aff9c9d65b574a3dd154fbc5ef7f9412cd26628ffa5c22d"
+    },
+    "arm64": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_aarch64_windows_hotspot_21.0.12_8.msi",
+      "hash": "d056a98175d56cc3c8c8fd37320352a205ccf70d381be05213a557a4b583cbd1"
     }
   },
   "bin": [
@@ -19,6 +23,9 @@
     "architecture": {
       "64bit": {
         "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.msi"
+      },
+      "arm64": {
+        "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_aarch64_windows_hotspot_21.0.12_8.msi"
       }
     }
   },
