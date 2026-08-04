@@ -1,28 +1,28 @@
 class GoMusicfox < Formula
   desc "Terminal-based Netease Cloud Music client written in Go"
   homepage "https://github.com/go-musicfox/go-musicfox"
-  version "5.0.1"
+  version "5.0.2"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.1/go-musicfox_5.0.1_darwin_arm64.zip"
-      sha256 "0dbb76f805984c609d0db47a8eb68d9cca9a87165971caa32c7468ce1b6cfaf7"
+      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.2/go-musicfox_5.0.2_darwin_arm64.zip"
+      sha256 "dfade2122f0601c68c7dd1807538b7f0245ff8d3cb813b1b3e9b1e67385552b1"
     end
     on_intel do
-      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.1/go-musicfox_5.0.1_darwin_amd64.zip"
-      sha256 "57c93f315709282ed197881c5d485cba252005aaf69645ff52fb90d6e750acf8"
+      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.2/go-musicfox_5.0.2_darwin_amd64.zip"
+      sha256 "64725f369b71a9bf23030fddda0a7cfe0872a43f2621a38cb6fdadb666c38c75"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.1/go-musicfox_5.0.1_linux_arm64.apk"
-      sha256 "f09e3f5bdf7e039e0e0dd49f971412ff90dd8a007d3f4c2d54db301d0208de3b"
+      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.2/go-musicfox_5.0.2_linux_arm64.apk"
+      sha256 "59b729c2975a8510dfbd81c9a06ce8934f5d529571d596eb2bbcf86e7e55a3b0"
     end
     on_intel do
-      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.1/go-musicfox_5.0.1_linux_amd64.apk"
-      sha256 "662ec6e6916fc56f5ea6b14bed8311b8c9982b5ae5cd453a10722776eaaaccdc"
+      url "https://github.com/go-musicfox/go-musicfox/releases/download/v5.0.2/go-musicfox_5.0.2_linux_amd64.apk"
+      sha256 "6775d96f23283c4d09fd696c32183c3371701fac18cfe7221093492eef4217e1"
     end
   end
 
