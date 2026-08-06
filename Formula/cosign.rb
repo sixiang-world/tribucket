@@ -1,28 +1,28 @@
 class Cosign < Formula
   desc "Container signing, verification, and storage"
   homepage "https://github.com/sigstore/cosign"
-  version "3.1.2"
+  version "3.1.3"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/sigstore/cosign/releases/download/v3.1.2/cosign-darwin-arm64"
-      sha256 "dec1c3f802320b19c2fbcf2dc7bcfb3f258e1c181a046c23a1a074bdf932f10a"
+      url "https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-darwin-arm64"
+      sha256 "5cf948c2f4dfe59687bdd0b8523709067383e03982cc543475c8a7dc70e92a76"
     end
     on_intel do
-      url "https://github.com/sigstore/cosign/releases/download/v3.1.2/cosign-darwin-amd64"
-      sha256 "acd180f8b015be25240ca33abee8a1e564eb65cdf1a3cee4725456d2dceb7da6"
+      url "https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-darwin-amd64"
+      sha256 "2347488e5d5b25336644024dfeca5601b190e91197a71a917bda44744aff106c"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/sigstore/cosign/releases/download/v3.1.2/cosign-linux-arm64"
-      sha256 "90e7ae0b5dfd60f20816b52c012addf7fc055ebcc7bea4ce81c428ca8518c302"
+      url "https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-linux-arm64"
+      sha256 "c5d324e091826b0d7a78eb16fef316450b4eb9aaec045611c08ba06f5e73220a"
     end
     on_intel do
-      url "https://github.com/sigstore/cosign/releases/download/v3.1.2/cosign-linux-amd64"
-      sha256 "f7622ed3cf22e55e1ae6377c080979ff77a22da9981c11df222a2e444991e7cf"
+      url "https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-linux-amd64"
+      sha256 "4629c757b7618056f8ddd7e2625ae9fdd94c0372a65049520bc7d9df9efc7f71"
     end
   end
 
