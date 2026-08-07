@@ -1,28 +1,28 @@
 class Uv < Formula
   desc "An extremely fast Python package installer and resolver"
   homepage "https://github.com/astral-sh/uv"
-  version "0.12.2"
+  version "0.12.3"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/astral-sh/uv/releases/download/0.12.2/uv-aarch64-apple-darwin.tar.gz"
-      sha256 "fa909fea3bc06f460db79017030a221fdbc43ec4478f089cb554d8335c090817"
+      url "https://github.com/astral-sh/uv/releases/download/0.12.3/uv-aarch64-apple-darwin.tar.gz"
+      sha256 "546f7f8a6c70ff13a3a9d2bc958db3427298cebf3e0cb756f9177133b7068843"
     end
     on_intel do
-      url "https://github.com/astral-sh/uv/releases/download/0.12.2/uv-x86_64-apple-darwin.tar.gz"
-      sha256 "a6e6506a9109801222d65d17461abf4ed13bdecc5d2b13af0495418a82972c6b"
+      url "https://github.com/astral-sh/uv/releases/download/0.12.3/uv-x86_64-apple-darwin.tar.gz"
+      sha256 "4c9f52262a14da336e4a42ed24992d12d0c956acde87619e4611d321dffa602b"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/astral-sh/uv/releases/download/0.12.2/uv-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "19b7f1f66895261fbaa07f8ea91da0f86337ad4e47efa594e87641c1718ffc52"
+      url "https://github.com/astral-sh/uv/releases/download/0.12.3/uv-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "bb66cb52e7b1823aed1183630d8d8e5c958840d584a4c55ec10a4cfc168dcca2"
     end
     on_intel do
-      url "https://github.com/astral-sh/uv/releases/download/0.12.2/uv-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "d66e96b5f1ca3b99806eee283a8125d33a0bd669e6e6d9bc4ab7ffda63c41bf4"
+      url "https://github.com/astral-sh/uv/releases/download/0.12.3/uv-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
     end
   end
 
