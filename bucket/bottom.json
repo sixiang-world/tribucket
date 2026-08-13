@@ -1,12 +1,12 @@
 {
-  "version": "0.14.7",
+  "version": "0.14.8",
   "description": "Cross-platform graphical system monitor",
   "homepage": "https://github.com/ClementTsang/bottom",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/ClementTsang/bottom/releases/download/0.14.7/bottom_x86_64-pc-windows-gnu.zip",
-      "hash": "6ecab6f8b71fcdfbf7a293cf3c4e54553c2a8e063586d30aa1f62226d0320943"
+      "url": "https://github.com/ClementTsang/bottom/releases/download/0.14.8/bottom_x86_64-pc-windows-gnu.zip",
+      "hash": "8b92b662c4c99662063500a9181520de0fbccc699b76c8656ea7f9b883cab606"
     }
   },
   "bin": [
