@@ -1,28 +1,28 @@
 class Fzf < Formula
   desc "Command-line fuzzy finder"
   homepage "https://github.com/junegunn/fzf"
-  version "0.74.2"
+  version "0.74.3"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/junegunn/fzf/releases/download/v0.74.2/fzf-0.74.2-darwin_arm64.tar.gz"
-      sha256 "d60ddb36356566ac69bae7c3504e888916cf747c9ad2132141c09229b1e28dee"
+      url "https://github.com/junegunn/fzf/releases/download/v0.74.3/fzf-0.74.3-darwin_arm64.tar.gz"
+      sha256 "1f8501cea4f9c0c2d6110d0ff75d0ec9451cd9d7524d9a26244a154ea89f3bd5"
     end
     on_intel do
-      url "https://github.com/junegunn/fzf/releases/download/v0.74.2/fzf-0.74.2-darwin_amd64.tar.gz"
-      sha256 "b019ae8bcca33945a2ffbbbf8369705405cd1406fc4d74267e712797010e3676"
+      url "https://github.com/junegunn/fzf/releases/download/v0.74.3/fzf-0.74.3-darwin_amd64.tar.gz"
+      sha256 "b8a231250eedec244539ade3dc437bcd60e545a099c6cc0c8a11bdbd8574b9bc"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/junegunn/fzf/releases/download/v0.74.2/fzf-0.74.2-linux_arm64.tar.gz"
-      sha256 "1373e3f5ed3c468179d4529942ddd96c234bcad1bcacaf238916e26a5234b5b2"
+      url "https://github.com/junegunn/fzf/releases/download/v0.74.3/fzf-0.74.3-linux_arm64.tar.gz"
+      sha256 "4a17a17b46bd0c4873e995533de508995c11572c0be0664a5dbcf13f60463046"
     end
     on_intel do
-      url "https://github.com/junegunn/fzf/releases/download/v0.74.2/fzf-0.74.2-linux_amd64.tar.gz"
-      sha256 "b3648f48675612b69ee35371cf6dc99ca96d767e89b912d079080916ac8ba8bd"
+      url "https://github.com/junegunn/fzf/releases/download/v0.74.3/fzf-0.74.3-linux_amd64.tar.gz"
+      sha256 "3501a595e4b5c40a6b047340a0e8f805c46fd4e61ef95ef8a136ba8c61cf6f22"
     end
   end
 
