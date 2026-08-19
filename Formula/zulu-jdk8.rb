@@ -1,28 +1,28 @@
 class ZuluJdk8 < Formula
   desc "Azul Zulu JDK 8 - certified build of OpenJDK"
   homepage "https://www.azul.com/products/zulu-community/"
-  version "8.0.502"
+  version "8.0.504"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-macosx_aarch64.tar.gz"
-      sha256 "9f9e5038c638e415e507e8b5118a774822f553a56e76bdf4b042c3fbe7b69083"
+      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.205-ca-jdk8.0.504-macosx_aarch64.tar.gz"
+      sha256 "58bb3c08f2aa63d9743cf31899fa4b8c6c9effefce9479e7288c26621c3bb21b"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-macosx_x64.tar.gz"
-      sha256 "b29088ddb00f81db1e01d6d5bfddd44a58e46ef44b50c372cff3eb1bf5b23173"
+      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.205-ca-jdk8.0.504-macosx_x64.tar.gz"
+      sha256 "e35bc8a4401193aa670146762bbad132bf0651fee5e3f16acbb3a5db0e0b0cff"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-linux_aarch64.tar.gz"
-      sha256 "b23296caf10d0c3db054d4a58b9dd168976991472f2203335d7c4820f98c4a4e"
+      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.205-ca-jdk8.0.504-linux_aarch64.tar.gz"
+      sha256 "c79f5fd740702a1336a9e6da2262be03e1a6e4255a94d198b66c49896be6b478"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.19-ca-jdk8.0.502-linux_x64.tar.gz"
-      sha256 "5923daaf12fd0b87e60e437aaae7b2e5b257846cdb8ac15065258fb59a1da70a"
+      url "https://cdn.azul.com/zulu/bin/zulu8.96.0.205-ca-jdk8.0.504-linux_x64.tar.gz"
+      sha256 "fdb93d3789f740c62b85c57a1c55db9960eb8bf6d7966ca8becd2a6be89bfcbf"
     end
   end
 

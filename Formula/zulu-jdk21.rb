@@ -1,28 +1,28 @@
 class ZuluJdk21 < Formula
   desc "Azul Zulu - certified build of OpenJDK"
   homepage "https://www.azul.com/products/zulu-community/"
-  version "21.0.12"
+  version "21.0.12.1"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-macosx_aarch64.tar.gz"
-      sha256 "84d38c4bf04f73d585bd319b949758d00abde50149a9522c2d9deef46b9a3ec6"
+      url "https://cdn.azul.com/zulu/bin/zulu21.52.203-ca-jdk21.0.12.1-macosx_aarch64.tar.gz"
+      sha256 "042093e0895c940a02d68e727bc37b59f3958e58aa1463ec9080845d77af0a45"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-macosx_x64.tar.gz"
-      sha256 "14e05cb1299c27cd26d3c5c6815723f63018df548dc7278c810767607902b4f4"
+      url "https://cdn.azul.com/zulu/bin/zulu21.52.203-ca-jdk21.0.12.1-macosx_x64.tar.gz"
+      sha256 "6edaf4b72ec6c23d86a46d8b88d0cfed2aaf81645fee13fd852d37af23c4b9fb"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-linux_aarch64.tar.gz"
-      sha256 "dc7ed9ab7dfd33f2ddb1cd8311d3b00738497961a420533d81088051eac3f195"
+      url "https://cdn.azul.com/zulu/bin/zulu21.52.203-ca-jdk21.0.12.1-linux_aarch64.tar.gz"
+      sha256 "2a8bf9d26eaa10598242d8a4799aff1440a929d6ceacf1c161c28bb1973b003a"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu21.52.15-ca-jdk21.0.12-linux_x64.tar.gz"
-      sha256 "b1a9df12e798770d1b2db43b402a80f1e6080cff6d5d1d1fbe5c768fb4225f6a"
+      url "https://cdn.azul.com/zulu/bin/zulu21.52.203-ca-jdk21.0.12.1-linux_x64.tar.gz"
+      sha256 "db0c11e13b545e64d520b4821f4ca38ea9bc1c515924eb1e7f48435df101f183"
     end
   end
 
