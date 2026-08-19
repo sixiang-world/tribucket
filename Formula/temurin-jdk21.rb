@@ -15,6 +15,13 @@ class TemurinJdk21 < Formula
     end
   end
 
+  on_linux do
+    on_intel do
+      url "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz"
+      sha256 "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94"
+    end
+  end
+
   def install
     bin.install Dir["java*"].first => "java"
   end
