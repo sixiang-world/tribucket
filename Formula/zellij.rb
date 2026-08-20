@@ -1,28 +1,28 @@
 class Zellij < Formula
   desc "Terminal multiplexer with batteries included"
   homepage "https://github.com/zellij-org/zellij"
-  version "0.44.3"
+  version "0.45.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-aarch64-apple-darwin.tar.gz"
-      sha256 "b6acf83a7739cf5f0f4e9bd47709642d4d98acbbf8c34d4a12c6e706f531da61"
+      url "https://github.com/zellij-org/zellij/releases/download/v0.45.0/zellij-aarch64-apple-darwin.tar.gz"
+      sha256 "b3167bca9d75d2e2a676d1dabfa87537009f44b3878bc03fe6ed4cf651e337db"
     end
     on_intel do
-      url "https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-x86_64-apple-darwin.tar.gz"
-      sha256 "59f803faa32cd4e5f316f0dc2d3b7a5530a72553e38ad939286471848a418eeb"
+      url "https://github.com/zellij-org/zellij/releases/download/v0.45.0/zellij-x86_64-apple-darwin.tar.gz"
+      sha256 "ce499f2e5673750e22e980eb6bbe62fee9d8242cb6ff9d4e1ae33c7db1970d44"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "15e6534d42644d66973d136c590c49739dcfd6a1a2a0d3d917973f16c81b45fb"
+      url "https://github.com/zellij-org/zellij/releases/download/v0.45.0/zellij-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "d8b311d0f9ec7a03f3341563331aac12c9f52990ecc96a36ed44b1add9dfa035"
     end
     on_intel do
-      url "https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "0f7c346788627f506c0a28296517768633cff24fc822a739f8264b640ecad751"
+      url "https://github.com/zellij-org/zellij/releases/download/v0.45.0/zellij-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "ab8b2494d80c20c07da4361041a25b96b93c73df992d2d54143e70fb9b1a1063"
     end
   end
 
