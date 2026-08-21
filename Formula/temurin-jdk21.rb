@@ -16,6 +16,10 @@ class TemurinJdk21 < Formula
   end
 
   on_linux do
+    on_arm do
+      url "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.12.1_1.tar.gz"
+      sha256 "23e37e026f12f3e706f18938ff611db3032d075b09d0879a25d06718c773e223"
+    end
     on_intel do
       url "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz"
       sha256 "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94"
