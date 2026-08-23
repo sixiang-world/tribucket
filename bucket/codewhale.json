@@ -1,16 +1,16 @@
 {
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "DeepSeek + MiMo coding agent in terminal",
   "homepage": "https://github.com/Hmbown/CodeWhale",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.10/codewhale-windows-x64.exe",
-      "hash": "d08ac678311d4a8e5a6341fefe5be0c6ac1d704ad730378b2c17cafddc83682d"
+      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-x64.exe",
+      "hash": "c637ff95833cc5461c0aa22a085af95001606ec0f5677230beadc4f0b447f3dc"
     },
     "arm64": {
-      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.10/codewhale-windows-arm64.exe",
-      "hash": "97f9edc357d5fd71cb126e6251dcc17dbbc6bc8d9966f3b07ea838343cc2332f"
+      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-arm64.exe",
+      "hash": "d078303efa867fe4766bc337966798ea99d3c2b09d8585827d14b2b21e741d07"
     }
   },
   "bin": [
