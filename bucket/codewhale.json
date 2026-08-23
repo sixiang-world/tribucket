@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-x64.exe",
-      "hash": "c637ff95833cc5461c0aa22a085af95001606ec0f5677230beadc4f0b447f3dc"
+      "hash": "400f6146e3211af31e8e7bb9919bead73a0f354dfb57de7ab30c66097beb0a69"
     },
     "arm64": {
       "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-arm64.exe",
-      "hash": "d078303efa867fe4766bc337966798ea99d3c2b09d8585827d14b2b21e741d07"
+      "hash": "fe641e7a11e96aa7f00c1cf2bd850c1f765ef83a0844e4b56ca641e281e1b692"
     }
   },
   "bin": [
