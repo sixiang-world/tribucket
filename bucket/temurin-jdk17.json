@@ -1,24 +1,24 @@
 {
-  "version": "jdk-17.0.20+8",
+  "version": "jdk-17.0.20.1+1",
   "description": "Eclipse Temurin JDK 17 - OpenJDK binaries by Adoptium",
   "homepage": "https://adoptium.net",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20_8.msi",
-      "hash": "1a8ec6023937b94e26691a2369e9f99dfeae3a25351a7e4f9320828aae481898"
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.msi",
+      "hash": "a6013774c5e4a34951e11c1997d8b4641d2de7736d3eac839231f4266bd1116f"
     }
   },
   "bin": [
     [
-      "OpenJDK17U-jdk_x64_windows_hotspot_17.0.20_8.msi",
+      "OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.msi",
       "java"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20_8.msi"
+        "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.msi"
       }
     }
   },
