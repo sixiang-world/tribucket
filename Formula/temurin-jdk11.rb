@@ -9,6 +9,10 @@ class TemurinJdk11 < Formula
       url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_aarch64_mac_hotspot_11.0.32.1_1.pkg"
       sha256 "e559ceb33cc71b402393997440b195c6d52647aff10d6cf0eaee148e9f333a91"
     end
+    on_intel do
+      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_x64_mac_hotspot_11.0.32.1_1.pkg"
+      sha256 "0180c3c43d6d9ab82173a1a0f0e9f57760793e9838b3ac2b1caaafa710d97319"
+    end
   end
 
   on_linux do
