@@ -1,24 +1,24 @@
 {
-  "version": "jdk-11.0.32+9",
+  "version": "jdk-11.0.32.1+1",
   "description": "Eclipse Temurin JDK 11 - OpenJDK binaries by Adoptium",
   "homepage": "https://adoptium.net",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.32_9.msi",
-      "hash": "f6079d2975e9b7f9707b18ec6a24841fa327aafa749b032c4ab74cdf9746b76e"
+      "url": "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_x64_windows_hotspot_11.0.32.1_1.msi",
+      "hash": "253989adc3097a52f81560e32986d829bdec6b949b4595a3489220f74d801cdb"
     }
   },
   "bin": [
     [
-      "OpenJDK11U-jdk_x64_windows_hotspot_11.0.32_9.msi",
+      "OpenJDK11U-jdk_x64_windows_hotspot_11.0.32.1_1.msi",
       "java"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.32_9.msi"
+        "url": "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_x64_windows_hotspot_11.0.32.1_1.msi"
       }
     }
   },
