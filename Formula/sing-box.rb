@@ -1,28 +1,28 @@
 class SingBox < Formula
   desc "The universal proxy platform"
   homepage "https://github.com/SagerNet/sing-box"
-  version "1.13.21"
+  version "1.14.0"
   license "GPL-3.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/SagerNet/sing-box/releases/download/v1.13.21/sing-box-1.13.21-darwin-arm64.tar.gz"
-      sha256 "62bca85bf08b9145288729cf010c98ea9877b8086f7369cde9e127012d509424"
+      url "https://github.com/SagerNet/sing-box/releases/download/v1.14.0/sing-box-1.14.0-darwin-arm64.tar.gz"
+      sha256 "a150c94012ff768b7261939cd236b9c8554127f45137230295d23a5660225cc9"
     end
     on_intel do
-      url "https://github.com/SagerNet/sing-box/releases/download/v1.13.21/sing-box-1.13.21-darwin-amd64.tar.gz"
-      sha256 "61093d79211a6ae7b707d30f07be35b1167ca8366bf0dbc06ee5fb35c90dc9e8"
+      url "https://github.com/SagerNet/sing-box/releases/download/v1.14.0/sing-box-1.14.0-darwin-amd64.tar.gz"
+      sha256 "6cf26fc3501f3117cf781e9405cf5338f60add6da5affae39421af6800ebbcb4"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/SagerNet/sing-box/releases/download/v1.13.21/sing-box-1.13.21-linux-arm64.tar.gz"
-      sha256 "3e30b876c9a93c19e503e2a2d6249cf05e6a26766553d4b61e1daf48223f304f"
+      url "https://github.com/SagerNet/sing-box/releases/download/v1.14.0/sing-box-1.14.0-linux-arm64.tar.gz"
+      sha256 "04d9b40bc98dc55b6f509ce3292145c65478f65866bea64826ebb2f382385088"
     end
     on_intel do
-      url "https://github.com/SagerNet/sing-box/releases/download/v1.13.21/sing-box-1.13.21-linux-amd64.tar.gz"
-      sha256 "24f9ef8e7234e13e71e74c3598a4164c5fe07b7b67ccc6e96cf68b54789f72cd"
+      url "https://github.com/SagerNet/sing-box/releases/download/v1.14.0/sing-box-1.14.0-linux-amd64.tar.gz"
+      sha256 "2375de6999f4f56ab46b4fc5ddf26a6aba1d3e61a0f4e7ddec2f4690457d5f63"
     end
   end
 
