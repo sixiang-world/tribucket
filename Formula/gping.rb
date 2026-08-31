@@ -1,28 +1,28 @@
 class Gping < Formula
   desc "Ping with a graph"
   homepage "https://github.com/orf/gping"
-  version "gping-v1.20.4"
+  version "gping-v1.21.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/orf/gping/releases/download/gping-v1.20.4/gping-macOS-arm64.tar.gz"
-      sha256 "124e5c44dd05abd8f2019bb23e31cc32d700e7f2f15f74692afde53b8c30a24f"
+      url "https://github.com/orf/gping/releases/download/gping-v1.21.0/gping-macOS-arm64.tar.gz"
+      sha256 "9061a06d93490f97b3a956e149d8ec4c9030625f764e8dbfac9b737c00bd9ea0"
     end
     on_intel do
-      url "https://github.com/orf/gping/releases/download/gping-v1.20.4/gping-macOS-x86_64.tar.gz"
-      sha256 "b39e8ed591117ca4366502d68ad59e7ade46cdd789853ea78a705ff5f7053d55"
+      url "https://github.com/orf/gping/releases/download/gping-v1.21.0/gping-macOS-x86_64.tar.gz"
+      sha256 "d0206c60fb5e7c6a9b727968aec847a3b0eb206f1f763c6c784324288114e732"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/orf/gping/releases/download/gping-v1.20.4/gping-Linux-gnu-arm64.tar.gz"
-      sha256 "a912b76238bf73d4ae6a4a2ada7f6dd42c25da37e8f0044f72543323656f7631"
+      url "https://github.com/orf/gping/releases/download/gping-v1.21.0/gping-Linux-gnu-arm64.tar.gz"
+      sha256 "49af7566b5b3cac2b1692cc0fd12522519a362d9ce3b45daa29ecf6912d9baa6"
     end
     on_intel do
-      url "https://github.com/orf/gping/releases/download/gping-v1.20.4/gping-Linux-gnu-x86_64.tar.gz"
-      sha256 "91dbcc0a2e279f7c91d9155f846fa5ad2626406f3306138ed2495744aaa9bc84"
+      url "https://github.com/orf/gping/releases/download/gping-v1.21.0/gping-Linux-gnu-x86_64.tar.gz"
+      sha256 "965d4246cdc6907957199b3f2732e52e36e37a4162a6d15a86f3d26c223a01ef"
     end
   end
 
