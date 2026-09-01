@@ -1,28 +1,28 @@
 class Yazi < Formula
   desc "Blazing fast terminal file manager"
   homepage "https://github.com/sxyazi/yazi"
-  version "26.8.15"
+  version "26.9.1"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-aarch64-apple-darwin.zip"
-      sha256 "3f54907ea08abe96506f4b22239340ed8923a6aeaeae78f33d59bce57daca4cd"
+      url "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-apple-darwin.zip"
+      sha256 "3921182a21cceb0a505e5dac578e1487d48104caa5f114e9f8adf40b5a7289a9"
     end
     on_intel do
-      url "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-x86_64-apple-darwin.zip"
-      sha256 "70bb2bcf57d8af862a54e2d12f2fddceefb9aa4ba3783e9a4dcbf2a8e64aacb3"
+      url "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-apple-darwin.zip"
+      sha256 "36e09036fcc446488d876d139a5e303f2443b82cfb6ac7dfcb43892d6fe6fa20"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-aarch64-unknown-linux-gnu.zip"
-      sha256 "f5a85771f06bb0e8c488136ae0aedaec8d341a7cee995549df391d7d852fe8d1"
+      url "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-unknown-linux-gnu.zip"
+      sha256 "02807f08d6b589b65b7516a4e259d83f5995d7a23bb12b3a155141385b370b3a"
     end
     on_intel do
-      url "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-x86_64-unknown-linux-gnu.zip"
-      sha256 "cc67eb7991550c2f9407cda52d3f5af0937627aa6884e7de99a04fcf059807e0"
+      url "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-unknown-linux-gnu.zip"
+      sha256 "a02fe91d3304294048c681f010f1100856872a4e98ecf6927328e888d40a6ad2"
     end
   end
 
