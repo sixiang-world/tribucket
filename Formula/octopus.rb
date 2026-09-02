@@ -1,20 +1,20 @@
 class Octopus < Formula
   desc "Multi-platform CLI tool"
   homepage "https://github.com/bestruirui/octopus"
-  version "0.13.1"
+  version "0.13.2"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.1/octopus-darwin-arm64.zip"
-      sha256 "3a3d78cc6ed6d838fb387c284b3703fdd8aa7671b9bfc97fe75361410279c9da"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.2/octopus-darwin-arm64.zip"
+      sha256 "bdf046d27371c5886f7f0018fdccdfd602cbf331311c6a4eb44ecff07ab07b44"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.1/octopus-linux-arm64.zip"
-      sha256 "23ad0345f5cd501a6cfa7fb8871e9a08bb6f18f3efa0ce0b72f90d59d0a870ff"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.2/octopus-linux-arm64.zip"
+      sha256 "b2755f49d26187ca52fd62ba32bd259c11f456fec858baf6bc5b97f143f7fb3d"
     end
   end
 

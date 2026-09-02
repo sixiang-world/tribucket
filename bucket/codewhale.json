@@ -5,11 +5,11 @@
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-x64.exe",
+      "url": "https://github.com/Hmbown/Codewhale/releases/download/v0.9.11/codewhale-windows-x64.exe",
       "hash": "400f6146e3211af31e8e7bb9919bead73a0f354dfb57de7ab30c66097beb0a69"
     },
     "arm64": {
-      "url": "https://github.com/Hmbown/CodeWhale/releases/download/v0.9.11/codewhale-windows-arm64.exe",
+      "url": "https://github.com/Hmbown/Codewhale/releases/download/v0.9.11/codewhale-windows-arm64.exe",
       "hash": "fe641e7a11e96aa7f00c1cf2bd850c1f765ef83a0844e4b56ca641e281e1b692"
     }
   },
@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/Hmbown/CodeWhale/releases/download/v$version/codewhale-windows-x64.exe"
+        "url": "https://github.com/Hmbown/Codewhale/releases/download/v$version/codewhale-windows-x64.exe"
       },
       "arm64": {
-        "url": "https://github.com/Hmbown/CodeWhale/releases/download/v$version/codewhale-windows-arm64.exe"
+        "url": "https://github.com/Hmbown/Codewhale/releases/download/v$version/codewhale-windows-arm64.exe"
       }
     }
   },
