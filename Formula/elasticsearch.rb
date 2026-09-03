@@ -1,28 +1,28 @@
 class Elasticsearch < Formula
   desc "Distributed search and analytics engine by Elastic"
   homepage "https://www.elastic.co/elasticsearch"
-  version "9.5.2"
+  version "9.5.3"
   license "Elastic-2.0"
 
   on_macos do
     on_arm do
-      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.2-darwin-aarch64.tar.gz"
-      sha256 "282960b75ab441edf8a5ad5ec85e16846ce0fd3792721c7565cbdd8356eb7c40"
+      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.3-darwin-aarch64.tar.gz"
+      sha256 "9ba48bcc28eb6db114a85007c994924d910ef1e53549dc19c42abed6499f4a36"
     end
     on_intel do
-      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.2-darwin-x86_64.tar.gz"
-      sha256 "0d228b75ece7914b3d7e4e632a4cb2c24589549f43e7bc9ed6d8faf0465f5a91"
+      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.3-darwin-x86_64.tar.gz"
+      sha256 "b4151c330679dea2da079b997a4993a61de84bab26a3b380e6c35c4e74563c61"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.2-linux-aarch64.tar.gz"
-      sha256 "4b2b0238fd919b9180da6190a9826fb84cdfc7510f39d60c948cb01cba2f7c1a"
+      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.3-linux-aarch64.tar.gz"
+      sha256 "5c34bb887a353e0cf4717e367886424501c65d77ca094147961da7c2265aab4a"
     end
     on_intel do
-      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.2-linux-x86_64.tar.gz"
-      sha256 "11c6a44af6fb3853970c96eb16cf0c69a3a846fbbd7bfb1c7ceb2c32d78e36c4"
+      url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.5.3-linux-x86_64.tar.gz"
+      sha256 "8eacd9dd6c295e02391f4df7b69c73883bc53417af82e2af74c38906038e5362"
     end
   end
 
