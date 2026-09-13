@@ -1,28 +1,28 @@
 class Zola < Formula
   desc "A fast static site generator in a single binary with everything built-in"
   homepage "https://github.com/getzola/zola"
-  version "0.23.5"
+  version "0.23.6"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/getzola/zola/releases/download/v0.23.5/zola-v0.23.5-aarch64-apple-darwin.tar.gz"
-      sha256 "8c83a33271ab5e7009cf1841cc022819c8c7109d4d61f439f25d8f6508c8b09c"
+      url "https://github.com/getzola/zola/releases/download/v0.23.6/zola-v0.23.6-aarch64-apple-darwin.tar.gz"
+      sha256 "cbffbd29b3f59c3f52633507c8cb945a7a02d8b1399b43b235f5932912297aa3"
     end
     on_intel do
-      url "https://github.com/getzola/zola/releases/download/v0.23.5/zola-v0.23.5-x86_64-apple-darwin.tar.gz"
-      sha256 "bd63b0af0dd22c246e845c520a3bad8675096a70410574cf794c556be4340c06"
+      url "https://github.com/getzola/zola/releases/download/v0.23.6/zola-v0.23.6-x86_64-apple-darwin.tar.gz"
+      sha256 "79a4d0ab51a4d863c068e6e594c6fce36f0aa17429a414ea63066f5910d14460"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/getzola/zola/releases/download/v0.23.5/zola-v0.23.5-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "3e61af6cf2a2072a2397f3be7121b5032b46c6ec93bf46d154c8e72abc104c49"
+      url "https://github.com/getzola/zola/releases/download/v0.23.6/zola-v0.23.6-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "266448fffbf7c7004ca399d0e76dd699541771096d8a42aede98cebe2a029d02"
     end
     on_intel do
-      url "https://github.com/getzola/zola/releases/download/v0.23.5/zola-v0.23.5-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "f9b864c54fb8ef598ae34337d72a0e9f24e84a0b051657a7f231a3f2a3c02e34"
+      url "https://github.com/getzola/zola/releases/download/v0.23.6/zola-v0.23.6-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "8f5132b3522412d04e395e0b25f6d68613ad272a873e54a2b3ebf664873024a4"
     end
   end
 
