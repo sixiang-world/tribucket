@@ -1,0 +1,16 @@
+{
+  "name": "vhs",
+  "repo": "charmbracelet/vhs",
+  "description": "Terminal GIF recorder as a CLI tool",
+  "binary": "vhs",
+  "license": "MIT",
+  "homepage": "https://github.com/charmbracelet/vhs",
+  "asset_pattern": {
+    "linux_amd64": "*_Linux_x86_64.tar.gz",
+    "linux_arm64": "*_Linux_arm64.tar.gz",
+    "darwin_amd64": "*_Darwin_x86_64.tar.gz",
+    "darwin_arm64": "*_Darwin_arm64.tar.gz",
+    "windows_amd64": "*_Windows_x86_64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}
