@@ -17,12 +17,16 @@ _PLATFORM_PATTERNS: list[tuple[str, list[re.Pattern]]] = [
         re.compile(r"linux.*amd64", re.I),
         re.compile(r"linux[-_]amd64", re.I),
         re.compile(r"linux[-_]x86_64", re.I),
+        # Rust target triple: x86_64-unknown-linux-musl/gnu
+        re.compile(r"x86_64[-_]unknown[-_]linux", re.I),
     ]),
     ("linux_arm64", [
         re.compile(r"linux.*aarch64", re.I),
         re.compile(r"linux.*arm64", re.I),
         re.compile(r"linux[-_]arm64", re.I),
         re.compile(r"linux[-_]aarch64", re.I),
+        # Rust target triple: aarch64-unknown-linux-musl/gnu
+        re.compile(r"aarch64[-_]unknown[-_]linux", re.I),
     ]),
     ("darwin_amd64", [
         re.compile(r"darwin.*x86_64", re.I),
@@ -32,6 +36,8 @@ _PLATFORM_PATTERNS: list[tuple[str, list[re.Pattern]]] = [
         re.compile(r"macos.*x64", re.I),
         re.compile(r"macos[-_]amd64", re.I),
         re.compile(r"osx.*x86_64", re.I),
+        # Rust target triple: x86_64-apple-darwin
+        re.compile(r"x86_64[-_]apple[-_]darwin", re.I),
     ]),
     ("darwin_arm64", [
         re.compile(r"darwin.*aarch64", re.I),
@@ -40,6 +46,8 @@ _PLATFORM_PATTERNS: list[tuple[str, list[re.Pattern]]] = [
         re.compile(r"macos.*arm64", re.I),
         re.compile(r"osx.*aarch64", re.I),
         re.compile(r"apple[-_]darwin", re.I),
+        # Rust target triple: aarch64-apple-darwin
+        re.compile(r"aarch64[-_]apple[-_]darwin", re.I),
     ]),
     ("windows_amd64", [
         re.compile(r"windows.*x86_64", re.I),
@@ -48,12 +56,16 @@ _PLATFORM_PATTERNS: list[tuple[str, list[re.Pattern]]] = [
         re.compile(r"win[-_]x86_64", re.I),
         re.compile(r"win[-_]x64", re.I),
         re.compile(r"win[-_]amd64", re.I),
+        # Rust target triple: x86_64-pc-windows-msvc
+        re.compile(r"x86_64[-_]pc[-_]windows", re.I),
     ]),
     ("windows_arm64", [
         re.compile(r"windows.*aarch64", re.I),
         re.compile(r"windows.*arm64", re.I),
         re.compile(r"win[-_]aarch64", re.I),
         re.compile(r"win[-_]arm64", re.I),
+        # Rust target triple: aarch64-pc-windows-msvc
+        re.compile(r"aarch64[-_]pc[-_]windows", re.I),
     ]),
 ]
 

@@ -12,12 +12,14 @@ import argparse
 import json
 import os
 import sys
+from fnmatch import fnmatch
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 from . import __version__
 from .config import load_config, generate_example_config
 from .detector import fetch_release, detect_patterns, format_detection_report
-from .types import PackageConfig, PLATFORMS
+from .types import PackageConfig
 
 
 def cmd_init(args):
@@ -149,10 +151,6 @@ def cmd_generate(args):
 
 def _resolve_assets(config: PackageConfig, version: str, token=None) -> dict:
     """Resolve asset_pattern to actual URLs and SHA256 hashes."""
-    import hashlib
-    import urllib.request
-    from fnmatch import fnmatch
-
     release = fetch_release(config.repo, token)
     all_assets = release.assets
 
@@ -177,12 +175,12 @@ def _resolve_assets(config: PackageConfig, version: str, token=None) -> dict:
         sha = ""
         for cksum in release.checksum_files:
             try:
-                req = urllib.request.Request(cksum.url, headers={
+                req = Request(cksum.url, headers={
                     "User-Agent": "tribucket-gen/0.1",
                 })
                 if token:
                     req.add_header("Authorization", f"token {token}")
-                with urllib.request.urlopen(req, timeout=30) as resp:
+                with urlopen(req, timeout=30) as resp:
                     content = resp.read().decode("utf-8", errors="replace")
                 for line in content.strip().splitlines():
                     parts = line.strip().split()
