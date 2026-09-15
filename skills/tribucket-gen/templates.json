@@ -1,0 +1,154 @@
+{
+  "templates": [
+    {
+      "id": "rust-triple-bare",
+      "description": "Rust target triple, no prefix, .tar.gz — e.g. x86_64-unknown-linux-gnu.tar.gz",
+      "frequency": 8,
+      "match_rule": {
+        "linux_amd64": "x86_64-unknown-linux-{libc}.tar.gz",
+        "linux_arm64": "aarch64-unknown-linux-{libc}.tar.gz",
+        "darwin_amd64": "x86_64-apple-darwin.tar.gz",
+        "darwin_arm64": "aarch64-apple-darwin.tar.gz",
+        "windows_amd64": "x86_64-pc-windows-msvc.zip",
+        "windows_arm64": "aarch64-pc-windows-msvc.zip"
+      },
+      "detect": {
+        "linux_amd64": "x86_64-unknown-linux-.*\\.tar\\.gz",
+        "darwin_amd64": "x86_64-apple-darwin\\.tar\\.gz",
+        "windows_amd64": "x86_64-pc-windows.*\\.zip"
+      },
+      "examples": ["ripgrep", "bat", "fd", "delta", "zoxide", "starship"]
+    },
+    {
+      "id": "rust-triple-prefix",
+      "description": "Rust target triple with name prefix — e.g. starship-x86_64-unknown-linux-gnu.tar.gz",
+      "frequency": 12,
+      "match_rule": {
+        "linux_amd64": "{name}-x86_64-unknown-linux-{libc}.tar.gz",
+        "linux_arm64": "{name}-aarch64-unknown-linux-{libc}.tar.gz",
+        "darwin_amd64": "{name}-x86_64-apple-darwin.tar.gz",
+        "darwin_arm64": "{name}-aarch64-apple-darwin.tar.gz",
+        "windows_amd64": "{name}-x86_64-pc-windows-msvc.zip",
+        "windows_arm64": "{name}-aarch64-pc-windows-msvc.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}-x86_64-unknown-linux-.*\\.tar\\.gz",
+        "darwin_amd64": "{name_pattern}-x86_64-apple-darwin\\.tar\\.gz",
+        "windows_amd64": "{name_pattern}-x86_64-pc-windows.*\\.zip"
+      },
+      "examples": ["starship", "uv", "ruff", "goose", "yazi", "deno"]
+    },
+    {
+      "id": "simple-hyphen",
+      "description": "Simple platform-arch with hyphens — e.g. {name}-linux-amd64.tar.gz",
+      "frequency": 20,
+      "match_rule": {
+        "linux_amd64": "{name}-linux-amd64.tar.gz",
+        "linux_arm64": "{name}-linux-arm64.tar.gz",
+        "darwin_amd64": "{name}-darwin-amd64.tar.gz",
+        "darwin_arm64": "{name}-darwin-arm64.tar.gz",
+        "windows_amd64": "{name}-windows-amd64.zip",
+        "windows_arm64": "{name}-windows-arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}[-_]linux[-_]amd64",
+        "darwin_amd64": "{name_pattern}[-_]darwin[-_]amd64",
+        "windows_amd64": "{name_pattern}[-_]windows[-_]amd64"
+      },
+      "examples": ["cc-connect", "cosign", "sing-box"]
+    },
+    {
+      "id": "simple-x64",
+      "description": "Simple platform with x64/x86_64 — e.g. {name}-linux-x64.tar.gz",
+      "frequency": 10,
+      "match_rule": {
+        "linux_amd64": "{name}-linux-x64.tar.gz",
+        "linux_arm64": "{name}-linux-arm64.tar.gz",
+        "darwin_amd64": "{name}-darwin-x64.tar.gz",
+        "darwin_arm64": "{name}-darwin-arm64.tar.gz",
+        "windows_amd64": "{name}-win32-x64.zip",
+        "windows_arm64": "{name}-win32-arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}[-_]linux[-_]x64",
+        "darwin_amd64": "{name_pattern}[-_]darwin[-_]x64",
+        "windows_amd64": "{name_pattern}[-_]win32[-_]x64|{name_pattern}[-_]windows[-_]x64"
+      },
+      "examples": ["claude-code", "mise", "siteone-crawler"]
+    },
+    {
+      "id": "underscore-version",
+      "description": "Name_version_platform_arch with underscores — e.g. duf_0.9.1_linux_x86_64.tar.gz",
+      "frequency": 8,
+      "match_rule": {
+        "linux_amd64": "{name}_{version}_linux_x86_64.tar.gz",
+        "linux_arm64": "{name}_{version}_linux_arm64.tar.gz",
+        "darwin_amd64": "{name}_{version}_darwin_x86_64.tar.gz",
+        "darwin_arm64": "{name}_{version}_darwin_arm64.tar.gz",
+        "windows_amd64": "{name}_{version}_windows_x86_64.zip",
+        "windows_arm64": "{name}_{version}_windows_arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}_.*_linux[_-]x86_64",
+        "darwin_amd64": "{name_pattern}_.*_darwin[_-]x86_64",
+        "windows_amd64": "{name_pattern}_.*_windows[_-]x86_64"
+      },
+      "examples": ["gh", "lazygit", "duf", "glow", "k9s", "hugo"]
+    },
+    {
+      "id": "underscore-version-caps",
+      "description": "Underscore with capitalized platform — e.g. {name}_{version}_Linux_x86_64.tar.gz",
+      "frequency": 4,
+      "match_rule": {
+        "linux_amd64": "*_Linux_x86_64.tar.gz",
+        "linux_arm64": "*_Linux_arm64.tar.gz",
+        "darwin_amd64": "*_Darwin_x86_64.tar.gz",
+        "darwin_arm64": "*_Darwin_arm64.tar.gz",
+        "windows_amd64": "*_Windows_x86_64.zip",
+        "windows_arm64": "NO_MATCH"
+      },
+      "detect": {
+        "linux_amd64": "_Linux_x86_64\\.tar\\.gz",
+        "darwin_amd64": "_Darwin_x86_64\\.tar\\.gz",
+        "windows_amd64": "_Windows_x86_64\\.zip"
+      },
+      "note": "Glob patterns use * prefix since name and version are both in the filename. Case-sensitive: Linux/Darwin/Windows are capitalized.",
+      "examples": ["vhs"]
+    },
+    {
+      "id": "go-style",
+      "description": "Go-style naming — e.g. {name}_linux_amd64 (no version in filename)",
+      "frequency": 5,
+      "match_rule": {
+        "linux_amd64": "{name}_linux_amd64",
+        "linux_arm64": "{name}_linux_arm64",
+        "darwin_amd64": "{name}_darwin_amd64",
+        "darwin_arm64": "{name}_darwin_arm64",
+        "windows_amd64": "{name}_windows_amd64.exe",
+        "windows_arm64": "{name}_windows_arm64.exe"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}_linux_amd64",
+        "darwin_amd64": "{name_pattern}_darwin_amd64"
+      },
+      "examples": ["wgcf", "go-wxpush"]
+    }
+  ],
+  "platform_aliases": {
+    "linux_amd64": ["linux-amd64", "linux_x86_64", "linux-x86_64", "linux-x64", "linux_x64", "linux-amd64"],
+    "linux_arm64": ["linux-arm64", "linux_aarch64", "linux-aarch64"],
+    "darwin_amd64": ["darwin-amd64", "darwin_x86_64", "darwin-x86_64", "darwin-x64", "macos-amd64", "macos-x64", "macos_x64", "osx-amd64"],
+    "darwin_arm64": ["darwin-arm64", "darwin_aarch64", "darwin-aarch64", "macos-arm64", "macos-arm64", "osx-arm64", "apple-darwin"],
+    "windows_amd64": ["windows-amd64", "windows_x86_64", "windows-x86_64", "windows-x64", "windows_x64", "win-amd64", "win-x64"],
+    "windows_arm64": ["windows-arm64", "windows_aarch64", "windows-aarch64", "win-arm64"]
+  },
+  "archive_formats": {
+    ".tar.gz": "tar.gz",
+    ".tgz": "tar.gz",
+    ".tar.bz2": "tar.bz2",
+    ".tar.xz": "tar.xz",
+    ".tar.zst": "tar.zst",
+    ".zip": "zip",
+    ".exe": "exe"
+  }
+}
