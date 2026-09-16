@@ -46,9 +46,67 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/ bucket/ packages/
-          # Build a descriptive commit message
-          CHANGED=$(git diff --cached --name-only | sed 's|Formula/\|bucket/\||; s|\.rb\|\.json||' | sort -u | tr '\n' ', ' | sed 's/,$//')
-          git commit -m "chore: update Formula/Bucket ($CHANGED)"
+          python3 - <<'PY'
+          import json, os, subprocess
+
+          def run(*args):
+              return subprocess.run(args, capture_output=True, text=True).stdout
+
+          bucket_changes = {}   # name -> git status (A/M/D)
+          formula_names = set()
+          for line in run("git", "diff", "--cached", "--name-status").strip().splitlines():
+              parts = line.split("\t")
+              st, path = parts[0], parts[-1]
+              if path.startswith("bucket/") and path.endswith(".json"):
+                  bucket_changes[path[7:-5]] = st
+              elif path.startswith("Formula/") and path.endswith(".rb"):
+                  formula_names.add(path[8:-3])
+
+          def version_of(name, from_head=False):
+              if from_head:
+                  src = run("git", "show", f"HEAD:bucket/{name}.json")
+              else:
+                  try:
+                      src = open(f"bucket/{name}.json", encoding="utf-8").read()
+                  except OSError:
+                      return None
+              try:
+                  return json.loads(src).get("version")
+              except Exception:
+                  return None
+
+          # Formula-only entries (no bucket counterpart) are listed by formula name
+          display = sorted(bucket_changes)
+          formula_only = [fn for fn in sorted(formula_names)
+                          if fn.lower() not in bucket_changes
+                          and not os.path.exists(f"bucket/{fn.lower()}.json")]
+          display += formula_only
+
+          title_names = ", ".join(display) or "definitions"
+          if len(title_names) > 180:
+              title_names = ", ".join(display[:6]) + f", +{len(display) - 6} more"
+          title = f"chore: update Formula/Bucket ({title_names})"
+
+          body = []
+          for name in sorted(bucket_changes):
+              st = bucket_changes[name]
+              old, new = version_of(name, from_head=True), version_of(name)
+              if st == "A" or (old is None and new):
+                  body.append(f"- {name}: new package (v{new})" if new else f"- {name}: new package")
+              elif st == "D" or (old and new is None):
+                  body.append(f"- {name}: removed")
+              elif old and new and old != new:
+                  body.append(f"- {name}: {old} -> {new}")
+              else:
+                  body.append(f"- {name}: definition update (v{new or 'n/a'})")
+          for fn in formula_only:
+              body.append(f"- {fn}: formula update")
+
+          with open("commit_msg.txt", "w", encoding="utf-8") as f:
+              f.write(title + "\n\n" + "\n".join(body) + "\n")
+          PY
+          git commit -F commit_msg.txt
+          rm -f commit_msg.txt
           # Pull latest to avoid push rejection when main moved
           git pull --rebase origin main
           git push
