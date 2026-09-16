@@ -6,11 +6,11 @@
   "license": "GPL-2.0",
   "homepage": "https://github.com/graalvm/graalvm-ce-builds",
   "asset_pattern": {
-    "linux_amd64": "graalvm-community-jdk-25.0.2_linux-x64_bin.tar.gz",
-    "linux_arm64": "graalvm-community-jdk-25.0.2_linux-aarch64_bin.tar.gz",
+    "linux_amd64": "graalvm-community-*_linux-x64_bin.tar.gz",
+    "linux_arm64": "graalvm-community-*_linux-aarch64_bin.tar.gz",
     "darwin_amd64": "NO_MATCH",
-    "darwin_arm64": "graalvm-community-jdk-25.0.2_macos-aarch64_bin.tar.gz",
-    "windows_amd64": "graalvm-community-jdk-25.0.2_windows-x64_bin.zip",
+    "darwin_arm64": "graalvm-community-*_macos-aarch64_bin.tar.gz",
+    "windows_amd64": "graalvm-community-*_windows-x64_bin.zip",
     "windows_arm64": "NO_MATCH"
   }
 }

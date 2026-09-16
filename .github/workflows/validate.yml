@@ -9,8 +9,16 @@ on:
     paths: ['packages/**', 'Formula/**', 'bucket/**', '.github/workflows/**']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

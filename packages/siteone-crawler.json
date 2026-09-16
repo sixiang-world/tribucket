@@ -6,11 +6,11 @@
   "license": "MIT",
   "homepage": "https://github.com/janreges/siteone-crawler",
   "asset_pattern": {
-    "linux_amd64": "siteone-crawler-v2.3.0-linux-x64.tar.gz",
-    "linux_arm64": "siteone-crawler-v2.3.0-linux-arm64.tar.gz",
-    "darwin_amd64": "siteone-crawler-v2.3.0-macos-x64.tar.gz",
-    "darwin_arm64": "siteone-crawler-v2.3.0-macos-arm64.tar.gz",
-    "windows_amd64": "siteone-crawler-v2.3.0-win-x64.zip",
-    "windows_arm64": "siteone-crawler-v2.3.0-win-arm64.zip"
+    "linux_amd64": "siteone-crawler-v*-linux-x64.tar.gz",
+    "linux_arm64": "siteone-crawler-v*-linux-arm64.tar.gz",
+    "darwin_amd64": "siteone-crawler-v*-macos-x64.tar.gz",
+    "darwin_arm64": "siteone-crawler-v*-macos-arm64.tar.gz",
+    "windows_amd64": "siteone-crawler-v*-win-x64.zip",
+    "windows_arm64": "siteone-crawler-v*-win-arm64.zip"
   }
 }

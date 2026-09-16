@@ -18,6 +18,7 @@ Environment:
 import json
 import os
 import sys
+import time
 import urllib.request
 import urllib.error
 
@@ -82,33 +83,47 @@ def build_index(packages):
 
 
 def sync(items, index):
-    """POST items and index to the admin sync endpoint."""
+    """POST items and index to the admin sync endpoint, retrying transient failures."""
     url = f"{SITE.rstrip('/')}/admin/sync"
     payload = json.dumps({"items": items, "index": index}).encode("utf-8")
 
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {SECRET}",
-        },
-        method="POST",
-    )
+    retries = 3
+    for attempt in range(retries):
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {SECRET}",
+            },
+            method="POST",
+        )
 
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-            print(f"  ✓ Synced: {result.get('count', 0)} keys")
-            if not result.get("ok"):
-                print(f"  ✗ Server returned error: {result}")
-                sys.exit(1)
-    except urllib.error.HTTPError as e:
-        print(f"  ✗ HTTP {e.code}: {e.read().decode('utf-8', errors='replace')}")
-        sys.exit(1)
-    except urllib.error.URLError as e:
-        print(f"  ✗ Connection failed: {e.reason}")
-        sys.exit(1)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+                print(f"  ✓ Synced: {result.get('count', 0)} keys")
+                if not result.get("ok"):
+                    print(f"  ✗ Server returned error: {result}")
+                    sys.exit(1)
+                return
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace")
+            if e.code >= 500 and attempt < retries - 1:
+                wait = 2 ** attempt
+                print(f"  ! HTTP {e.code} (transient), retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            print(f"  ✗ HTTP {e.code}: {body}")
+            sys.exit(1)
+        except urllib.error.URLError as e:
+            if attempt < retries - 1:
+                wait = 2 ** attempt
+                print(f"  ! Connection failed ({e.reason}), retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            print(f"  ✗ Connection failed: {e.reason}")
+            sys.exit(1)
 
 
 def main():

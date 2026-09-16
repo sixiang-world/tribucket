@@ -18,6 +18,11 @@ import subprocess
 import tempfile
 from fnmatch import fnmatch
 
+# Windows GBK console cannot encode the ✓/❌/⚠️ symbols used below
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
 
@@ -81,7 +86,7 @@ def _build_opener():
 _opener = _build_opener()
 
 
-def http_get(url, token=None, retries=3, timeout=30):
+def http_get(url, token=None, retries=5, timeout=30):
     """Fetch a URL with optional GitHub token and retry logic.
 
     Respects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables.
@@ -114,6 +119,14 @@ def http_get(url, token=None, retries=3, timeout=30):
                 continue
             raise
         except http.client.HTTPException as e:
+            last_err = e
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            raise
+        except TimeoutError as e:
+            # Read timeouts surface as bare TimeoutError (not URLError) on
+            # some Python versions; retry them like any transient failure.
             last_err = e
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)

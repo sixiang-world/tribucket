@@ -6,11 +6,11 @@
   "license": "MIT",
   "homepage": "https://github.com/KrillinAI/KrillinAI",
   "asset_pattern": {
-    "linux_amd64": "KrillinAI-cli_*_Linux_x86_64",
-    "linux_arm64": "KrillinAI-cli_*_Linux_arm64",
-    "darwin_amd64": "KrillinAI-cli_*_macOS_amd64",
-    "darwin_arm64": "KrillinAI-cli_*_macOS_arm64",
-    "windows_amd64": "KrillinAI-cli_*_Windows.exe",
-    "windows_arm64": "KrillinAI-cli_*_Windows_arm64.exe"
+    "linux_amd64": "KrillinAI-CLI-*-linux-x64.tar.gz",
+    "linux_arm64": "KrillinAI-CLI-*-linux-arm64.tar.gz",
+    "darwin_amd64": "KrillinAI-CLI-*-mac-x64.tar.gz",
+    "darwin_arm64": "KrillinAI-CLI-*-mac-arm64.tar.gz",
+    "windows_amd64": "KrillinAI-CLI-*-win-x64.zip",
+    "windows_arm64": "NO_MATCH"
   }
 }
