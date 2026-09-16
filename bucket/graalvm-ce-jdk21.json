@@ -1,24 +1,24 @@
 {
-  "version": "jdk-25.0.2",
+  "version": "graal-25.3.4.1",
   "description": "GraalVM Community Edition - high-performance JDK with ahead-of-time compilation",
   "homepage": "https://github.com/graalvm/graalvm-ce-builds",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-25.0.2/graalvm-community-jdk-25.0.2_windows-x64_bin.zip",
-      "hash": "72edc27ce2dd3c156332144a339c97995745cae291205ed2f9b5cc26aa9cb422"
+      "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/graal-25.3.4.1/graalvm-community-jdk-25i3-25.0.4.1_windows-x64_bin.zip",
+      "hash": "770a0d78aba4c19bd40ee410ec82afbbee8e33fdd762e509006ac64e1007b4ce"
     }
   },
   "bin": [
     [
-      "graalvm-community-jdk-25.0.2_windows-x64_bin.zip",
+      "graalvm-community-jdk-25i3-25.0.4.1_windows-x64_bin.zip",
       "java"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/v$version/graalvm-community-v$version_windows-x64_bin.zip"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/v$version/graalvm-community-jdk-25i3-25.0.4.1_windows-x64_bin.zip"
       }
     }
   },

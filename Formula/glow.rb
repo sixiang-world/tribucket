@@ -1,28 +1,28 @@
 class Glow < Formula
   desc "Render markdown on the CLI"
   homepage "https://github.com/charmbracelet/glow"
-  version "2.1.2"
+  version "3.0.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/charmbracelet/glow/releases/download/v2.1.2/glow_2.1.2_Darwin_arm64.tar.gz"
-      sha256 "6f7abfb47de69fbf7b0e67d2fa019cc554916e8b6694f9877212be89fc7ebb8c"
+      url "https://github.com/charmbracelet/glow/releases/download/v3.0.0/glow_3.0.0_Darwin_arm64.tar.gz"
+      sha256 "4b8a9a32412c0525e4c239e65171706fc5beb6d423608d99fe16788d47b345d3"
     end
     on_intel do
-      url "https://github.com/charmbracelet/glow/releases/download/v2.1.2/glow_2.1.2_Darwin_x86_64.tar.gz"
-      sha256 "8cbc78a4947c68e804edf34d36070153fcc5d424873152da83ad6be14fa88ed3"
+      url "https://github.com/charmbracelet/glow/releases/download/v3.0.0/glow_3.0.0_Darwin_x86_64.tar.gz"
+      sha256 "b911b90622e686d44bc072112898584a601ed8353276b735835d8cdbcc27f660"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/charmbracelet/glow/releases/download/v2.1.2/glow_2.1.2_Linux_arm64.tar.gz"
-      sha256 "cf63abebcb50b72909db965d78290e7cecbf17a900e84705dc84addbb6952099"
+      url "https://github.com/charmbracelet/glow/releases/download/v3.0.0/glow_3.0.0_Linux_arm64.tar.gz"
+      sha256 "810c39f4691feb75e675a5f5f54b9fa091354e7599d9cf9c9fc9b97e47a99759"
     end
     on_intel do
-      url "https://github.com/charmbracelet/glow/releases/download/v2.1.2/glow_2.1.2_Linux_x86_64.tar.gz"
-      sha256 "6063d4f2af8a82a5f4bba0831e165de9381660aa8b41df4816d0106a265b07d5"
+      url "https://github.com/charmbracelet/glow/releases/download/v3.0.0/glow_3.0.0_Linux_x86_64.tar.gz"
+      sha256 "13e05e4b2acc18d2aee44291aefe6325b077ec321b631a0cfa780e8e3bc33f78"
     end
   end
 

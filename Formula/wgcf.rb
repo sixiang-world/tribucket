@@ -1,28 +1,28 @@
 class Wgcf < Formula
   desc "Cross-platform unofficial CLI for Cloudflare Warp"
   homepage "https://github.com/ViRb3/wgcf"
-  version "2.2.31"
+  version "2.2.32"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.31/wgcf_2.2.31_darwin_arm64"
-      sha256 "e4da91bf430d9e6109b28f8912cd2c7db8fe52eefa7519c385ab63caacf7915b"
+      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_darwin_arm64"
+      sha256 "6c19e27eefade597f3778f5fdcbd0a5f5297e9ff343cbb44cc206e21d83d48fb"
     end
     on_intel do
-      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.31/wgcf_2.2.31_darwin_amd64"
-      sha256 "4df5b47890baa9131c32914827d6842c43d8cea51c08bce39ddaf3d6cf01310e"
+      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_darwin_amd64"
+      sha256 "5d977de53c171cfd4fa07ea281ceb89e424c8d643bd9e3263be22820f15ce84b"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.31/wgcf_2.2.31_linux_arm64"
-      sha256 "b9bdbdeaa3f9f4ba741ba55b8bd94c24f7166c27668eb7e8192ccf9746961182"
+      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_linux_arm64"
+      sha256 "21fe21d9f61db9b381d71200f6f59c7949e0bb455446edcb33dda6ad6a8fcf8f"
     end
     on_intel do
-      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.31/wgcf_2.2.31_linux_amd64"
-      sha256 "69147e1a517c66129edd8ac8cb60484d6c9515178d7b4a2f95e3c925f225572a"
+      url "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_linux_amd64"
+      sha256 "2ff97f2201972ce582a424455d50a3719a380eef0cd1f3144f7779348e122a2c"
     end
   end
 

@@ -1,28 +1,28 @@
 class Listmonk < Formula
   desc "High performance, self-hosted newsletter and mailing list manager"
   homepage "https://github.com/knadh/listmonk"
-  version "6.1.0"
+  version "6.2.0"
   license "AGPL-3.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_darwin_arm64.tar.gz"
-      sha256 "27a3bccfe9ac2bdd3c0dce50fa474496baac6855f18f5c34e0b8947629da2d30"
+      url "https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_darwin_arm64.tar.gz"
+      sha256 "692ebcbec722319c1d0c7705ea0d7191e1be38e8ec40b417f2f9210fbe4c601b"
     end
     on_intel do
-      url "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_darwin_amd64.tar.gz"
-      sha256 "00f40f5290136d787aa19da6c91472c68f25245dac0ce4ced411de9c155729f6"
+      url "https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_darwin_amd64.tar.gz"
+      sha256 "e74d487d0a0b231b58eb9cccd55a62bf31047f3838ddfb8c4ca0872ec6a675d4"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_linux_arm64.tar.gz"
-      sha256 "5c3d604398f4015a263d1719e29eb61b14d8330372efb82ecc5fffc4df8712d1"
+      url "https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_linux_arm64.tar.gz"
+      sha256 "7e8f77dcdd2caf83b4b7774ecc44de7cea6852596084a4a2b5aab15464a45549"
     end
     on_intel do
-      url "https://github.com/knadh/listmonk/releases/download/v6.1.0/listmonk_6.1.0_linux_amd64.tar.gz"
-      sha256 "08f44f8f2c598cbef76c948dcb319df235296a07d49a49be3253d65c16d26ff0"
+      url "https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_linux_amd64.tar.gz"
+      sha256 "ce78c89d8aac0df3ffe0e110b008e7bb5dae13e6ad0c57b43aa7094971e8698e"
     end
   end
 

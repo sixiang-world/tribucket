@@ -7,6 +7,10 @@
     "64bit": {
       "url": "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_x86_64-pc-windows-gnu.zip",
       "hash": "fdff5b07cbbe4da1c96a8278c4c87585c7a19813b76fb99fed69bd2b9d0cf293"
+    },
+    "arm64": {
+      "url": "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_aarch64-pc-windows-msvc.zip",
+      "hash": "fabe9fc4850d12917150295900119eaa5455724658d1d709e013cacdc0390349"
     }
   },
   "bin": [
@@ -19,6 +23,9 @@
     "architecture": {
       "64bit": {
         "url": "https://github.com/ClementTsang/bottom/releases/download/v$version/bottom_x86_64-pc-windows-gnu.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/ClementTsang/bottom/releases/download/v$version/bottom_aarch64-pc-windows-msvc.zip"
       }
     }
   },

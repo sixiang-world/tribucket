@@ -1,28 +1,28 @@
 class CcConnect < Formula
   desc "Claude Code connectivity utility"
   homepage "https://github.com/chenhg5/cc-connect"
-  version "1.3.2"
+  version "1.5.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-darwin-arm64.tar.gz"
-      sha256 "f03153feef8e46c606d0097a491e92448289fe3b91b70cba0b05f8740dfafe95"
+      url "https://github.com/chenhg5/cc-connect/releases/download/v1.5.0/cc-connect-v1.5.0-darwin-arm64.tar.gz"
+      sha256 "458e7f1e783e87352fa402732d2b2da5072bbda286ec0fbd4dc01ed37b2084ce"
     end
     on_intel do
-      url "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-darwin-amd64.tar.gz"
-      sha256 "42177cf9f215c1f350e0c7a3306ce37f7b74301bbd23da0d9c229e17f661354c"
+      url "https://github.com/chenhg5/cc-connect/releases/download/v1.5.0/cc-connect-v1.5.0-darwin-amd64.tar.gz"
+      sha256 "30b403b0b64c934795281d598079dfeeea0daaaeb6b415d8602a13bd2dcb2092"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-linux-arm64.tar.gz"
-      sha256 "90e491ee8ea8054b01c6152db72e286b0a6eb491db9babbdf570af2f8700c53e"
+      url "https://github.com/chenhg5/cc-connect/releases/download/v1.5.0/cc-connect-v1.5.0-linux-arm64.tar.gz"
+      sha256 "360916e64c81714b4b295905b7aa95a62d3b5bfba0fb306f29a4560224d07ca3"
     end
     on_intel do
-      url "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-linux-amd64.tar.gz"
-      sha256 "4ed25a62166c1a3a7c41eb3320d9b90172c56749aec5b88d36380829e4c8a182"
+      url "https://github.com/chenhg5/cc-connect/releases/download/v1.5.0/cc-connect-v1.5.0-linux-amd64.tar.gz"
+      sha256 "72859035a1ee011b710204fc508de711838f919eb2ae6f104f1ddb3e5cd8ca87"
     end
   end
 
