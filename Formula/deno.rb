@@ -1,28 +1,28 @@
 class Deno < Formula
   desc "Modern runtime for JavaScript and TypeScript"
   homepage "https://github.com/denoland/deno"
-  version "2.9.6"
+  version "2.9.7"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/denoland/deno/releases/download/v2.9.6/deno-aarch64-apple-darwin.zip"
-      sha256 "213a2f304f04d3c9cb5220669afad138f60a5aab1fe80962abdeb8f35807a472"
+      url "https://github.com/denoland/deno/releases/download/v2.9.7/deno-aarch64-apple-darwin.zip"
+      sha256 "5cd46d6268f6f78f5d88bdc7159d20bd44cdaa4b3303474839f87ec6fe7ae25c"
     end
     on_intel do
-      url "https://github.com/denoland/deno/releases/download/v2.9.6/deno-x86_64-apple-darwin.zip"
-      sha256 "7d4524b82bcc557fe020a1a5b56956ed42b992ae5b28026e8ad5d17329533f5f"
+      url "https://github.com/denoland/deno/releases/download/v2.9.7/deno-x86_64-apple-darwin.zip"
+      sha256 "95daaff11c116a52ad54785e7914c8e9c9cdcaba793c5ed929c74ca2d8e6259a"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/denoland/deno/releases/download/v2.9.6/deno-aarch64-unknown-linux-gnu.zip"
-      sha256 "9a46afc6c392c7cd2ff71a31558935545b46408d0e87f7a86908c712721c046e"
+      url "https://github.com/denoland/deno/releases/download/v2.9.7/deno-aarch64-unknown-linux-gnu.zip"
+      sha256 "c832298b1ad4422481334855f6003e0f54145762c5a134f20a489511d2f65bbf"
     end
     on_intel do
-      url "https://github.com/denoland/deno/releases/download/v2.9.6/deno-x86_64-unknown-linux-gnu.zip"
-      sha256 "394f07f4da2bebe6ce6f1e7ce0fa16429b29b08c35e3fac3fe25972676dff4b2"
+      url "https://github.com/denoland/deno/releases/download/v2.9.7/deno-x86_64-unknown-linux-gnu.zip"
+      sha256 "c6527f24f4b16031d3ae4fa9f658d5f11534c8d84ce7dc8502420280919c3490"
     end
   end
 
