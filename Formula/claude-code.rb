@@ -1,28 +1,28 @@
 class ClaudeCode < Formula
   desc "Claude Code — agentic coding tool by Anthropic"
   homepage "https://github.com/anthropics/claude-code"
-  version "2.1.273"
+  version "2.1.274"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-darwin-arm64.tar.gz"
-      sha256 "ae48db6a5ea2bdec38bf8996dd2ae041d801de26dc3d210aba86d2156b485ce4"
+      url "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-darwin-arm64.tar.gz"
+      sha256 "2be8926f06785d3d4c072a32d83b48c7e02b40ee955bd30600aacaaa77f02c93"
     end
     on_intel do
-      url "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-darwin-x64.tar.gz"
-      sha256 "0ca37d2f32674a980d1f91d7315be9ae67e044134579e24968d8d94a3de75d73"
+      url "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-darwin-x64.tar.gz"
+      sha256 "512a54e5c17c27b331c1a1e08a1c9f638e2b80fbdd1dbd99b7bf1997e893b0fd"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-arm64.tar.gz"
-      sha256 "33983f2ec19610aaf9fe6d255fb61d91e985d2e4f76c70387da4820c8f8cf89e"
+      url "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-arm64.tar.gz"
+      sha256 "3cf0b1909d4c9186b7f3e7b84ea37711faade845b63b160b513d4144a95ac4b5"
     end
     on_intel do
-      url "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-x64.tar.gz"
-      sha256 "afd5dbac0b1dfeb8f9fb8fa8adaaf8ba49c7a334fda73b9f49ed2e99197ee829"
+      url "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-x64.tar.gz"
+      sha256 "d64c8b6c7e10cd5b99e6ecbcef2d64c9ca4b6804f788e9d7622d5535a99193a2"
     end
   end
 

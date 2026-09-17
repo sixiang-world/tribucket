@@ -1,17 +1,17 @@
 {
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "More intuitive version of du (disk usage)",
   "homepage": "https://github.com/bootandy/dust",
   "license": "Apache-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/bootandy/dust/releases/download/v1.2.5/dust-v1.2.5-x86_64-pc-windows-gnu.zip",
-      "hash": "795b69d46a3e4befe37bbf7fe9e8654832883d3b8d8d6e77bae5f14be5842491"
+      "url": "https://github.com/bootandy/dust/releases/download/v1.2.6/dust-v1.2.6-x86_64-pc-windows-gnu.zip",
+      "hash": "d26ad8dab783653ab6a6c0ddf4671fae150be005834f2e3a36a3ac87fb60b7c1"
     }
   },
   "bin": [
     [
-      "dust-v1.2.5-x86_64-pc-windows-gnu.zip",
+      "dust-v1.2.6-x86_64-pc-windows-gnu.zip",
       "dust"
     ]
   ],
