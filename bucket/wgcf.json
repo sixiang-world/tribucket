@@ -1,31 +1,31 @@
 {
-  "version": "2.2.32",
+  "version": "2.3.0",
   "description": "Cross-platform unofficial CLI for Cloudflare Warp",
   "homepage": "https://github.com/ViRb3/wgcf",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_windows_amd64.exe",
-      "hash": "2b3648a5d39550b6423be562e619805ed9f7a64bcda51cf36c60caeba97b1777"
+      "url": "https://github.com/ViRb3/wgcf/releases/download/v2.3.0/wgcf_2.3.0_windows_amd64.exe",
+      "hash": "5c633e265fb969c9507b68b39c5b0762e39181ce9f578ab66cb3b4edb0696ef5"
     },
     "arm64": {
-      "url": "https://github.com/ViRb3/wgcf/releases/download/v2.2.32/wgcf_2.2.32_windows_arm64.exe",
-      "hash": "c360793639ffa39c89a4f54b2e8cfd25ebae7a6dc48229a5a4d23828d67e52fe"
+      "url": "https://github.com/ViRb3/wgcf/releases/download/v2.3.0/wgcf_2.3.0_windows_arm64.exe",
+      "hash": "8c6b5b21cad0d0b1405c49ca8b7a25c03414c1b007ab50f765dff8b058b98f6c"
     }
   },
   "bin": [
     [
-      "wgcf_2.2.32_windows_amd64.exe",
+      "wgcf_2.3.0_windows_amd64.exe",
       "wgcf"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/ViRb3/wgcf/releases/download/v$version/wgcf_2.2.32_windows_amd64.exe"
+        "url": "https://github.com/ViRb3/wgcf/releases/download/v$version/wgcf_2.3.0_windows_amd64.exe"
       },
       "arm64": {
-        "url": "https://github.com/ViRb3/wgcf/releases/download/v$version/wgcf_2.2.32_windows_arm64.exe"
+        "url": "https://github.com/ViRb3/wgcf/releases/download/v$version/wgcf_2.3.0_windows_arm64.exe"
       }
     }
   },
