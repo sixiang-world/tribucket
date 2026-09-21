@@ -1,17 +1,17 @@
 class DragonwellJdk8 < Formula
   desc "Alibaba Dragonwell JDK 8 - downstream distribution of OpenJDK"
   homepage "https://www.aliyun.com/product/dragonwell"
-  version "dragonwell-standard-8.29.28_jdk8u492-ga"
+  version "dragonwell-standard-8.30.29_jdk8u502-ga"
   license "GPL-2.0"
 
   on_linux do
     on_arm do
-      url "https://github.com/dragonwell-project/dragonwell8/releases/download/dragonwell-standard-8.29.28_jdk8u492-ga/Alibaba_Dragonwell_Standard_8.29.28_aarch64_linux-sbom.json"
-      sha256 "9916b2d6c3cffed806e6989415cfd3eb2d2069f78d9591e82ffbc9b32d0ab011"
+      url "https://github.com/dragonwell-project/dragonwell8/releases/download/dragonwell-standard-8.30.29_jdk8u502-ga/Alibaba_Dragonwell_Standard_8.30.29_aarch64_linux-sbom.json"
+      sha256 "80c58fe1233ed46e8963adfc8b9994e058cc7e3d0603d36bfac82a744e421364"
     end
     on_intel do
-      url "https://github.com/dragonwell-project/dragonwell8/releases/download/dragonwell-standard-8.29.28_jdk8u492-ga/Alibaba_Dragonwell_Standard_8.29.28_aarch64_linux-sbom.json"
-      sha256 "9916b2d6c3cffed806e6989415cfd3eb2d2069f78d9591e82ffbc9b32d0ab011"
+      url "https://github.com/dragonwell-project/dragonwell8/releases/download/dragonwell-standard-8.30.29_jdk8u502-ga/Alibaba_Dragonwell_Standard_8.30.29_aarch64_linux-sbom.json"
+      sha256 "80c58fe1233ed46e8963adfc8b9994e058cc7e3d0603d36bfac82a744e421364"
     end
   end
 
