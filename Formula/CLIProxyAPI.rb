@@ -1,28 +1,28 @@
 class Cliproxyapi < Formula
   desc "CLI proxy API tool with wide platform support"
   homepage "https://github.com/router-for-me/CLIProxyAPI"
-  version "7.3.11"
+  version "7.3.12"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.11/CLIProxyAPI_7.3.11_darwin_aarch64.tar.gz"
-      sha256 "5671e4c7cf96919f35bd2bd76c68c6d57448219de655f5ca2db186b9534b7754"
+      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.12/CLIProxyAPI_7.3.12_darwin_aarch64.tar.gz"
+      sha256 "c20618ed6e4c76e6a73ed7dafa0d5f9569f0b6c20213fd450b3569bffde20114"
     end
     on_intel do
-      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.11/CLIProxyAPI_7.3.11_darwin_amd64.tar.gz"
-      sha256 "dc4a75ef7256667959e2eb7e5c37bec5178f08f36657becf73fa65ef8a1cc118"
+      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.12/CLIProxyAPI_7.3.12_darwin_amd64.tar.gz"
+      sha256 "72c3403ad94d708c4aec48be2f34bdef2c230824440111f156076efd75b1f550"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.11/CLIProxyAPI_7.3.11_linux_aarch64.tar.gz"
-      sha256 "8c5a2bd09aca61b2d7753bee25609e0483c9047dee383b08fa5c3527aa9a75ae"
+      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.12/CLIProxyAPI_7.3.12_linux_aarch64.tar.gz"
+      sha256 "c3c2b2398222fcaa1f20e2bb09ef8c17bab708cef3a0d948e477e153517eee7a"
     end
     on_intel do
-      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.11/CLIProxyAPI_7.3.11_linux_amd64.tar.gz"
-      sha256 "4fc3e20aa6ab896316ac70633c8ed08b10d4219d1c3075d5b145b422c6bfab64"
+      url "https://github.com/router-for-me/CLIProxyAPI/releases/download/v7.3.12/CLIProxyAPI_7.3.12_linux_amd64.tar.gz"
+      sha256 "eb73eb43ef82dea0ffc7b433fc3b6f994cd0b3f35d3b59ee85870827e2fc3cec"
     end
   end
 
