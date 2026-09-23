@@ -1,12 +1,12 @@
 {
-  "version": "0.13.7",
+  "version": "0.13.8",
   "description": "Multi-platform CLI tool",
   "homepage": "https://github.com/bestruirui/octopus",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/bestruirui/octopus/releases/download/v0.13.7/octopus-windows-amd64.zip",
-      "hash": "c40050ffb74ebce76f0e798cd2aa15906aca57a7d81e95327eb1a55f1aec5cce"
+      "url": "https://github.com/bestruirui/octopus/releases/download/v0.13.8/octopus-windows-amd64.zip",
+      "hash": "2b3c3b6de1eaaf2bd8da2f458999b1a45f595ab8bb32264bc2f06666d0cf7e0e"
     }
   },
   "bin": [

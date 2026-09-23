@@ -1,28 +1,28 @@
 class Octopus < Formula
   desc "Multi-platform CLI tool"
   homepage "https://github.com/bestruirui/octopus"
-  version "0.13.7"
+  version "0.13.8"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.7/octopus-darwin-arm64.zip"
-      sha256 "a2c483ae7076001aa22ff69f91fb7fe3d33989f1539cf94a37ba612354e0fa22"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.8/octopus-darwin-arm64.zip"
+      sha256 "424349d59e69993b1b9611f11e962369e1905a93ad1f63c6d849a7307888e44b"
     end
     on_intel do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.7/octopus-darwin-amd64.zip"
-      sha256 "3a3bfd460996feaedf986db04be0801959767add40b3f83fb4ff0a36d88e4c47"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.8/octopus-darwin-amd64.zip"
+      sha256 "fa0540794c2f29df25da1141697feb9ca69e570525dd911fbf2d3a01e2ced224"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.7/octopus-linux-arm64.zip"
-      sha256 "286482bb31e027af0061ceca9b8b7cd1923db25dd74dfeca34d77672c6663f3b"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.8/octopus-linux-arm64.zip"
+      sha256 "43005de46a78db5eb4f7693090ea9a9abf6eb23af21baac3f3a0fe3f1ea18097"
     end
     on_intel do
-      url "https://github.com/bestruirui/octopus/releases/download/v0.13.7/octopus-linux-amd64.zip"
-      sha256 "52d2010accd7fc17b0c499812f2792fd164287969554ea15bd6a791c294497ba"
+      url "https://github.com/bestruirui/octopus/releases/download/v0.13.8/octopus-linux-amd64.zip"
+      sha256 "5cbaafc035dbee86724df83e431d0f06c32180a80718d50d8bdaf964e7734a14"
     end
   end
 
