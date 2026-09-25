@@ -1,28 +1,28 @@
 class Navidrome < Formula
   desc "Your Personal Streaming Service"
   homepage "https://github.com/navidrome/navidrome"
-  version "0.64.1"
+  version "0.64.2"
   license "GPL-3.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/navidrome/navidrome/releases/download/v0.64.1/navidrome_0.64.1_darwin_arm64.tar.gz"
-      sha256 "1819a689bfce38c4ecf1ad2764f5f3d61b099c5d67dd99e83e3c1574889e0891"
+      url "https://github.com/navidrome/navidrome/releases/download/v0.64.2/navidrome_0.64.2_darwin_arm64.tar.gz"
+      sha256 "8b0a7798001453719ad50c12f7025a6044546c4a3568efe51feb296681f29956"
     end
     on_intel do
-      url "https://github.com/navidrome/navidrome/releases/download/v0.64.1/navidrome_0.64.1_darwin_amd64.tar.gz"
-      sha256 "22ce967d4c1c0e929640082de52d375a48bdcf6d3a06436c48f9a2c0da9ab469"
+      url "https://github.com/navidrome/navidrome/releases/download/v0.64.2/navidrome_0.64.2_darwin_amd64.tar.gz"
+      sha256 "bc872847dcd1c0d760bb9b8730f2a3c876e0ff0679e5440755c37697f2804a23"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/navidrome/navidrome/releases/download/v0.64.1/navidrome_0.64.1_linux_arm64.tar.gz"
-      sha256 "a496bd0587f110db15ef5aa729365834f371a7e0be6bc2ff20ceefa2945358e9"
+      url "https://github.com/navidrome/navidrome/releases/download/v0.64.2/navidrome_0.64.2_linux_arm64.tar.gz"
+      sha256 "6d1683428cb6d99cdabc3da815b94cc161de5904820130c5b9e2e42c34dcdb15"
     end
     on_intel do
-      url "https://github.com/navidrome/navidrome/releases/download/v0.64.1/navidrome_0.64.1_linux_amd64.tar.gz"
-      sha256 "f070cda7b8e27d605fdc9a45a18d9a65cec7157f3b6d440c97dd25828eb5fc61"
+      url "https://github.com/navidrome/navidrome/releases/download/v0.64.2/navidrome_0.64.2_linux_amd64.tar.gz"
+      sha256 "fdd87fd107818667c2c50bc24dc6ce856962c795b3822a91f95c066cfad2c53e"
     end
   end
 

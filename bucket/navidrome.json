@@ -1,24 +1,24 @@
 {
-  "version": "0.64.1",
+  "version": "0.64.2",
   "description": "Your Personal Streaming Service",
   "homepage": "https://github.com/navidrome/navidrome",
   "license": "GPL-3.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/navidrome/navidrome/releases/download/v0.64.1/navidrome_0.64.1_windows_amd64.zip",
-      "hash": "e31fb39c43a6579b8cbca96dabb9cf65229d5fc0d32b3e3931fd11e51d3250d2"
+      "url": "https://github.com/navidrome/navidrome/releases/download/v0.64.2/navidrome_0.64.2_windows_amd64.zip",
+      "hash": "72e06c9101fca6b14ff1437f9a56beb7ad6fe4bd7f25ff62cd5b70a075fee305"
     }
   },
   "bin": [
     [
-      "navidrome_0.64.1_windows_amd64.zip",
+      "navidrome_0.64.2_windows_amd64.zip",
       "navidrome"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/navidrome/navidrome/releases/download/v$version/navidrome_0.64.1_windows_amd64.zip"
+        "url": "https://github.com/navidrome/navidrome/releases/download/v$version/navidrome_0.64.2_windows_amd64.zip"
       }
     }
   },
