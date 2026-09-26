@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-windows-jdk.zip",
-      "hash": "af002c5f7dd3d09ad4a1f1643266e28fb368077de50560534a2aa84e376ddfde"
+      "hash": "1ac8d9dc48b170684ac6223113f524325bd842d14ed74dac28927f8165cffd3a"
     }
   },
   "bin": [
