@@ -1,24 +1,24 @@
 class Delta < Formula
   desc "A syntax-highlighting pager for git, diff, and grep output"
   homepage "https://github.com/dandavison/delta"
-  version "0.19.2"
+  version "0.20.1"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-aarch64-apple-darwin.tar.gz"
-      sha256 "9be36612a5a13e9e386dc498fb8e50dc87c72ee42b63db0ea05b32f99a72a69a"
+      url "https://github.com/dandavison/delta/releases/download/0.20.1/delta-0.20.1-aarch64-apple-darwin.tar.gz"
+      sha256 "bc1839cea69288d4673a24faffbb825d408ca907e0f7d33b1678c9e6cdd5e58e"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "0bfce159a5cddd5feb3d6db4a616d883ff51253ce08ac7ec11cb1d208cfaab9e"
+      url "https://github.com/dandavison/delta/releases/download/0.20.1/delta-0.20.1-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "da7f4338f593572ff426ae153e0870e2fdc72729416eff551b40cdeb67940db8"
     end
     on_intel do
-      url "https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "8e695c5f586a8c53d6c3b01be0b4a422ed218bfed2a56191caebe373a1c18ab2"
+      url "https://github.com/dandavison/delta/releases/download/0.20.1/delta-0.20.1-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "50f08c879f84c81ceb220e476491a7f492d2c9c671e79918cc44badf961a6240"
     end
   end
 
