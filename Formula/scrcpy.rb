@@ -1,24 +1,24 @@
 class Scrcpy < Formula
   desc "Display and control your Android device"
   homepage "https://github.com/Genymobile/scrcpy"
-  version "4.1"
+  version "5.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Genymobile/scrcpy/releases/download/v4.1/scrcpy-macos-aarch64-v4.1.tar.gz"
-      sha256 "20fd47c9014dd5e0fa77091f3cb7adbda8445a360c4584aeaa0150b5b3988ff3"
+      url "https://github.com/Genymobile/scrcpy/releases/download/v5.0/scrcpy-macos-aarch64-v5.0.tar.gz"
+      sha256 "7cb4e41c859b05b36e89dc9be6c353cc5980c00d7f7f6a763b5b355551b82e9c"
     end
     on_intel do
-      url "https://github.com/Genymobile/scrcpy/releases/download/v4.1/scrcpy-macos-x86_64-v4.1.tar.gz"
-      sha256 "ee2a7223bc8dbdc4f482db1134bcf441178dafb833492b71ca4c22090c58ce72"
+      url "https://github.com/Genymobile/scrcpy/releases/download/v5.0/scrcpy-macos-x86_64-v5.0.tar.gz"
+      sha256 "dacb995c8eb42528cb96b2da2a2e3110fe5c82281378e6044fc7cccf48a7c39a"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/Genymobile/scrcpy/releases/download/v4.1/scrcpy-linux-x86_64-v4.1.tar.gz"
-      sha256 "ad56ae8bfeedf41e824945c11dbf55fcb092b3e615b9b486f48a50e30d389635"
+      url "https://github.com/Genymobile/scrcpy/releases/download/v5.0/scrcpy-linux-x86_64-v5.0.tar.gz"
+      sha256 "f052ad9eb981879e8c5f066c5ef122b39b6c9853b383d6497219030e6549baed"
     end
   end
 
