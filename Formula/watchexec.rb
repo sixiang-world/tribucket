@@ -1,28 +1,28 @@
 class Watchexec < Formula
   desc "Execute commands in response to file modifications"
   homepage "https://github.com/watchexec/watchexec"
-  version "2.7.4"
+  version "2.8.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/watchexec/watchexec/releases/download/v2.7.4/watchexec-2.7.4-aarch64-apple-darwin.tar.xz"
-      sha256 "1e5052fe1f0690cd04d13d59f2d6bb0b090985d88c7406acadacd1198f58706e"
+      url "https://github.com/watchexec/watchexec/releases/download/v2.8.0/watchexec-2.8.0-aarch64-apple-darwin.tar.xz"
+      sha256 "8da8bdbfb8568138616a082c05a87224e08d5cb2994feb956426291cf0c6fe10"
     end
     on_intel do
-      url "https://github.com/watchexec/watchexec/releases/download/v2.7.4/watchexec-2.7.4-x86_64-apple-darwin.tar.xz"
-      sha256 "e3016a20879510ea3a585e75d73a5aff8be0648d9e88d71439d515e63da13255"
+      url "https://github.com/watchexec/watchexec/releases/download/v2.8.0/watchexec-2.8.0-x86_64-apple-darwin.tar.xz"
+      sha256 "b7f694ad19c1cf168388f3295a5e825425f7dac5cd27cffd2d89a51ed4ab0f22"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/watchexec/watchexec/releases/download/v2.7.4/watchexec-2.7.4-aarch64-unknown-linux-gnu.tar.xz"
-      sha256 "b649cf89bda51ba060abb9e9765ea585823ee94b9bf2e2ad86081323a13a81c4"
+      url "https://github.com/watchexec/watchexec/releases/download/v2.8.0/watchexec-2.8.0-aarch64-unknown-linux-gnu.tar.xz"
+      sha256 "aaa5eb7e62e9ce99cad7f14260265aaa9df8884e195c0661ab011825a6d61634"
     end
     on_intel do
-      url "https://github.com/watchexec/watchexec/releases/download/v2.7.4/watchexec-2.7.4-x86_64-unknown-linux-gnu.tar.xz"
-      sha256 "6d7e89e8815ac1b4eafb9497ed0a8ada986117fbba460b2f9282e0e160f776dd"
+      url "https://github.com/watchexec/watchexec/releases/download/v2.8.0/watchexec-2.8.0-x86_64-unknown-linux-gnu.tar.xz"
+      sha256 "21839e9840ef592b4d571885ccbd692f54ae5bd4231f3caf29fcf31fa7723afe"
     end
   end
 
