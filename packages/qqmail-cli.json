@@ -1,0 +1,16 @@
+{
+  "name": "qqmail-cli",
+  "repo": "sixiang-world/qqmail-cli",
+  "description": "Unofficial safety-first QQ Mail CLI for scripts and AI agents",
+  "binary": "qqmail-cli",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/sixiang-world/qqmail-cli",
+  "asset_pattern": {
+    "linux_amd64": "*_linux_amd64.tar.gz",
+    "linux_arm64": "*_linux_arm64.tar.gz",
+    "darwin_amd64": "*_darwin_amd64.tar.gz",
+    "darwin_arm64": "*_darwin_arm64.tar.gz",
+    "windows_amd64": "*_windows_amd64.zip",
+    "windows_arm64": "*_windows_arm64.zip"
+  }
+}
