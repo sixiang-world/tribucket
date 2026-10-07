@@ -21,7 +21,7 @@ Local battery (pytest 115 passed / 3 skipped, asset-pattern check) already run �
   Expected: issue-draft.yml runs parse → draft → validate; the issue receives a draft comment and the `drafted` label.
 - [ ] **Confirm pipeline (same account)** — Reply `@tribucket-bot confirm` from the issue author account.
   Expected: issue-confirm.yml runs processing → render; exactly one commit adding the three files lands on `main`; the issue is closed.
-- [ ] **Install check** — After generate/sync, run `brew install shisheng820/tribucket/<name>` (or the equivalent Scoop install).
+- [ ] **Install check** — After generate/sync, run `brew install sixiang-world/tribucket/<name>` (or the equivalent Scoop install).
   Expected: the package installs and the binary runs.
 - [ ] **Negative: non-author confirm** — Have a different account reply `@tribucket-bot confirm` on a drafted issue.
   Expected: no action (no commit, no issue close).
