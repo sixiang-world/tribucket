@@ -96,6 +96,25 @@
       "examples": ["gh", "lazygit", "duf", "glow", "k9s", "hugo"]
     },
     {
+      "id": "underscore-version-amd64",
+      "description": "Name_version_platform_amd64 with underscores — e.g. tool_0.5.0_linux_amd64.tar.gz (goreleaser default archive format)",
+      "frequency": 6,
+      "match_rule": {
+        "linux_amd64": "{name}_{version}_linux_amd64.tar.gz",
+        "linux_arm64": "{name}_{version}_linux_arm64.tar.gz",
+        "darwin_amd64": "{name}_{version}_darwin_amd64.tar.gz",
+        "darwin_arm64": "{name}_{version}_darwin_arm64.tar.gz",
+        "windows_amd64": "{name}_{version}_windows_amd64.zip",
+        "windows_arm64": "{name}_{version}_windows_arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}_.*_linux[_-]amd64",
+        "darwin_amd64": "{name_pattern}_.*_darwin[_-]amd64",
+        "windows_amd64": "{name_pattern}_.*_windows[_-]amd64"
+      },
+      "examples": ["qqmail-cli"]
+    },
+    {
       "id": "underscore-version-caps",
       "description": "Underscore with capitalized platform — e.g. {name}_{version}_Linux_x86_64.tar.gz",
       "frequency": 4,
