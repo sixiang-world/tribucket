@@ -11,6 +11,13 @@ on:
 permissions:
   contents: write
 
+# Serialize with issue-confirm.yml: one package-mutating run at a time, so a
+# confirm-commit racing a cron/push generate run never collides on
+# `git pull --rebase` + `git push`.
+concurrency:
+  group: package-commits
+  cancel-in-progress: false
+
 jobs:
   generate:
     timeout-minutes: 45
