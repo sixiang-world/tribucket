@@ -2,7 +2,7 @@
 import os
 import re
 
-NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+NAME_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 REPO_RE = re.compile(r"^[\w.-]+/[\w.-]+$")
 
 PLATFORM_KEYS = [
@@ -35,8 +35,10 @@ def validate_definition(pkg, packages_dir=None, fetch_release=None, token=None):
 
     for f in STRING_FIELDS:
         v = pkg.get(f)
-        if isinstance(v, str) and (re.search(r"[\x00-\x1f\x7f]", v) or '"' in v):
-            errors.append(f"field {f!r} contains control characters or double quotes")
+        if isinstance(v, str) and (re.search(r"[\x00-\x1f\x7f]", v) or '"' in v or "#{" in v):
+            errors.append(
+                f"field {f!r} contains forbidden characters (control chars, double quotes, or Ruby interpolation)"
+            )
 
     ap = pkg.get("asset_pattern")
     if not isinstance(ap, dict):

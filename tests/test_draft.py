@@ -101,6 +101,15 @@ def test_description_cleaned_of_control_chars():
     assert '"' not in pkg["description"]
 
 
+def test_description_neutralizes_ruby_interpolation():
+    """#{...} in any submitter-controlled field would execute when Homebrew
+    loads the committed formula; clean_text must neutralize it."""
+    assets = [asset("tool-linux-amd64"), asset("tool-darwin-amd64")]
+    pkg, _ = draft("o/tool", description="Fast#{%x[evil]}",
+                   fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    assert "#{" not in pkg["description"]
+
+
 def test_vendored_templates_in_sync():
     """skills/ 下的权威模板与包内 vendored 副本必须逐字节一致（防漂移）。"""
     import pathlib

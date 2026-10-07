@@ -71,6 +71,9 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
     # REAL asset name, not a confusing prefixed temp name.
     tmp_dir = os.path.join(tempfile.gettempdir(), "tribucket", pkg_name, version or "0")
     os.makedirs(tmp_dir, exist_ok=True)
+    # filename is URL-derived; defensively strip any path separators so a
+    # malicious or malformed URL cannot escape tmp_dir.
+    filename = filename.replace("\\", "/").rsplit("/", 1)[-1]
     tmp_path = os.path.join(tmp_dir, filename)
     try:
         download_file(url, tmp_path, verbose=verbose)

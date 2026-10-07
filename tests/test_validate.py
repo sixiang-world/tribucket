@@ -49,7 +49,19 @@ def test_invalid_name():
 def test_quote_in_description_rejected():
     pkg = dict(GOOD, description='has "quotes"')
     errs, _ = validate_definition(pkg, fetch_release=fake_fetch(RELEASE_ASSETS))
-    assert any("control characters or double quotes" in e for e in errs)
+    assert any("forbidden characters" in e for e in errs)
+
+
+def test_ruby_interpolation_rejected():
+    pkg = dict(GOOD, description='Fast#{%x[evil]}')
+    errs, _ = validate_definition(pkg, fetch_release=fake_fetch(RELEASE_ASSETS))
+    assert any("forbidden characters" in e for e in errs)
+
+
+def test_digit_leading_name_rejected():
+    pkg = dict(GOOD, name="7-zip")
+    errs, _ = validate_definition(pkg, fetch_release=fake_fetch(RELEASE_ASSETS))
+    assert any("invalid name" in e for e in errs)
 
 
 def test_missing_platform_key():

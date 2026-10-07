@@ -1,6 +1,7 @@
 """Orchestration: load packages, resolve release context, render outputs."""
 import json
 import os
+import re
 
 from .release import fetch_latest_release
 from .assets import match_asset
@@ -13,6 +14,10 @@ PLATFORM_KEYS = [
     "darwin_amd64", "darwin_arm64",
     "windows_amd64", "windows_arm64",
 ]
+
+# Versions flow into URLs, filenames, Ruby class names, and JSON paths.
+# Reject anything outside this safe charset before it reaches render.
+_SAFE_VERSION_RE = re.compile(r"^[A-Za-z0-9._+~-]+$")
 
 
 def load_packages(packages_dir, only=None):
@@ -99,6 +104,9 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
                 )
 
         version = latest_version
+        if not _SAFE_VERSION_RE.fullmatch(version or ""):
+            print(f"[error] {name}: refusing unsafe version {version!r}")
+            return None
 
         if verbose:
             print(f"  Using download URLs (v{version})")
@@ -153,6 +161,9 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
         print(f"  Fetching latest release for {repo}...")
 
     version, all_assets, checksum_assets = fetch_latest_release(repo, token)
+    if not _SAFE_VERSION_RE.fullmatch(version or ""):
+        print(f"[error] {name}: refusing unsafe version {version!r}")
+        return None
     if verbose:
         print(f"  Latest: v{version} ({len(all_assets)} assets)")
 

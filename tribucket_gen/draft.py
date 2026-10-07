@@ -26,7 +26,7 @@ PLATFORM_KEYS = [
     "windows_amd64", "windows_arm64",
 ]
 
-NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+NAME_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 
 
 class DraftError(Exception):
@@ -44,8 +44,10 @@ def sanitize_name(raw):
 
 
 def clean_text(s):
-    """Strip control chars and double quotes (they break .rb/.json interpolation)."""
-    return re.sub(r"[\x00-\x1f\x7f\"]", "", (s or "")).strip()
+    """Strip control chars and double quotes (they break .rb/.json interpolation)
+    and neutralize Ruby interpolation (#{...} would execute when Homebrew loads
+    the committed formula)."""
+    return re.sub(r"[\x00-\x1f\x7f\"]", "", (s or "")).replace("#{", "#").strip()
 
 
 def load_template_doc(path=None):
@@ -237,8 +239,8 @@ def draft(repo, name=None, description=None, binary=None, license_id=None,
         "repo": repo,
         "description": clean_text(description) or clean_text(meta["description"]) or f"{pkg_name} CLI tool",
         "binary": clean_text(binary) or pkg_name,
-        "license": license_id or meta["license"],
-        "homepage": homepage or f"https://github.com/{repo}",
+        "license": clean_text(license_id) or clean_text(meta["license"]),
+        "homepage": clean_text(homepage) or f"https://github.com/{repo}",
         "asset_pattern": asset_pattern,
     }
     notes = [f"template: {tpl['id']}", f"release: v{version}"]

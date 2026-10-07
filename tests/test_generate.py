@@ -214,6 +214,26 @@ class TestSHA256:
         result = compute_sha256(fpath)
         assert result == expected
 
+    def test_filename_traversal_sanitized(self, tmp_path, monkeypatch):
+        """A URL-derived filename containing path separators cannot escape the
+        per-package tmp dir — get_sha256_for_asset must strip them."""
+        captured = {}
+
+        def fake_download(url, dest_path, token=None, verbose=False):
+            captured["dest_path"] = dest_path
+            with open(dest_path, "wb") as f:
+                f.write(b"x")
+
+        monkeypatch.setattr("tribucket_gen.hashing.download_file", fake_download)
+        cache_dir = str(tmp_path / ".cache")
+        malicious_filename = "..\\..\\evil.exe"
+        get_sha256_for_asset(
+            "https://x/evil.exe", malicious_filename,
+            [], [], cache_dir, "pkg", "1.0", verbose=False,
+        )
+        # The basename after stripping path separators is "evil.exe"
+        assert captured["dest_path"].replace("\\", "/").endswith("/pkg/1.0/evil.exe")
+
     def test_parse_checksum_file(self):
         content = "abc123  tool-linux-amd64.tar.gz\ndef456  tool-linux-arm64.tar.gz\n"
         result = parse_checksum_file(content, "tool-linux-amd64.tar.gz")
@@ -464,6 +484,33 @@ class TestFullPipeline:
         # GitHub release packages don't trigger write-back
         assert new_version is None
         assert new_urls is None
+
+    def test_process_package_rejects_unsafe_version(self, tmp_path, monkeypatch):
+        """Versions outside [A-Za-z0-9._+~-] flow into URLs/Ruby/JSON paths —
+        resolve_package must bail out rather than render."""
+        fake_release = {
+            "tag_name": "1.0#{evil}",
+            "assets": [],
+        }
+
+        def mock_http_get(url, token=None, retries=3):
+            return json.dumps(fake_release).encode()
+
+        monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
+
+        pkg = {
+            "name": "tool", "repo": "o/r", "description": "A tool",
+            "binary": "tool", "license": "MIT",
+            "homepage": "https://github.com/o/r",
+            "asset_pattern": {"linux_amd64": "tool-linux-amd64.tar.gz",
+                              "linux_arm64": "NO_MATCH",
+                              "darwin_amd64": "NO_MATCH", "darwin_arm64": "NO_MATCH",
+                              "windows_amd64": "NO_MATCH", "windows_arm64": "NO_MATCH"},
+        }
+        result = process_package(pkg, str(tmp_path / ".cache"), verbose=False)
+        # 4-tuple per the documented API; empty/None components signal refusal
+        assert result == (None, None, None, None)
 
 
 class TestCheckverIntegration:
