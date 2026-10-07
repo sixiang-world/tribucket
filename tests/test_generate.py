@@ -1,37 +1,52 @@
-"""Tests for scripts/generate.py"""
-import sys
-import os
+"""Tests for tribucket_gen (moved from scripts/generate.py)."""
 import json
+import os
 import hashlib
 import pytest
 
-# Add scripts/ to path so we can import generate
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+from tribucket_gen.__main__ import build_parser
+from tribucket_gen.assets import (
+    match_asset, is_checksum_asset, infer_asset_format, check_asset_patterns,
+)
+from tribucket_gen.core import load_packages, process_package, PLATFORM_KEYS
+from tribucket_gen.release import http_get, fetch_latest_release, parse_release
+from tribucket_gen.hashing import (
+    cache_key_path, compute_sha256, parse_checksum_file, get_cached_hash, write_cache,
+    get_sha256_for_asset,
+)
+from tribucket_gen.render.homebrew import render_formula, class_name_from
+from tribucket_gen.render.scoop import render_bucket, autoupdate_url
+from tribucket_gen.render.portable import (
+    render_install_sh, render_bat, generate_portable,
+    derive_tribucket_json, infer_install_type,
+)
 
-import generate
 
-
-class TestParseArgs:
+class TestRenderArgs:
     def test_defaults(self):
-        args = generate.parse_args([])
+        args = build_parser().parse_args(["render"])
         assert args.only == []
-        assert args.skip_hash is False
-        assert args.dry_run is False
-        assert args.verbose is False
-
-    def test_only_single(self):
-        args = generate.parse_args(['--only', 'ccx'])
-        assert args.only == ['ccx']
+        assert args.skip_hash is False and args.dry_run is False and args.verbose is False
 
     def test_only_multiple(self):
-        args = generate.parse_args(['--only', 'ccx', '--only', 'bat'])
-        assert args.only == ['ccx', 'bat']
+        args = build_parser().parse_args(["render", "--only", "ccx", "--only", "bat"])
+        assert args.only == ["ccx", "bat"]
 
     def test_flags(self):
-        args = generate.parse_args(['--skip-hash', '--dry-run', '--verbose'])
-        assert args.skip_hash is True
-        assert args.dry_run is True
-        assert args.verbose is True
+        args = build_parser().parse_args(["render", "--skip-hash", "--dry-run", "--verbose"])
+        assert args.skip_hash and args.dry_run and args.verbose
+
+    def test_portable(self):
+        args = build_parser().parse_args(["render", "--portable", "--portable-dir", "/tmp/x"])
+        assert args.portable and args.portable_dir == "/tmp/x"
+
+    def test_check_subcommand(self):
+        args = build_parser().parse_args(["check"])
+        assert args.command == "check"
+
+    def test_requires_command(self):
+        with pytest.raises(SystemExit):
+            build_parser().parse_args([])
 
 
 class TestLoadPackages:
@@ -47,7 +62,7 @@ class TestLoadPackages:
                 "windows_amd64": "e", "windows_arm64": "f"
             }
         }))
-        pkgs = generate.load_packages(str(pkg_dir))
+        pkgs = load_packages(str(pkg_dir))
         assert len(pkgs) == 1
         assert pkgs[0]["name"] == "foo"
 
@@ -64,7 +79,7 @@ class TestLoadPackages:
                     "windows_amd64": "e", "windows_arm64": "f"
                 }
             }))
-        pkgs = generate.load_packages(str(pkg_dir), only=["a", "c"])
+        pkgs = load_packages(str(pkg_dir), only=["a", "c"])
         names = [p["name"] for p in pkgs]
         assert names == ["a", "c"]
 
@@ -80,7 +95,7 @@ class TestLoadPackages:
                 "windows_amd64": "e", "windows_arm64": "f"
             }
         }))
-        pkgs = generate.load_packages(str(pkg_dir), only=["a", "missing"])
+        pkgs = load_packages(str(pkg_dir), only=["a", "missing"])
         assert len(pkgs) == 1
         captured = capsys.readouterr()
         assert "missing" in captured.out
@@ -92,7 +107,7 @@ class TestMatchAsset:
             {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-amd64.tar.gz"},
             {"name": "tool-linux-arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-arm64.tar.gz"},
         ]
-        result = generate.match_asset(assets, "tool-linux-amd64")
+        result = match_asset(assets, "tool-linux-amd64")
         assert result is not None
         assert result["name"] == "tool-linux-amd64.tar.gz"
 
@@ -101,7 +116,7 @@ class TestMatchAsset:
             {"name": "fzf-0.50_linux_amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v0.50/fzf-0.50_linux_amd64.tar.gz"},
             {"name": "fzf-0.50_linux_arm64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v0.50/fzf-0.50_linux_arm64.tar.gz"},
         ]
-        result = generate.match_asset(assets, "fzf-*_linux_amd64.tar.gz")
+        result = match_asset(assets, "fzf-*_linux_amd64.tar.gz")
         assert result is not None
         assert "amd64" in result["name"]
 
@@ -109,14 +124,14 @@ class TestMatchAsset:
         assets = [
             {"name": "tool-linux-amd64.tar.gz", "browser_download_url": "https://github.com/o/r/releases/download/v1.0/tool-linux-amd64.tar.gz"},
         ]
-        result = generate.match_asset(assets, "tool-windows-amd64.exe")
+        result = match_asset(assets, "tool-windows-amd64.exe")
         assert result is None
 
     def test_exe_match(self):
         assets = [
             {"name": "ccx-windows-amd64.exe", "browser_download_url": "https://github.com/o/r/releases/download/v2.8.12/ccx-windows-amd64.exe"},
         ]
-        result = generate.match_asset(assets, "ccx-windows-amd64.exe")
+        result = match_asset(assets, "ccx-windows-amd64.exe")
         assert result is not None
         assert result["name"] == "ccx-windows-amd64.exe"
 
@@ -131,7 +146,7 @@ class TestGitHubAPI:
                 {"name": "SHA256SUMS", "browser_download_url": "https://github.com/o/r/releases/download/v1.2.3/SHA256SUMS"},
             ]
         }
-        version, assets, checksum_assets = generate.parse_release(release_json)
+        version, assets, checksum_assets = parse_release(release_json)
         assert version == "1.2.3"
         assert len(assets) == 3
         assert len(checksum_assets) == 1
@@ -139,12 +154,12 @@ class TestGitHubAPI:
 
     def test_parse_release_strips_v_prefix(self):
         release_json = {"tag_name": "v2.0.0", "assets": []}
-        version, _, _ = generate.parse_release(release_json)
+        version, _, _ = parse_release(release_json)
         assert version == "2.0.0"
 
     def test_parse_release_no_v_prefix(self):
         release_json = {"tag_name": "2.0.0", "assets": []}
-        version, _, _ = generate.parse_release(release_json)
+        version, _, _ = parse_release(release_json)
         assert version == "2.0.0"
 
     def test_checksum_asset_names(self):
@@ -157,7 +172,7 @@ class TestGitHubAPI:
                 {"name": "checksums.txt", "browser_download_url": "https://x"},
             ]
         }
-        _, _, checksum_assets = generate.parse_release(release_json)
+        _, _, checksum_assets = parse_release(release_json)
         names = {a["name"] for a in checksum_assets}
         assert "tool.tar.gz.sha256" in names
         assert "sha256sums.txt" in names
@@ -166,27 +181,27 @@ class TestGitHubAPI:
 
 class TestSHA256:
     def test_cache_key_path(self):
-        path = generate.cache_key_path("/repo/.cache", "ccx", "2.8.12", "ccx-linux-amd64.tar.gz")
+        path = cache_key_path("/repo/.cache", "ccx", "2.8.12", "ccx-linux-amd64.tar.gz")
         assert path.replace("\\", "/").endswith(".cache/ccx/2.8.12/ccx-linux-amd64.tar.gz.sha256")
 
     def test_cache_hit(self, tmp_path):
         cache_dir = str(tmp_path / ".cache")
-        key_path = generate.cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
+        key_path = cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
         os.makedirs(os.path.dirname(key_path), exist_ok=True)
         with open(key_path, "w") as f:
             f.write("abc123")
-        result = generate.get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
+        result = get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
         assert result == "abc123"
 
     def test_cache_miss(self, tmp_path):
         cache_dir = str(tmp_path / ".cache")
-        result = generate.get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
+        result = get_cached_hash(cache_dir, "pkg", "1.0", "file.tar.gz")
         assert result is None
 
     def test_write_cache(self, tmp_path):
         cache_dir = str(tmp_path / ".cache")
-        generate.write_cache(cache_dir, "pkg", "1.0", "file.tar.gz", "deadbeef")
-        key_path = generate.cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
+        write_cache(cache_dir, "pkg", "1.0", "file.tar.gz", "deadbeef")
+        key_path = cache_key_path(cache_dir, "pkg", "1.0", "file.tar.gz")
         with open(key_path) as f:
             assert f.read() == "deadbeef"
 
@@ -196,32 +211,32 @@ class TestSHA256:
         with open(fpath, "wb") as f:
             f.write(content)
         expected = hashlib.sha256(content).hexdigest()
-        result = generate.compute_sha256(fpath)
+        result = compute_sha256(fpath)
         assert result == expected
 
     def test_parse_checksum_file(self):
         content = "abc123  tool-linux-amd64.tar.gz\ndef456  tool-linux-arm64.tar.gz\n"
-        result = generate.parse_checksum_file(content, "tool-linux-amd64.tar.gz")
+        result = parse_checksum_file(content, "tool-linux-amd64.tar.gz")
         assert result == "abc123"
 
     def test_parse_checksum_file_no_match(self):
         content = "abc123  other-file.tar.gz\n"
-        result = generate.parse_checksum_file(content, "tool-linux-amd64.tar.gz")
+        result = parse_checksum_file(content, "tool-linux-amd64.tar.gz")
         assert result is None
 
 
 class TestFormulaRendering:
     def test_class_name_simple(self):
-        assert generate.class_name_from("ccx") == "Ccx"
+        assert class_name_from("ccx") == "Ccx"
 
     def test_class_name_hyphenated(self):
-        assert generate.class_name_from("claude-code") == "ClaudeCode"
+        assert class_name_from("claude-code") == "ClaudeCode"
 
     def test_class_name_single(self):
-        assert generate.class_name_from("bat") == "Bat"
+        assert class_name_from("bat") == "Bat"
 
     def test_class_name_multi_hyphen(self):
-        assert generate.class_name_from("my-cool-tool") == "MyCoolTool"
+        assert class_name_from("my-cool-tool") == "MyCoolTool"
 
     def test_render_formula_basic(self):
         info = {
@@ -238,7 +253,7 @@ class TestFormulaRendering:
                 "linux_arm64": {"url": "https://x/ccx-linux-arm64", "sha256": "ddd"},
             }
         }
-        result = generate.render_formula(info)
+        result = render_formula(info)
         assert "class Ccx < Formula" in result
         assert 'version "2.8.12"' in result
         assert 'sha256 "aaa"' in result
@@ -258,7 +273,7 @@ class TestFormulaRendering:
                 "darwin_arm64": {"url": "https://x/tool-darwin-arm", "sha256": "bbb"},
             }
         }
-        result = generate.render_formula(info)
+        result = render_formula(info)
         assert "on_macos do" in result
         assert "on_linux do" not in result
 
@@ -275,7 +290,7 @@ class TestFormulaRendering:
                 "linux_amd64": {"url": "https://x/tool-linux", "sha256": "bbb"},
             }
         }
-        result = generate.render_formula(info)
+        result = render_formula(info)
         assert "on_intel do" in result
         assert "on_arm do" not in result
 
@@ -293,7 +308,7 @@ class TestFormulaRendering:
                 "darwin_amd64": {"url": "https://x/tool-darwin", "sha256": "aaa"},
             }
         }
-        result = generate.render_formula(info)
+        result = render_formula(info)
         assert '#{bin}/tool --version' in result
         assert 'built-in' not in result
 
@@ -321,7 +336,7 @@ class TestBucketRendering:
                 },
             },
         }
-        result = generate.render_bucket(info)
+        result = render_bucket(info)
         parsed = json.loads(result)
         assert parsed["version"] == "2.8.12"
         assert parsed["architecture"]["64bit"]["hash"] == "abc123"
@@ -347,19 +362,19 @@ class TestBucketRendering:
                 },
             },
         }
-        result = generate.render_bucket(info)
+        result = render_bucket(info)
         parsed = json.loads(result)
         assert "64bit" in parsed["architecture"]
         assert "arm64" not in parsed["architecture"]
 
     def test_autoupdate_url(self):
         url = "https://github.com/o/r/releases/download/v1.2.3/file.zip"
-        au_url = generate.autoupdate_url(url, "1.2.3")
+        au_url = autoupdate_url(url, "1.2.3")
         assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
 
     def test_autoupdate_url_no_v_prefix(self):
         url = "https://github.com/o/r/releases/download/1.2.3/file.zip"
-        au_url = generate.autoupdate_url(url, "1.2.3")
+        au_url = autoupdate_url(url, "1.2.3")
         assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
 
     def test_render_bucket_download_url(self):
@@ -379,7 +394,7 @@ class TestBucketRendering:
                 },
             },
         }
-        result = generate.render_bucket(info, is_download_url=True)
+        result = render_bucket(info, is_download_url=True)
         parsed = json.loads(result)
         # Download_url packages omit checkver (Scoop uses hardcoded version)
         assert "checkver" not in parsed
@@ -436,7 +451,7 @@ class TestFullPipeline:
         }
 
         cache_dir = str(tmp_path / ".cache")
-        formula, bucket, new_version, new_urls = generate.process_package(pkg, cache_dir, verbose=False)
+        formula, bucket, new_version, new_urls = process_package(pkg, cache_dir, verbose=False)
 
         assert "class Tool < Formula" in formula
         assert 'version "1.0.0"' in formula
@@ -486,7 +501,7 @@ class TestCheckverIntegration:
         }
 
         cache_dir = str(tmp_path / ".cache")
-        formula, bucket, new_version, new_urls = generate.process_package(
+        formula, bucket, new_version, new_urls = process_package(
             pkg, cache_dir, verbose=False
         )
 
@@ -521,7 +536,7 @@ class TestCheckverIntegration:
         }
 
         cache_dir = str(tmp_path / ".cache")
-        formula, bucket, new_version, new_urls = generate.process_package(
+        formula, bucket, new_version, new_urls = process_package(
             pkg, cache_dir, verbose=False
         )
 
@@ -574,47 +589,47 @@ JDK_PKG = {
 class TestInferAssetFormat:
     def test_tar_gz(self):
         pat = {"linux_amd64": "foo_1.0_linux_amd64.tar.gz"}
-        assert generate.infer_asset_format(pat) == {"linux_amd64": "tar.gz"}
+        assert infer_asset_format(pat) == {"linux_amd64": "tar.gz"}
 
     def test_zip(self):
         pat = {"windows_amd64": "foo_1.0_windows_amd64.zip"}
-        assert generate.infer_asset_format(pat) == {"windows_amd64": "zip"}
+        assert infer_asset_format(pat) == {"windows_amd64": "zip"}
 
     def test_exe(self):
         pat = {"windows_amd64": "foo.exe"}
-        assert generate.infer_asset_format(pat) == {"windows_amd64": "exe"}
+        assert infer_asset_format(pat) == {"windows_amd64": "exe"}
 
     def test_binary(self):
         pat = {"linux_amd64": "foo_linux_amd64"}
-        assert generate.infer_asset_format(pat) == {"linux_amd64": "binary"}
+        assert infer_asset_format(pat) == {"linux_amd64": "binary"}
 
     def test_no_match_excluded(self):
         pat = {"linux_amd64": "foo.tar.gz", "darwin_arm64": "NO_MATCH"}
-        result = generate.infer_asset_format(pat)
+        result = infer_asset_format(pat)
         assert "darwin_arm64" not in result
         assert result["linux_amd64"] == "tar.gz"
 
 
 class TestInferInstallType:
     def test_binary_default(self):
-        assert generate.infer_install_type(SAMPLE_PKG) == "binary"
+        assert infer_install_type(SAMPLE_PKG) == "binary"
 
     def test_jdk_directory(self):
-        assert generate.infer_install_type(JDK_PKG) == "directory"
+        assert infer_install_type(JDK_PKG) == "directory"
 
     def test_various_jdk_names(self):
         for prefix in ("corretto-jdk", "temurin-jdk", "zulu-jdk", "graalvm-ce-jdk"):
             pkg = {"name": f"{prefix}17"}
-            assert generate.infer_install_type(pkg) == "directory"
+            assert infer_install_type(pkg) == "directory"
 
     def test_non_jdk_is_binary(self):
         pkg = {"name": "not-a-jdk"}
-        assert generate.infer_install_type(pkg) == "binary"
+        assert infer_install_type(pkg) == "binary"
 
 
 class TestDeriveTribucketJson:
     def test_basic_fields(self):
-        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        tj = derive_tribucket_json(SAMPLE_PKG, "1.5.2")
         assert tj["name"] == "go-wxpush"
         assert tj["version"] == "1.5.2"
         assert tj["repo"] == "hezhizheng/go-wxpush"
@@ -622,7 +637,7 @@ class TestDeriveTribucketJson:
         assert tj["license"] == "MIT"
 
     def test_version_check_defaults(self):
-        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        tj = derive_tribucket_json(SAMPLE_PKG, "1.5.2")
         vc = tj["version_check"]
         assert vc["cli_flags"] == ["--version"]
         assert "parse_regex" in vc
@@ -630,69 +645,69 @@ class TestDeriveTribucketJson:
         assert vc["fallback_version"] == "1.5.2"
 
     def test_install_type_inferred(self):
-        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        tj = derive_tribucket_json(SAMPLE_PKG, "1.5.2")
         assert tj["install_type"] == "binary"
 
-        tj_jdk = generate.derive_tribucket_json(JDK_PKG, "17.0.12")
+        tj_jdk = derive_tribucket_json(JDK_PKG, "17.0.12")
         assert tj_jdk["install_type"] == "directory"
 
     def test_asset_format_inferred(self):
-        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        tj = derive_tribucket_json(SAMPLE_PKG, "1.5.2")
         assert tj["asset_format"]["linux_amd64"] == "binary"
         assert tj["asset_format"]["windows_amd64"] == "exe"
 
     def test_mirror_enabled(self):
-        tj = generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2")
+        tj = derive_tribucket_json(SAMPLE_PKG, "1.5.2")
         assert tj["mirror"]["enabled"] is True
 
     def test_optional_prerelease(self):
         pkg = {**SAMPLE_PKG, "version_check": {"include_prerelease": True}}
-        tj = generate.derive_tribucket_json(pkg, "1.5.2")
+        tj = derive_tribucket_json(pkg, "1.5.2")
         assert tj["version_check"]["include_prerelease"] is True
 
     def test_optional_download_url(self):
         pkg = {**SAMPLE_PKG, "download_url": {"linux_amd64": "https://example.com/foo"}}
-        tj = generate.derive_tribucket_json(pkg, "1.5.2")
+        tj = derive_tribucket_json(pkg, "1.5.2")
         assert "download_url" in tj
         assert tj["download_url"]["linux_amd64"] == "https://example.com/foo"
 
 
 class TestRenderInstallSh:
     def test_has_shebang(self):
-        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        sh = render_install_sh(SAMPLE_PKG, derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
         assert sh.startswith("#!/usr/bin/env bash")
 
     def test_checks_for_tribucket_cli(self):
-        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        sh = render_install_sh(SAMPLE_PKG, derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
         assert 'command -v tribucket' in sh
 
     def test_has_standalone_fallback(self):
-        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        sh = render_install_sh(SAMPLE_PKG, derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
         assert "standalone mode" in sh
 
     def test_contains_package_name(self):
-        sh = generate.render_install_sh(SAMPLE_PKG, generate.derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
+        sh = render_install_sh(SAMPLE_PKG, derive_tribucket_json(SAMPLE_PKG, "1.5.2"))
         assert 'NAME="go-wxpush"' in sh
         assert 'REPO="hezhizheng/go-wxpush"' in sh
 
 
 class TestRenderBat:
     def test_has_package_name(self):
-        bat = generate.render_bat(SAMPLE_PKG)
+        bat = render_bat(SAMPLE_PKG)
         assert "go-wxpush" in bat
 
     def test_has_exe_extension(self):
-        bat = generate.render_bat(SAMPLE_PKG)
+        bat = render_bat(SAMPLE_PKG)
         assert "go-wxpush.exe" in bat
 
     def test_checks_binary_exists(self):
-        bat = generate.render_bat(SAMPLE_PKG)
+        bat = render_bat(SAMPLE_PKG)
         assert "if not exist" in bat
 
 
 class TestGeneratePortable:
     def test_creates_files(self, tmp_path):
-        ok = generate.generate_portable(SAMPLE_PKG, str(tmp_path), verbose=False)
+        ok = generate_portable(SAMPLE_PKG, str(tmp_path), verbose=False)
         assert ok is True
 
         pkg_dir = tmp_path / "go-wxpush"
@@ -701,42 +716,26 @@ class TestGeneratePortable:
         assert (pkg_dir / "cmd" / "tribucket-update.bat").exists()
 
     def test_tribucket_json_valid(self, tmp_path):
-        generate.generate_portable(SAMPLE_PKG, str(tmp_path))
+        generate_portable(SAMPLE_PKG, str(tmp_path))
         with open(tmp_path / "go-wxpush" / "tribucket.json") as f:
             tj = json.load(f)
         assert tj["name"] == "go-wxpush"
         assert tj["version"] == "1.5.2"
 
     def test_install_sh_executable(self, tmp_path):
-        generate.generate_portable(SAMPLE_PKG, str(tmp_path))
+        generate_portable(SAMPLE_PKG, str(tmp_path))
         install_sh = tmp_path / "go-wxpush" / "install.sh"
         assert os.access(str(install_sh), os.X_OK)
 
     def test_dry_run_no_files(self, tmp_path):
-        ok = generate.generate_portable(SAMPLE_PKG, str(tmp_path), dry_run=True)
+        ok = generate_portable(SAMPLE_PKG, str(tmp_path), dry_run=True)
         assert ok is True
         # No files should be created in dry_run mode
         assert not (tmp_path / "go-wxpush").exists()
 
     def test_jdk_package(self, tmp_path):
-        generate.generate_portable(JDK_PKG, str(tmp_path))
+        generate_portable(JDK_PKG, str(tmp_path))
         with open(tmp_path / "corretto-jdk17" / "tribucket.json") as f:
             tj = json.load(f)
         assert tj["install_type"] == "directory"
         assert tj["binary"] == "bin/java"
-
-
-class TestParseArgsPortable:
-    def test_portable_flag(self):
-        args = generate.parse_args(["--portable"])
-        assert args.portable is True
-
-    def test_portable_dir(self):
-        args = generate.parse_args(["--portable", "--portable-dir", "/tmp/out"])
-        assert args.portable is True
-        assert args.portable_dir == "/tmp/out"
-
-    def test_portable_default(self):
-        args = generate.parse_args([])
-        assert args.portable is False
-        assert args.portable_dir is None

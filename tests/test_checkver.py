@@ -1,9 +1,7 @@
-"""Tests for scripts/checkver.py"""
+"""Tests for tribucket_gen.checkver."""
 import json
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
-import checkver
+
+from tribucket_gen import checkver
 
 
 class TestExtractVersionFromUrl:

@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['packages/**']
   schedule:
-    - cron: '17 */6 * * *'  # Every 6 hours at :17
+    - cron: '17 5 * * *'  # Daily at 05:17 UTC
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
       - name: Generate Formula and Bucket
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u scripts/generate.py
+        run: python -u -m tribucket_gen render
 
       - name: Check for changes
         id: diff
@@ -102,6 +102,5 @@ jobs:
           PY
           git commit -F commit_msg.txt
           rm -f commit_msg.txt
-          # Pull latest to avoid push rejection when main moved
           git pull --rebase origin main
           git push

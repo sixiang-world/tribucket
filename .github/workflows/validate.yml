@@ -98,9 +98,9 @@ jobs:
       - name: Verify generate script (dry-run)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u scripts/generate.py --dry-run --skip-hash
+        run: python -u -m tribucket_gen render --dry-run --skip-hash
 
       - name: Check asset patterns against latest releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u scripts/generate.py --check-assets
+        run: python -u -m tribucket_gen check

@@ -4,7 +4,8 @@ Each registered renderer takes (pkg, ctx) and returns {relative_path: content}.
 Add a new target (winget/AUR/Nix) by writing a module and registering it —
 engine and CI need no changes.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Optional
 
 from . import homebrew, scoop
 
@@ -16,8 +17,8 @@ class Ctx:
     platforms: dict            # platform_key -> {url, sha256}
     windows: dict              # arch_key ("64bit"|"arm64") -> {url, hash, filename}
     is_download_url: bool
-    changed_version: str = None  # version when changed (download_url write-back), else None
-    new_urls: dict = None
+    changed_version: Optional[str] = None  # version when changed (download_url write-back), else None
+    new_urls: Optional[dict] = None
 
 
 RENDERERS = {}

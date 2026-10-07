@@ -37,30 +37,6 @@ def load_packages(packages_dir, only=None):
     return pkgs
 
 
-class ResolveResult:
-    """Fetch/match/hash half of the old process_package.
-
-    Attributes:
-        version: Resolved version (checkver/GitHub release tag).
-        repo: owner/repo ("" for download_url packages without a repo field).
-        platforms: platform_key -> {url, sha256} for all matched platforms.
-        windows: arch_key ("64bit"|"arm64") -> {url, hash, filename}.
-        is_download_url: True when resolved via the download_url branch.
-        changed_version: New version when it changed (write-back), else None.
-        new_urls: Updated download_url dict when the version changed, else None.
-    """
-
-    def __init__(self, version, repo, platforms, windows, is_download_url,
-                 changed_version=None, new_urls=None):
-        self.version = version
-        self.repo = repo
-        self.platforms = platforms
-        self.windows = windows
-        self.is_download_url = is_download_url
-        self.changed_version = changed_version
-        self.new_urls = new_urls
-
-
 def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
     """Fetch latest release / run checkver, match assets, compute hashes.
 
@@ -77,7 +53,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
         verbose: Print detailed progress.
 
     Returns:
-        ResolveResult, or None when a download_url package is missing its
+        Ctx (from .render), or None when a download_url package is missing its
         'version' field (nothing can be resolved).
     """
     name = pkg["name"]
@@ -160,7 +136,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
         version_changed = (latest_version != hardcoded_version)
         new_download_urls_for_writeback = download_urls if version_changed else None
 
-        return ResolveResult(
+        return Ctx(
             version=version,
             repo=repo,
             platforms=platforms,
@@ -214,7 +190,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
             arch_key = "64bit" if "amd64" in plat_key else "arm64"
             windows[arch_key] = {"url": url, "hash": sha, "filename": filename}
 
-    return ResolveResult(
+    return Ctx(
         version=version,
         repo=repo,
         platforms=platforms,
