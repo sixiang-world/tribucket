@@ -1,6 +1,6 @@
 # 更新日志
 
-## v2.0.0 — 转型：Issue 驱动的多软件源聚合仓库
+## v4.0.0 — 转型：Issue 驱动的多软件源聚合仓库
 
 ### ⚙️ 变更
 - 仓库转型：tribucket CLI 与网站/KV 分发链路归档下线（CLI 移入 archive/cli-v2/，存量 brew/scoop 用户停留在最后版本）

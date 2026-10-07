@@ -6,9 +6,9 @@ Issue 驱动的多软件源聚合仓库：提交一个 GitHub 仓库，自动生
 
 ```bash
 # Homebrew
-brew install shisheng820/tribucket/<name>
+brew install sixiang-world/tribucket/<name>
 # Scoop
-scoop bucket add tribucket https://github.com/shisheng820/tribucket
+scoop bucket add tribucket https://github.com/sixiang-world/tribucket
 scoop install <name>
 ```
 
@@ -16,7 +16,7 @@ scoop install <name>
 
 ## 提交新包
 
-1. [打开一个包提交 Issue](https://github.com/shisheng820/tribucket/issues/new?template=package-submission.yml)，填几个基本字段（仓库 URL、一句话描述）
+1. [打开一个包提交 Issue](https://github.com/sixiang-world/tribucket/issues/new?template=package-submission.yml)，填几个基本字段（仓库 URL、一句话描述）
 2. 机器人分析最新 Release 资产，自动生成包定义并贴回评论
 3. 确认无误后回复 `@tribucket-bot confirm` —— 一次 commit 原子入库（定义 + Formula + bucket）
 
@@ -27,9 +27,9 @@ scoop install <name>
 不依赖本仓库，给自己维护的 tap/bucket 生成软件源：
 
 ```bash
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen draft <owner/repo> --json
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen validate packages/<name>.json
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen render --only <name>
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen draft <owner/repo> --json
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen validate packages/<name>.json
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen render --only <name>
 ```
 
 （Python 3.9+，仅标准库。也可安装 [skill](skills/tribucket-gen/) 到你的 AI Agent。）

@@ -2,7 +2,7 @@
 
 ## 提交新包（推荐）
 
-打开 [包提交 Issue](https://github.com/shisheng820/tribucket/issues/new?template=package-submission.yml)，
+打开 [包提交 Issue](https://github.com/sixiang-world/tribucket/issues/new?template=package-submission.yml)，
 按表单填写即可，机器人全流程处理。见 README「提交新包」。
 
 ## 修引擎 / 改模板

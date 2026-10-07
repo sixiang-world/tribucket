@@ -42,11 +42,11 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 
 ### ② 模板匹配
 
-拿到 assets 列表后，对照 `templates.json` 中的 6 种已知模式逐一匹配。
+拿到 assets 列表后，对照 `templates.json` 中的 7 种已知模式逐一匹配。
 
 **匹配方法**：取 `linux_amd64` 平台的资产名（最常见），用 detect 正则判断。
 
-**6 种模板（按频率排序）**：
+**7 种模板（按频率排序）**：
 
 | ID | 描述 | 示例资产名 |
 |---|---|---|
@@ -56,6 +56,7 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 | `rust-triple-bare` | `x86_64-unknown-linux-gnu.tar.gz` (无前缀) | x86_64-unknown-linux-gnu.tar.gz |
 | `underscore-version` | `{name}_{ver}_linux_x86_64.tar.gz` | lazygit_0.41_linux_x86_64.tar.gz |
 | `go-style` | `{name}_linux_amd64` (无版本无后缀) | wgcf_linux_amd64 |
+| `underscore-version-caps` | `{name}_{ver}_Linux_x86_64.tar.gz`（平台名大写） | vhs_0.10.0_Linux_x86_64.tar.gz |
 
 ### ③a 模板快速生成
 
@@ -171,9 +172,9 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 ### 路径 B：uvx 拉起完整引擎（draft/validate/render 全流程）
 
 ```bash
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen draft <owner/repo> --json
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen validate packages/<name>.json
-uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen render --only <name>
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen draft <owner/repo> --json
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen validate packages/<name>.json
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen render --only <name>
 ```
 
 ## 工具位置
