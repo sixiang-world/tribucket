@@ -159,6 +159,9 @@ license = { text = "MIT" }
 [project.scripts]
 tribucket-gen = "tribucket_gen.__main__:main"
 
+[tool.setuptools.package-data]
+tribucket_gen = ["templates.json"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
@@ -276,13 +279,30 @@ from tribucket_gen.checkver import run_checkver, apply_autoupdate, in_place_repl
 
 注意：process_package 内部的 `from checkver import run_checkver, ...` 行（generate.py:476）改为直接使用模块级已导入的名字（删除该行局部 import）。
 
-- [ ] **Step 3: 验证测试全绿（零改动）**
+- [ ] **Step 2.5: 重定向 pipeline 测试的 mock 目标（patch where used）**
+
+搬移后 `fetch_latest_release` 在 `release` 命名空间解析 `http_get`，`get_sha256_for_asset` 在 `hashing` 命名空间解析——monkeypatch `generate.http_get` 不再生效。更新 3 个 pipeline 测试（test_process_package_basic / test_download_url_package_with_checkver / test_download_url_package_zero_config）的 mock 设置，每个测试把原来的一行：
+
+```python
+monkeypatch.setattr(generate, "http_get", mock_http_get)
+```
+
+替换为两行（同一个 mock 对象挂到两个实际调用点的绑定上）：
+
+```python
+monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
+monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
+```
+
+实现时先读 `scripts/checkver.py` 确认 run_checkver 的 HTTP 途径：若它导入 release.http_get 则上述第一行已覆盖；若它自建 urllib 调用，则按同样规则把 mock 挂到 checkver 实际使用的绑定。**断言一律不动。**
+
+- [ ] **Step 3: 验证测试全绿**
 
 ```bash
 python -m pytest tests/ -q
 ```
 
-Expected: 全绿。关键点：tests monkeypatch `generate.http_get`（test_generate.py:418 等）依然生效——process_package 仍在 generate.py 中引用模块级 `http_get` 名字，而该名字经 from-import 绑定在 generate 命名空间，monkeypatch 替换的正是这个绑定。
+Expected: 全绿（3 个 pipeline 测试的 mock 目标已在 Step 2.5 重定向，断言零改动；其余 92 个测试不受影响）。同时清理 generate.py 顶部因搬移而不再使用的 import（hashlib/subprocess/tempfile/urllib.request 等，按实际残留处理）。
 
 - [ ] **Step 4: Commit**
 
@@ -491,7 +511,7 @@ from tribucket_gen.render.portable import (  # noqa: E402,F401
 python -m pytest tests/ -q
 ```
 
-Expected: 全绿。3 个 pipeline 测试（test_process_package_basic / test_download_url_package_with_checkver / test_download_url_package_zero_config）现走 resolve_package + registry 渲染路径，断言不变应通过。若 `sha256 "aaa111"` 之类断言失败，检查 Ctx.platforms 传递是否丢失 checksum-file 命中路径。
+Expected: 全绿。3 个 pipeline 测试（test_process_package_basic / test_download_url_package_with_checkver / test_download_url_package_zero_config）现走 resolve_package + registry 渲染路径；它们的 mock 已在 Task 3 挂到 `tribucket_gen.release.http_get` 与 `tribucket_gen.hashing.http_get` 的绑定上，本任务不改变这两个绑定，故无需再动。断言不变应通过。若 `sha256 "aaa111"` 之类断言失败，检查 Ctx.platforms 传递是否丢失 checksum-file 命中路径。
 
 - [ ] **Step 6: 注册表单测（新文件）**
 
@@ -879,7 +899,7 @@ git commit -m "feat(gen): new tribucket_gen CLI (render/check); retire scripts/;
 ### Task 6: draft.py —— Release 资产 → 包定义（TDD）
 
 **Files:**
-- Create: `tribucket_gen/draft.py`
+- Create: `tribucket_gen/draft.py`、`tribucket_gen/templates.json`（skills 权威源的构建期副本，随 wheel 打包供 uvx 使用）
 - Test: `tests/test_draft.py`
 - Modify: `tribucket_gen/__main__.py`（追加 draft 子命令）
 
@@ -996,6 +1016,15 @@ def test_description_cleaned_of_control_chars():
                    fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
     assert "\x01" not in pkg["description"]
     assert '"' not in pkg["description"]
+
+
+def test_vendored_templates_in_sync():
+    """skills/ 下的权威模板与包内 vendored 副本必须逐字节一致（防漂移）。"""
+    import pathlib
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    canonical = repo_root / "skills" / "tribucket-gen" / "templates.json"
+    vendored = repo_root / "tribucket_gen" / "templates.json"
+    assert vendored.read_text(encoding="utf-8") == canonical.read_text(encoding="utf-8")
 ```
 
 - [ ] **Step 2: 运行确认失败**
@@ -1007,6 +1036,12 @@ python -m pytest tests/test_draft.py -q
 Expected: FAIL（ModuleNotFoundError: tribucket_gen.draft）
 
 - [ ] **Step 3: 实现 draft.py**
+
+先创建 vendored 副本（与 skills/ 权威源同内容）：
+
+```bash
+cp skills/tribucket-gen/templates.json tribucket_gen/templates.json
+```
 
 ```python
 """Draft a packages/*.json definition from a GitHub repo's latest release.
@@ -1022,6 +1057,14 @@ from .assets import match_asset
 from .release import fetch_latest_release, http_get
 
 DEFAULT_TEMPLATES_PATH = Path(__file__).resolve().parent.parent / "skills" / "tribucket-gen" / "templates.json"
+
+# 模板文件查找顺序：repo clone / CI / editable 安装读 skills/ 权威源；
+# 安装成 wheel（uvx）后 skills/ 不存在，回退到随包分发的 vendored 副本
+# （Task 2 的 package-data 已配置；两份文件的一致性由 test_vendored_templates_in_sync 守护）。
+_TEMPLATE_CANDIDATES = (
+    DEFAULT_TEMPLATES_PATH,
+    Path(__file__).resolve().parent / "templates.json",
+)
 
 PLATFORM_KEYS = [
     "linux_amd64", "linux_arm64",
@@ -1049,7 +1092,14 @@ def clean_text(s):
 
 
 def load_templates(path=None):
-    p = Path(path) if path else DEFAULT_TEMPLATES_PATH
+    if path:
+        p = Path(path)
+    else:
+        p = next((c for c in _TEMPLATE_CANDIDATES if c.exists()), None)
+        if p is None:
+            raise DraftError(
+                "templates.json not found; looked in:\n" + "\n".join(str(c) for c in _TEMPLATE_CANDIDATES)
+            )
     with open(p, encoding="utf-8") as f:
         return json.load(f)["templates"]
 
@@ -2170,7 +2220,8 @@ git commit -m "docs: rewrite for issue-driven multi-source hub architecture"
 ```bash
 python -m pytest tests/ -q                 # 全绿
 python -m tribucket_gen check              # 需网络；107 包资产模式体检无 ❌
-uvx --from git+file:///D:/coedspace/tribucket tribucket-gen --version   # 入口点可用（本地路径冒烟）
+pip install -e . && tribucket-gen --version && pip uninstall -y tribucket-gen   # 入口点冒烟（editable 安装）
+# 可选（需网络）：uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen --version
 ```
 
 - [ ] **Step 2: push 后 GitHub 控制台操作**
