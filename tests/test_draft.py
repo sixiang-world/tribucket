@@ -1,0 +1,110 @@
+"""Tests for tribucket_gen.draft — template matching from release assets."""
+import json
+import pytest
+
+from tribucket_gen import draft as draft_mod
+from tribucket_gen.draft import DraftError, draft, load_templates, sanitize_name
+
+
+def asset(name):
+    return {"name": name, "browser_download_url": f"https://github.com/o/r/releases/download/v1.0.0/{name}"}
+
+
+def fake_fetcher(release_assets, version="1.0.0"):
+    def _f(repo, token=None):
+        return version, release_assets, []
+    return _f
+
+
+FAKE_META = {"description": "A cool tool", "license": "MIT"}
+
+
+def meta_fetcher(repo):
+    return FAKE_META
+
+
+TEMPLATES = load_templates()  # 真实的 skills/tribucket-gen/templates.json
+
+
+def test_sanitize_name():
+    assert sanitize_name("My Tool") == "my-tool"
+    assert sanitize_name("Rust_Grep!!") == "rust-grep"
+    assert sanitize_name("") == ""
+
+
+def test_rust_triple_bare_template():
+    assets = [
+        asset("ripgrep-14.1.1-x86_64-unknown-linux-gnu.tar.gz"),
+        asset("ripgrep-14.1.1-aarch64-unknown-linux-gnu.tar.gz"),
+        asset("ripgrep-14.1.1-x86_64-apple-darwin.tar.gz"),
+        asset("ripgrep-14.1.1-aarch64-apple-darwin.tar.gz"),
+        asset("ripgrep-14.1.1-x86_64-pc-windows-msvc.zip"),
+        asset("templates.json"),
+    ]
+    pkg, notes = draft("o/ripgrep", fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    assert pkg["name"] == "ripgrep"
+    assert pkg["repo"] == "o/ripgrep"
+    assert pkg["license"] == "MIT"
+    assert pkg["asset_pattern"]["linux_amd64"] == "x86_64-unknown-linux-gnu.tar.gz"
+    assert pkg["asset_pattern"]["darwin_arm64"] == "aarch64-apple-darwin.tar.gz"
+    assert pkg["asset_pattern"]["windows_amd64"] == "x86_64-pc-windows-msvc.zip"
+
+
+def test_simple_hyphen_template_and_name_override():
+    assets = [
+        asset("cosign-linux-amd64"), asset("cosign-linux-arm64"),
+        asset("cosign-darwin-amd64"), asset("cosign-darwin-arm64"),
+        asset("cosign-windows-amd64.exe"),
+    ]
+    pkg, _ = draft("o/cosign", name="Cosign Tool", fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    assert pkg["name"] == "cosign-tool"
+    assert pkg["asset_pattern"]["linux_amd64"] == "cosign-linux-amd64"
+    assert pkg["asset_pattern"]["windows_arm64"] == "NO_MATCH"  # 资产不存在 → NO_MATCH
+
+
+def test_underscore_version_uses_glob_for_version():
+    assets = [
+        asset("lazygit_0.41.0_linux_x86_64.tar.gz"),
+        asset("lazygit_0.41.0_linux_arm64.tar.gz"),
+        asset("lazygit_0.41.0_darwin_x86_64.tar.gz"),
+        asset("lazygit_0.41.0_darwin_arm64.tar.gz"),
+        asset("lazygit_0.41.0_windows_x86_64.zip"),
+    ]
+    pkg, _ = draft("o/lazygit", fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    # 版本号嵌入文件名 → 用 * 代替 {name}_{version}，否则下个版本就失配
+    assert pkg["asset_pattern"]["linux_amd64"] == "*_linux_x86_64.tar.gz"
+    assert pkg["asset_pattern"]["windows_amd64"] == "*_windows_x86_64.zip"
+
+
+def test_no_template_match_raises_with_assets():
+    assets = [asset("totally-weird-bin")]
+    with pytest.raises(DraftError) as e:
+        draft("o/weird", fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    assert "totally-weird-bin" in str(e.value.assets)
+
+
+def test_description_and_license_overrides_beat_meta():
+    assets = [asset("tool-linux-amd64"), asset("tool-darwin-amd64")]
+    pkg, _ = draft(
+        "o/tool", description="My own desc", license_id="Apache-2.0",
+        fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher,
+    )
+    assert pkg["description"] == "My own desc"
+    assert pkg["license"] == "Apache-2.0"
+
+
+def test_description_cleaned_of_control_chars():
+    assets = [asset("tool-linux-amd64"), asset("tool-darwin-amd64")]
+    pkg, _ = draft("o/tool", description="bad\x01desc\"quote",
+                   fetcher=fake_fetcher(assets), meta_fetcher=meta_fetcher)
+    assert "\x01" not in pkg["description"]
+    assert '"' not in pkg["description"]
+
+
+def test_vendored_templates_in_sync():
+    """skills/ 下的权威模板与包内 vendored 副本必须逐字节一致（防漂移）。"""
+    import pathlib
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    canonical = repo_root / "skills" / "tribucket-gen" / "templates.json"
+    vendored = repo_root / "tribucket_gen" / "templates.json"
+    assert vendored.read_text(encoding="utf-8") == canonical.read_text(encoding="utf-8")

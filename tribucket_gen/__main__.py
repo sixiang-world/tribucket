@@ -41,6 +41,17 @@ def build_parser():
     r.add_argument("--portable-dir", default=None)
 
     sub.add_parser("check", help="Validate asset_pattern of packages against latest releases")
+
+    d = sub.add_parser("draft", help="Draft a packages/*.json definition from a GitHub repo")
+    d.add_argument("repo")
+    d.add_argument("--name")
+    d.add_argument("--description")
+    d.add_argument("--binary")
+    d.add_argument("--license", dest="license_id")
+    d.add_argument("--homepage")
+    d.add_argument("--templates", default=None, help="Override templates.json path")
+    d.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
+    d.add_argument("--out", default=None, help="Write definition to this path")
     return p
 
 
@@ -134,6 +145,37 @@ def cmd_check(args):
     return 0 if ok else 1
 
 
+def cmd_draft(args):
+    from .draft import DraftError, draft
+    try:
+        pkg, notes = draft(
+            args.repo, name=args.name, description=args.description,
+            binary=args.binary, license_id=args.license_id, homepage=args.homepage,
+            templates_path=args.templates,
+        )
+    except DraftError as e:
+        is_no_template = "no known template" in str(e)
+        print(f"[draft error] {e}", file=sys.stderr)
+        for a in e.assets[:20]:
+            print(f"  asset: {a}", file=sys.stderr)
+        return 2 if is_no_template else 1
+    except Exception as e:  # network etc.
+        print(f"[draft error] {e}", file=sys.stderr)
+        return 1
+    if args.json or args.out:
+        payload = json.dumps(pkg, indent=2, ensure_ascii=False) + "\n"
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(payload)
+        else:
+            print(payload, end="")
+    else:
+        print(json.dumps(pkg, indent=2, ensure_ascii=False))
+        for n in notes:
+            print(f"# {n}")
+    return 0
+
+
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -141,6 +183,8 @@ def main(argv=None):
         return cmd_render(args)
     if args.command == "check":
         return cmd_check(args)
+    if args.command == "draft":
+        return cmd_draft(args)
     return 1
 
 
