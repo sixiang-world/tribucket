@@ -74,7 +74,7 @@ jobs:
           PY
 
       - name: Handle parse failure (author-fixable)
-        if: failure() && steps.parse.conclusion == 'failure' && steps.draft.conclusion == 'skipped'
+        if: failure() && steps.parse.conclusion == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUM: ${{ github.event.issue.number }}

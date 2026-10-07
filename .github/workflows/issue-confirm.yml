@@ -92,12 +92,14 @@ jobs:
               json.dump(data, f, ensure_ascii=False)
           PY
 
-      # Adapted from issue-draft.yml's parse-failure handler: this workflow has no
-      # `draft` step (the downstream step id is `regen`), and parse runs *after*
+      # Adapted from issue-draft.yml's parse-failure handler: parse runs *after*
       # "Mark processing" here, so the handler must also restore the drafted label
       # — otherwise a parse failure would leave the issue stuck in `processing`.
+      # The condition uses only backward references: a not-yet-reached step is
+      # absent from GHA's `steps` context, so a forward-referenced conclusion is
+      # null and `null == 'skipped'` is false (would make this handler dead code).
       - name: Handle parse failure (author-fixable)
-        if: failure() && steps.parse.conclusion == 'failure' && steps.regen.conclusion == 'skipped'
+        if: failure() && steps.parse.conclusion == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUM: ${{ github.event.issue.number }}
