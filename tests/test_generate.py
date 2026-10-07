@@ -387,6 +387,30 @@ class TestBucketRendering:
         assert "64bit" in parsed["architecture"]
         assert "arm64" not in parsed["architecture"]
 
+    def test_render_bucket_zip_bin_inside_archive(self):
+        """When the Windows asset is a zip, Scoop's bin must point at the
+        executable inside the archive (typically {binary}.exe), not at the
+        zip's own filename. Regression for qqmail-cli install failure."""
+        info = {
+            "name": "qqmail-cli", "repo": "sixiang-world/qqmail-cli",
+            "description": "x", "homepage": "https://github.com/sixiang-world/qqmail-cli",
+            "license": "Apache-2.0", "binary": "qqmail-cli", "version": "0.5.0",
+            "windows": {
+                "64bit": {
+                    "url": "https://github.com/sixiang-world/qqmail-cli/releases/download/v0.5.0/qqmail-cli_0.5.0_windows_amd64.zip",
+                    "hash": "abc", "filename": "qqmail-cli_0.5.0_windows_amd64.zip",
+                },
+            },
+        }
+        parsed = json.loads(render_bucket(info))
+        # bin points INSIDE the zip — the executable name, not the zip name
+        assert parsed["bin"] == [["qqmail-cli.exe", "qqmail-cli"]]
+        # autoupdate must replace both v-prefixed tag AND bare-versioned filename
+        assert parsed["autoupdate"]["architecture"]["64bit"]["url"] == (
+            "https://github.com/sixiang-world/qqmail-cli/releases/download/"
+            "v$version/qqmail-cli_$version_windows_amd64.zip"
+        )
+
     def test_autoupdate_url(self):
         url = "https://github.com/o/r/releases/download/v1.2.3/file.zip"
         au_url = autoupdate_url(url, "1.2.3")
@@ -409,6 +433,21 @@ class TestBucketRendering:
         assert au_url == (
             "https://github.com/dragonwell-project/dragonwell11/releases/download/"
             "$version/Alibaba_Dragonwell_Standard_11.0.32.28.9_x64_windows.zip"
+        )
+
+    def test_autoupdate_url_mixed_v_tag_bare_filename(self):
+        # qqmail-cli case: tag has v-prefix (v0.5.0) but filename embeds bare
+        # version (qqmail-cli_0.5.0_windows_amd64.zip). Both must be replaced
+        # — leaving the bare 0.5.0 in the autoupdate URL means the next cron
+        # update fetches a non-existent file.
+        url = (
+            "https://github.com/sixiang-world/qqmail-cli/releases/download/"
+            "v0.5.0/qqmail-cli_0.5.0_windows_amd64.zip"
+        )
+        au_url = autoupdate_url(url, "0.5.0")
+        assert au_url == (
+            "https://github.com/sixiang-world/qqmail-cli/releases/download/"
+            "v$version/qqmail-cli_$version_windows_amd64.zip"
         )
 
     def test_render_bucket_download_url(self):
