@@ -395,7 +395,21 @@ class TestBucketRendering:
     def test_autoupdate_url_no_v_prefix(self):
         url = "https://github.com/o/r/releases/download/1.2.3/file.zip"
         au_url = autoupdate_url(url, "1.2.3")
-        assert au_url == "https://github.com/o/r/releases/download/v$version/file.zip"
+        # Preserve upstream's no-v convention; do NOT inject a v-prefix.
+        assert au_url == "https://github.com/o/r/releases/download/$version/file.zip"
+
+    def test_autoupdate_url_textual_tag_no_v_prefix(self):
+        # Real-world case: dragonwell tags like 'dragonwell-standard-11.0.32.28_jdk-11.0.32-ga'
+        version = "dragonwell-standard-11.0.32.28_jdk-11.0.32-ga"
+        url = (
+            "https://github.com/dragonwell-project/dragonwell11/releases/download/"
+            f"{version}/Alibaba_Dragonwell_Standard_11.0.32.28.9_x64_windows.zip"
+        )
+        au_url = autoupdate_url(url, version)
+        assert au_url == (
+            "https://github.com/dragonwell-project/dragonwell11/releases/download/"
+            "$version/Alibaba_Dragonwell_Standard_11.0.32.28.9_x64_windows.zip"
+        )
 
     def test_render_bucket_download_url(self):
         info = {

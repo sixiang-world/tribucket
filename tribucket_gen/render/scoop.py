@@ -5,7 +5,10 @@ import json
 def autoupdate_url(url, version):
     """Derive a Scoop autoupdate URL by replacing the version segment with $version.
 
-    Handles both 'v1.2.3' and '1.2.3' in the URL path.
+    Preserves the upstream tag's v-prefix convention:
+    - 'v1.2.3' in URL -> 'v$version'
+    - '1.2.3' in URL (no v-prefix) -> '$version'
+
     Only replaces within the /releases/download/ path segments (tag + filename)
     to avoid matching org/repo names that happen to contain the version string.
     """
@@ -15,7 +18,7 @@ def autoupdate_url(url, version):
         if v_str in suffix:
             return prefix + "/releases/download/" + suffix.replace(v_str, "v$version")
         if version in suffix:
-            return prefix + "/releases/download/" + suffix.replace(version, "v$version")
+            return prefix + "/releases/download/" + suffix.replace(version, "$version")
     return url
 
 
