@@ -7,18 +7,12 @@ on:
   schedule:
     - cron: '17 */6 * * *'  # Every 6 hours at :17
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Build & Release"]
-    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   generate:
-    if: |
-      github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -111,9 +105,3 @@ jobs:
           # Pull latest to avoid push rejection when main moved
           git pull --rebase origin main
           git push
-
-      - name: Sync to EdgeOne KV
-        run: python -u scripts/kv-sync.py
-        env:
-          ADMIN_SYNC_SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
-          TRIBUCKET_SITE: https://tribucket.hunluan.space
