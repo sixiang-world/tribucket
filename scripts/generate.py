@@ -6,25 +6,35 @@ Usage:
     python scripts/generate.py --portable [--only NAME ...]
 """
 import argparse
-import hashlib
 import json
 import os
 import sys
-import time
-import urllib.request
 import urllib.error
-import http.client
-import subprocess
-import tempfile
-from fnmatch import fnmatch
 
 # Windows GBK console cannot encode the ✓/❌/⚠️ symbols used below
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+# Delegation imports: the release/assets/hashing/checkver layers now live in
+# the tribucket_gen package (repo root). The names below are re-exported so
+# existing consumers of scripts/generate.py (tests, CI) keep working.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
-CHECKSUM_PATTERNS = ("sha256sums", "SHA256SUMS", "checksums.txt", ".sha256")
+from tribucket_gen.release import (  # noqa: E402,F401
+    _build_opener, http_get, _has_aria2, download_file, fetch_latest_release, parse_release,
+)
+from tribucket_gen.assets import (  # noqa: E402,F401
+    CHECKSUM_PATTERNS, match_asset, is_checksum_asset, infer_asset_format, check_asset_patterns,
+)
+from tribucket_gen.hashing import (  # noqa: E402,F401
+    cache_key_path, get_cached_hash, write_cache, compute_sha256, parse_checksum_file,
+    get_sha256_for_asset,
+)
+import tribucket_gen.checkver as _checkver_mod  # noqa: E402
+from tribucket_gen.checkver import run_checkver, apply_autoupdate, in_place_replace  # noqa: E402,F401
 
 
 def load_packages(packages_dir, only=None):
@@ -47,202 +57,6 @@ def load_packages(packages_dir, only=None):
         pkgs = [p for p in pkgs if p["name"] in only_set]
 
     return pkgs
-
-
-def match_asset(assets, pattern):
-    """Find the first asset whose name matches the pattern (substring or glob)."""
-    # First try substring match
-    for asset in assets:
-        if pattern in asset["name"]:
-            return asset
-    # Then try glob match
-    for asset in assets:
-        if fnmatch(asset["name"], f"*{pattern}*"):
-            return asset
-    return None
-
-
-def is_checksum_asset(name):
-    """Check if an asset name looks like a checksum file."""
-    lower = name.lower()
-    return any(p.lower() in lower for p in CHECKSUM_PATTERNS)
-
-
-def parse_release(release_json):
-    """Extract version, assets, and checksum assets from a GitHub release JSON."""
-    tag = release_json["tag_name"]
-    version = tag.lstrip("v")
-    all_assets = release_json.get("assets", [])
-    checksum_assets = [a for a in all_assets if is_checksum_asset(a["name"])]
-    return version, all_assets, checksum_assets
-
-
-def _build_opener():
-    """Build a URL opener that respects HTTP_PROXY/HTTPS_PROXY env vars."""
-    proxy_handler = urllib.request.ProxyHandler()
-    return urllib.request.build_opener(proxy_handler)
-
-
-_opener = _build_opener()
-
-
-def http_get(url, token=None, retries=5, timeout=30):
-    """Fetch a URL with optional GitHub token and retry logic.
-
-    Respects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables.
-    """
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0 (compatible; tribucket/1.0; +https://github.com/sixiang-world/tribucket)",
-    }
-    if token:
-        headers["Authorization"] = f"token {token}"
-
-    req = urllib.request.Request(url, headers=headers)
-    last_err = None
-    for attempt in range(retries):
-        try:
-            with _opener.open(req, timeout=timeout) as resp:
-                return resp.read()
-        except urllib.error.HTTPError as e:
-            last_err = e
-            if e.code == 403:
-                raise
-            if e.code >= 500 and attempt < retries - 1:
-                time.sleep(2 ** attempt)
-                continue
-            raise
-        except urllib.error.URLError as e:
-            last_err = e
-            if attempt < retries - 1:
-                time.sleep(2 ** attempt)
-                continue
-            raise
-        except http.client.HTTPException as e:
-            last_err = e
-            if attempt < retries - 1:
-                time.sleep(2 ** attempt)
-                continue
-            raise
-        except TimeoutError as e:
-            # Read timeouts surface as bare TimeoutError (not URLError) on
-            # some Python versions; retry them like any transient failure.
-            last_err = e
-            if attempt < retries - 1:
-                time.sleep(2 ** attempt)
-                continue
-            raise
-    raise last_err
-
-
-def _has_aria2():
-    """Check if aria2c is available. Result is cached for subsequent calls."""
-    if not hasattr(_has_aria2, "cached"):
-        try:
-            result = subprocess.run(["aria2c", "--version"], capture_output=True, text=True, check=True)
-            ver = result.stdout.splitlines()[0] if result.stdout else "unknown"
-            _has_aria2.cached = ver
-        except (FileNotFoundError, subprocess.CalledProcessError):
-            _has_aria2.cached = None
-    return _has_aria2.cached
-
-
-def download_file(url, dest_path, token=None, verbose=False):
-    """Download a file using aria2c (multi-connection + retry) with urllib fallback.
-
-    aria2c settings:
-      -x 16: 16 connections per server
-      -s 16: 16 splits
-      -k 10M: minimum split size 10MB
-      --retry-wait=2: 2s wait between retries
-      --max-tries=5: retry up to 5 times
-      --continue=true: resume partial downloads
-    """
-    aria2_ver = _has_aria2()
-    if aria2_ver:
-        cmd = [
-            "aria2c",
-            "-x", "16",
-            "-s", "16",
-            "-k", "10M",
-            "--retry-wait=2",
-            "--max-tries=5",
-            "--continue=true",
-            "--console-log-level=warn",
-            "--summary-interval=0",
-            "-d", os.path.dirname(dest_path),
-            "-o", os.path.basename(dest_path),
-        ]
-        if token:
-            cmd.append(f"--header=Authorization: token {token}")
-        cmd.append(url)
-
-        start = time.monotonic()
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        elapsed = time.monotonic() - start
-        if result.returncode == 0 and os.path.exists(dest_path):
-            fname = os.path.basename(dest_path)
-            print(f"  {fname}  {elapsed:.1f}s")
-            return True
-        print(f"  [aria2] failed (rc={result.returncode}), falling back to urllib")
-
-    # Fallback: urllib with retry
-    fname = os.path.basename(dest_path)
-    start = time.monotonic()
-    body = http_get(url, token=token, timeout=120)
-    elapsed = time.monotonic() - start
-    with open(dest_path, "wb") as f:
-        f.write(body)
-    print(f"  {fname}  {elapsed:.1f}s")
-    return True
-
-
-def fetch_latest_release(repo, token=None):
-    """Fetch the latest release from GitHub."""
-    url = f"https://api.github.com/repos/{repo}/releases/latest"
-    body = http_get(url, token=token)
-    release_json = json.loads(body)
-    return parse_release(release_json)
-
-
-def cache_key_path(cache_dir, pkg_name, version, filename):
-    """Return the path to a cached SHA256 hash file."""
-    return os.path.join(cache_dir, pkg_name, version, f"{filename}.sha256")
-
-
-def get_cached_hash(cache_dir, pkg_name, version, filename):
-    """Return cached SHA256 hash if it exists, else None."""
-    path = cache_key_path(cache_dir, pkg_name, version, filename)
-    if os.path.isfile(path):
-        with open(path) as f:
-            return f.read().strip()
-    return None
-
-
-def write_cache(cache_dir, pkg_name, version, filename, sha256_hash):
-    """Write a SHA256 hash to the cache."""
-    path = cache_key_path(cache_dir, pkg_name, version, filename)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        f.write(sha256_hash)
-
-
-def compute_sha256(filepath):
-    """Compute SHA256 hex digest of a file."""
-    h = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def parse_checksum_file(content, target_filename):
-    """Extract SHA256 hash for target_filename from a checksum file."""
-    for line in content.strip().splitlines():
-        parts = line.strip().split()
-        if len(parts) >= 2 and parts[-1] == target_filename:
-            return parts[0].lower()
-    return None
 
 
 def class_name_from(name):
@@ -391,46 +205,6 @@ def render_bucket(info, is_download_url=False):
     return json.dumps(bucket, indent=2, ensure_ascii=False) + "\n"
 
 
-def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, pkg_name, version, verbose):
-    """Get SHA256 for an asset, trying checksum files first, then downloading."""
-    # Try to find hash from checksum files in the release
-    for cksum_asset in checksum_assets:
-        cksum_url = cksum_asset["browser_download_url"]
-        if verbose:
-            print(f"  Trying checksum file: {cksum_asset['name']}")
-        try:
-            body = http_get(cksum_url)
-            content = body.decode("utf-8", errors="replace")
-            sha = parse_checksum_file(content, filename)
-            if sha:
-                if verbose:
-                    print(f"  [checksum hit] {filename} = {sha}")
-                write_cache(cache_dir, pkg_name, version, filename, sha)
-                return sha
-        except (urllib.error.URLError, http.client.HTTPException, urllib.error.HTTPError):
-            continue
-
-    # Fallback: download and compute
-    if verbose:
-        print(f"  Downloading {filename} to compute SHA256...")
-    # Put the temp file inside a per-package subdir (instead of a flat
-    # "tribucket_{pkg}_{filename}" name) so the download progress log shows the
-    # REAL asset name, not a confusing prefixed temp name.
-    tmp_dir = os.path.join(tempfile.gettempdir(), "tribucket", pkg_name, version or "0")
-    os.makedirs(tmp_dir, exist_ok=True)
-    tmp_path = os.path.join(tmp_dir, filename)
-    try:
-        download_file(url, tmp_path, verbose=verbose)
-        sha = compute_sha256(tmp_path)
-        write_cache(cache_dir, pkg_name, version, filename, sha)
-        return sha
-    finally:
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
-
-
 def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
     """Process a single package: fetch release, compute hashes, render templates.
 
@@ -473,7 +247,6 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
         download_urls = pkg["download_url"]
 
         # 1. Run checkver to detect latest version
-        from checkver import run_checkver, apply_autoupdate, in_place_replace
         try:
             latest_version, captures = run_checkver(pkg)
         except Exception as e:
@@ -624,30 +397,6 @@ def process_package(pkg, cache_dir, skip_hash=False, verbose=False):
     return formula, bucket, \
            (latest_version if version_changed else None), \
             new_download_urls_for_writeback
-
-
-# infer_asset_format — inlined here so the generator is self-contained and
-# does not depend on the archived Python v1 CLI (lib/tribucket/). This is the
-# only function the generator ever needed from that module.
-def infer_asset_format(asset_pattern):
-    """Infer archive format from asset filename patterns."""
-    formats = {}
-    for platform, pattern in asset_pattern.items():
-        if pattern == "NO_MATCH" or not pattern:
-            continue
-        if pattern.endswith(".tar.gz"):
-            formats[platform] = "tar.gz"
-        elif pattern.endswith(".tar.bz2"):
-            formats[platform] = "tar.bz2"
-        elif pattern.endswith(".tar.xz"):
-            formats[platform] = "tar.xz"
-        elif pattern.endswith(".zip"):
-            formats[platform] = "zip"
-        elif pattern.endswith(".exe"):
-            formats[platform] = "exe"
-        else:
-            formats[platform] = "binary"
-    return formats
 
 
 def infer_install_type(pkg):
@@ -953,68 +702,6 @@ def parse_args(argv=None):
         help="Output directory for portable templates (default: <repo>/portable)"
     )
     return parser.parse_args(argv)
-
-
-def check_asset_patterns(pkgs):
-    """Validate asset_pattern against latest GitHub releases.
-
-    Prints a per-package status:
-      ✅  all non-NO_MATCH patterns match at least one asset
-      ⚠️  some patterns match, some don't
-      ❌  no patterns match (package will produce zero output)
-      —   download_url package (always fine)
-      ?   network error (couldn't check)
-
-    Returns True if all packages pass (no ❌), False otherwise.
-    """
-    token = os.environ.get("GITHUB_TOKEN")
-    all_ok = True
-
-    for pkg in pkgs:
-        name = pkg["name"]
-
-        # download_url packages always pass
-        if "download_url" in pkg:
-            print(f"  —  {name}: download_url (hardcoded)")
-            continue
-
-        repo = pkg.get("repo", "")
-        if not repo:
-            print(f"  ❌ {name}: no repo field")
-            all_ok = False
-            continue
-
-        # Fetch latest release
-        try:
-            version, all_assets, _ = fetch_latest_release(repo, token)
-        except Exception as e:
-            print(f"  ?  {name}: network error — {e}")
-            continue
-
-        # Check each platform
-        patterns = pkg.get("asset_pattern", {})
-        matched = 0
-        total = 0
-        for plat, pat in patterns.items():
-            if pat == "NO_MATCH" or not pat:
-                continue
-            total += 1
-            if match_asset(all_assets, pat):
-                matched += 1
-
-        if total == 0:
-            print(f"  ❌ {name}: no asset_pattern defined")
-            all_ok = False
-        elif matched == 0:
-            print(f"  ❌ {name}: 0/{total} patterns matched (zero output)")
-            all_ok = False
-        elif matched < total:
-            missing = total - matched
-            print(f"  ⚠️  {name}: {matched}/{total} matched ({missing} platform(s) missing)")
-        else:
-            print(f"  ✅ {name}: {matched}/{total} matched")
-
-    return all_ok
 
 
 def main():

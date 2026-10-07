@@ -415,7 +415,8 @@ class TestFullPipeline:
                 return checksum_content.encode()
             return json.dumps(fake_release).encode()
 
-        monkeypatch.setattr(generate, "http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
 
         pkg = {
             "name": "tool",
@@ -461,7 +462,8 @@ class TestCheckverIntegration:
             # For SHA256 download, return a small binary
             return b"fake-binary-content"
 
-        monkeypatch.setattr(generate, "http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
 
         pkg = {
             "name": "demo",
@@ -500,7 +502,8 @@ class TestCheckverIntegration:
         def mock_http_get(url, token=None, retries=3, timeout=None):
             return b"fake-binary-content"
 
-        monkeypatch.setattr(generate, "http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
 
         pkg = {
             "name": "go",
