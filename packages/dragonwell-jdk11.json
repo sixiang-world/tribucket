@@ -6,11 +6,11 @@
   "license": "GPL-2.0",
   "homepage": "https://www.aliyun.com/product/dragonwell",
   "asset_pattern": {
-    "linux_amd64": "Alibaba_Dragonwell_Extended_11",
-    "linux_arm64": "Alibaba_Dragonwell_Extended_11",
+    "linux_amd64": "Alibaba_Dragonwell_Standard_*_x64_linux.tar.gz",
+    "linux_arm64": "Alibaba_Dragonwell_Standard_*_aarch64_linux.tar.gz",
     "darwin_amd64": "NO_MATCH",
     "darwin_arm64": "NO_MATCH",
-    "windows_amd64": "Alibaba_Dragonwell_Extended_11",
+    "windows_amd64": "Alibaba_Dragonwell_Standard_*_x64_windows.zip",
     "windows_arm64": "NO_MATCH"
   }
 }
