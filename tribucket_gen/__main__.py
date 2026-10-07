@@ -52,6 +52,12 @@ def build_parser():
     d.add_argument("--templates", default=None, help="Override templates.json path")
     d.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
     d.add_argument("--out", default=None, help="Write definition to this path")
+
+    v = sub.add_parser("validate", help="Validate a package definition file")
+    v.add_argument("file", help="Path to definition JSON, or '-' for stdin")
+    v.add_argument("--json", action="store_true")
+    v.add_argument("--packages-dir", default=None)
+    v.add_argument("--offline", action="store_true", help="Skip online asset check")
     return p
 
 
@@ -176,6 +182,31 @@ def cmd_draft(args):
     return 0
 
 
+def cmd_validate(args):
+    from .validate import validate_definition
+    if args.file == "-":
+        pkg = json.load(sys.stdin)
+    else:
+        with open(args.file, encoding="utf-8") as f:
+            pkg = json.load(f)
+    packages_dir = args.packages_dir or os.path.join(os.getcwd(), "packages")
+    fetch = None
+    if not args.offline:
+        from .release import fetch_latest_release
+        fetch = fetch_latest_release
+    errors, warnings = validate_definition(pkg, packages_dir=packages_dir, fetch_release=fetch)
+    if args.json:
+        print(json.dumps({"ok": not errors, "errors": errors, "warnings": warnings},
+                         ensure_ascii=False, indent=2))
+    else:
+        for e in errors:
+            print(f"[error] {e}")
+        for w in warnings:
+            print(f"[warn] {w}")
+        print("OK" if not errors else f"{len(errors)} error(s)")
+    return 0 if not errors else 1
+
+
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -185,6 +216,8 @@ def main(argv=None):
         return cmd_check(args)
     if args.command == "draft":
         return cmd_draft(args)
+    if args.command == "validate":
+        return cmd_validate(args)
     return 1
 
 
