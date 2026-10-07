@@ -1,5 +1,14 @@
 # 更新日志
 
+## v2.0.0 — 转型：Issue 驱动的多软件源聚合仓库
+
+### ⚙️ 变更
+- 仓库转型：tribucket CLI 与网站/KV 分发链路归档下线（CLI 移入 archive/cli-v2/，存量 brew/scoop 用户停留在最后版本）
+- scripts/generate.py 重构为 tribucket_gen Python 包，新命令面：render / check / draft / validate
+- 新增 Issue 提交流水线：表单 → 自动生成定义 → 提交者 confirm → 单 commit 原子入库
+- generate.yml cron 6h → 24h，移除 EdgeOne KV 同步；release.yml / .cnb.yml 删除
+- skills/tribucket-gen 支持独立使用（uvx --from git+...），templates.json 成为引擎与 skill 的共享权威源
+
 ## v3.7.1 — 测试全覆盖 + Release Notes Bug 修复
 
 ### 🔴 Bug 修复
