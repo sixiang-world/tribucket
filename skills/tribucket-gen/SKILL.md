@@ -110,7 +110,7 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 }
 ```
 
-**asset_pattern 匹配规则**（来自 generate.py 的 `match_asset` 函数）：
+**asset_pattern 匹配规则**（来自 tribucket_gen 引擎 assets.py 的 `match_asset` 函数）：
 1. 先尝试**子串匹配**（`pattern in asset_name`）
 2. 再尝试 **glob 匹配**（`fnmatch(asset_name, f"*{pattern}*")`）
 3. 所以 pattern 可以是：
@@ -158,20 +158,36 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 ### 输出
 写入 `packages/ripgrep.json`（注意这是 tribucket 仓库内的路径）
 
+## 独立使用（不依赖 tribucket 仓库）
+
+两条路径：
+
+### 路径 A：纯 skill（只要包定义）
+1. `bash fetch_release.sh <owner/repo>` 获取资产列表
+2. 按 ②③ 节做模板匹配，手工产出 `packages/<name>.json`
+3. 用到你自己维护的 Homebrew tap / Scoop bucket 里（Formula/bucket 的模板可参考 tribucket 仓库的
+   `tribucket_gen/render/homebrew.py` 与 `render/scoop.py`，或让 AI 按其逻辑生成）
+
+### 路径 B：uvx 拉起完整引擎（draft/validate/render 全流程）
+
+```bash
+uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen draft <owner/repo> --json
+uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen validate packages/<name>.json
+uvx --from git+https://github.com/shisheng820/tribucket tribucket-gen render --only <name>
+```
+
 ## 工具位置
 
-- **模板库**: `<skill_dir>/templates.json`
+- **模板库（权威源）**: `<skill_dir>/templates.json` —— tribucket_gen 引擎的 draft 功能读取同一份文件
 - **Release 抓取脚本**: `<skill_dir>/fetch_release.sh`
-- **tribucket 仓库**: `/home/work/.openclaw/workspace/tribucket/`
-- **已有定义文件**: `/home/work/.openclaw/workspace/tribucket/packages/`
-- **生成器**: `/home/work/.openclaw/workspace/tribucket/scripts/generate.py`
 
 ## 验证
 
-生成后可以运行：
 ```bash
-cd /home/work/.openclaw/workspace/tribucket
-python3 scripts/generate.py --check-assets --only <name>
+# 引擎方式（在 tribucket 仓库 clone 内）：
+python3 -m tribucket_gen validate packages/<name>.json
+# 或全库资产体检：
+python3 -m tribucket_gen check
 ```
 
 这会验证 asset_pattern 是否能匹配到最新 Release 的资产。
