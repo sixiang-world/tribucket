@@ -123,12 +123,12 @@ python -m tribucket_gen --version
 ## Testing
 
 ```bash
-py -m pytest tests/ -q        # 115 passed, 3 skipped
+py -m pytest tests/ -q        # 123 passed, 3 skipped
 ```
 
 - 全部单元测试**无网络**：GitHub 交互经 `fetcher` / `meta_fetcher` 参数注入（monkeypatch），fixture 定义放在 `tests/fixtures/packages/`
 - `test_draft.py`：模板匹配、alias-rescue 双规则、退出码映射、**vendored templates 字节一致守护**
-- `test_render_registry.py`：注册表与渲染输出；`test_validate.py`：schema + ≥2 平台规则；`test_checkver*.py`：版本探测三模式；`test_generate.py`：核心渲染流程
+- `test_render_registry.py`：注册表与渲染输出；`test_validate.py`：schema + ≥2 平台规则；`test_checkver.py` / `test_checkver_fix.py`：版本探测三模式及其回归修复；`test_generate.py`：核心渲染流程
 
 ## CI
 
