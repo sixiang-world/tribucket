@@ -1,0 +1,197 @@
+name: Issue Confirm
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: package-commits
+  cancel-in-progress: false
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.comment.user.login == github.event.issue.user.login &&
+      github.event.comment.body == '@tribucket-bot confirm'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install aria2
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq aria2
+
+      - name: Check labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          LABELS="$(gh issue view "$ISSUE_NUM" --json labels -q '[.labels[].name] | join(",")')"
+          echo "labels: $LABELS"
+          case ",$LABELS," in
+            *,drafted,*) ;;
+            *) echo "issue is not in drafted state"; exit 1;;
+          esac
+          case ",$LABELS," in
+            *,processing,*) echo "already processing"; exit 1;;
+          esac
+
+      - name: Mark processing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: gh issue edit "$ISSUE_NUM" --remove-label drafted --add-label processing
+
+      - name: Parse submission form
+        id: parse
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python3 - <<'PY' 2> parse_err.txt
+          import json, os, re
+          body = os.environ["ISSUE_BODY"]
+          fields = {}
+          # GitHub form bodies start with the first "### <label>" at position 0;
+          # prepend a newline so the leading newline joins the first heading too.
+          for chunk in ("\n" + body).split("\n### ")[1:]:
+              lines = chunk.splitlines()
+              key = lines[0].strip()
+              val = "\n".join(lines[1:]).strip()
+              if val in ("_No response_", ""):
+                  val = ""
+              fields[key] = val
+          def need(label):
+              v = fields.get(label, "").strip()
+              if not v:
+                  raise SystemExit(f"missing required field: {label}")
+              return v
+          data = {
+              "repo": need("仓库 URL"),
+              "name": fields.get("包名", ""),
+              "description": need("一句话描述"),
+              "binary": fields.get("binary 名称", ""),
+              "license": fields.get("license", ""),
+              "notes": fields.get("备注", ""),
+          }
+          m = re.match(r"^https://github\.com/([\w.-]+)/([\w.-]+)/?$", data["repo"])
+          if not m:
+              raise SystemExit(f"invalid repo URL: {data['repo']}")
+          data["repo"] = m.group(1) + "/" + m.group(2)
+          if data["repo"].endswith(".git"):
+              data["repo"] = data["repo"][:-4]
+          with open("form.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False)
+          PY
+
+      # Adapted from issue-draft.yml's parse-failure handler: this workflow has no
+      # `draft` step (the downstream step id is `regen`), and parse runs *after*
+      # "Mark processing" here, so the handler must also restore the drafted label
+      # — otherwise a parse failure would leave the issue stuck in `processing`.
+      - name: Handle parse failure (author-fixable)
+        if: failure() && steps.parse.conclusion == 'failure' && steps.regen.conclusion == 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          {
+            echo "❌ 无法解析提交表单——请检查必填字段（仓库 URL / 一句话描述）是否已填写，仓库 URL 是否为有效的 GitHub 仓库地址。"
+            echo
+            echo '```'
+            head -c 400 parse_err.txt
+            echo '```'
+            echo
+            echo "修正后**编辑本 Issue** 即会自动重新生成。"
+          } > comment.md
+          gh issue comment "$ISSUE_NUM" --body-file comment.md
+          gh issue edit "$ISSUE_NUM" --remove-label processing --add-label drafted
+
+      - name: Re-draft and validate
+        id: regen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          REPO=$(jq -r .repo form.json)
+          ARGS=(draft "$REPO")
+          N=$(jq -r '.name // empty' form.json);        [ -z "$N" ] || ARGS+=(--name "$N")
+          D=$(jq -r '.description // empty' form.json); [ -z "$D" ] || ARGS+=(--description "$D")
+          B=$(jq -r '.binary // empty' form.json);      [ -z "$B" ] || ARGS+=(--binary "$B")
+          L=$(jq -r '.license // empty' form.json);     [ -z "$L" ] || ARGS+=(--license "$L")
+          python3 -u -m tribucket_gen "${ARGS[@]}" --json --out draft.json 2> regen_err.txt
+          rc=$?
+          set -e
+          if [ $rc -ne 0 ]; then
+            gh issue comment ${{ github.event.issue.number }} --body "❌ 重新生成失败（Release 可能已变化）：$(head -c 300 regen_err.txt)"
+            gh issue edit ${{ github.event.issue.number }} --remove-label processing --add-label drafted
+            exit 1
+          fi
+          # validate exits 1 when ok=false; guard against `bash -e` aborting
+          # before the error comment below can be posted (same guard as issue-draft.yml).
+          set +e
+          python3 -u -m tribucket_gen validate draft.json --json > validate.json
+          set -e
+          if [ "$(jq -r .ok validate.json)" != "true" ]; then
+            gh issue comment ${{ github.event.issue.number }} --body "❌ 确认时校验未通过：$(jq -r '.errors | join("; ")' validate.json)"
+            gh issue edit ${{ github.event.issue.number }} --remove-label processing --add-label drafted
+            exit 1
+          fi
+
+      - name: Render Formula and Bucket
+        id: render
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NAME=$(jq -r .name draft.json)
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          mkdir -p packages
+          cp draft.json "packages/$NAME.json"
+          python3 -u -m tribucket_gen render --only "$NAME"
+          for f in "packages/$NAME.json" "Formula/$NAME.rb" "bucket/$NAME.json"; do
+            [ -f "$f" ] && echo "artifact: $f"
+          done
+          [ -f "packages/$NAME.json" ] || { echo "packages/$NAME.json missing"; exit 1; }
+          [ -f "Formula/$NAME.rb" ] || [ -f "bucket/$NAME.json" ] || { echo "no render output"; exit 1; }
+
+      - name: Commit and push
+        env:
+          NAME: ${{ steps.render.outputs.name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for f in "packages/$NAME.json" "Formula/$NAME.rb" "bucket/$NAME.json"; do
+            [ -f "$f" ] && git add "$f"
+          done
+          git diff --cached --quiet && { echo "nothing to commit"; exit 1; }
+          git commit -m "pkg: add $NAME (via #${{ github.event.issue.number }})"
+          git pull --rebase origin main
+          git push
+
+      - name: Close issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          NAME: ${{ steps.render.outputs.name }}
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          gh issue close "$ISSUE_NUM" --comment "✅ 已入库 \`$NAME\`（commit $SHA）。Homebrew/Scoop 用户即可通过本仓库 tap/bucket 安装。"
+
+      # `|| true` on the label edit: when regen itself failed it already restored
+      # `drafted`, so `--remove-label processing` would 404 here and turn a fully
+      # handled failure into a spurious red step. State outcome is unchanged.
+      - name: On failure — restore drafted state
+        if: failure() && steps.regen.conclusion != 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUM" --body "❌ 入库流程失败（详见 Actions 日志）。已恢复 drafted 状态；排除问题后可再次回复 \`@tribucket-bot confirm\`。"
+          gh issue edit "$ISSUE_NUM" --remove-label processing --add-label drafted || true
