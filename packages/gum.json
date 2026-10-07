@@ -1,0 +1,16 @@
+{
+  "name": "gum",
+  "repo": "charmbracelet/gum",
+  "description": "A tool for glamorous shell scripts",
+  "binary": "gum",
+  "license": "MIT",
+  "homepage": "https://github.com/charmbracelet/gum",
+  "asset_pattern": {
+    "linux_amd64": "*_Linux_x86_64.tar.gz",
+    "linux_arm64": "*_Linux_arm64.tar.gz",
+    "darwin_amd64": "*_Darwin_x86_64.tar.gz",
+    "darwin_arm64": "*_Darwin_arm64.tar.gz",
+    "windows_amd64": "*_Windows_x86_64.zip",
+    "windows_arm64": "NO_MATCH"
+  }
+}
