@@ -1,0 +1,53 @@
+name: 提交新软件包
+description: 提交一个新包 —— CI 自动生成 Homebrew Formula 和 Scoop bucket
+title: "[pkg] "
+labels: ["submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        填写基本信息即可，机器人会分析该仓库的最新 Release 并自动生成包定义。
+        生成结果会以评论贴回本 Issue；**由提交者本人**回复 `@tribucket-bot confirm` 即可自动入库。
+  - type: input
+    id: repo
+    attributes:
+      label: 仓库 URL
+      description: GitHub 仓库地址（需公开发布 Release）
+      placeholder: https://github.com/owner/repo
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: 包名
+      description: 留空则使用仓库名（小写字母、数字、连字符）
+    validations:
+      required: false
+  - type: input
+    id: description
+    attributes:
+      label: 一句话描述
+      description: 英文一句话，将写入 Formula 与 bucket
+    validations:
+      required: true
+  - type: input
+    id: binary
+    attributes:
+      label: binary 名称
+      description: 安装后的可执行文件名，留空则使用包名
+    validations:
+      required: false
+  - type: input
+    id: license
+    attributes:
+      label: license
+      description: SPDX 标识（如 MIT、Apache-2.0），留空则从 GitHub 自动探测
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: 备注
+      description: 特殊说明（平台限制、特殊命名等）
+    validations:
+      required: false
