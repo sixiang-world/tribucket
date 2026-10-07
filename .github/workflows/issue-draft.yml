@@ -1,0 +1,179 @@
+name: Issue Draft
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: issue-draft-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: contains(github.event.issue.body, '### 仓库 URL')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Ensure labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create drafted --color 0E8A16 --force
+          gh label create processing --color FBCA04 --force
+          gh label create needs-manual --color D93F0B --force
+
+      - name: Parse submission form
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          body = os.environ["ISSUE_BODY"]
+          fields = {}
+          # GitHub form bodies start with the first "### <label>" at position 0;
+          # prepend a newline so the leading newline joins the first heading too.
+          for chunk in ("\n" + body).split("\n### ")[1:]:
+              lines = chunk.splitlines()
+              key = lines[0].strip()
+              val = "\n".join(lines[1:]).strip()
+              if val in ("_No response_", ""):
+                  val = ""
+              fields[key] = val
+          def need(label):
+              v = fields.get(label, "").strip()
+              if not v:
+                  raise SystemExit(f"missing required field: {label}")
+              return v
+          data = {
+              "repo": need("仓库 URL"),
+              "name": fields.get("包名", ""),
+              "description": need("一句话描述"),
+              "binary": fields.get("binary 名称", ""),
+              "license": fields.get("license", ""),
+              "notes": fields.get("备注", ""),
+          }
+          m = re.match(r"^https://github\.com/([\w.-]+)/([\w.-]+)/?$", data["repo"])
+          if not m:
+              raise SystemExit(f"invalid repo URL: {data['repo']}")
+          data["repo"] = m.group(1) + "/" + m.group(2)
+          if data["repo"].endswith(".git"):
+              data["repo"] = data["repo"][:-4]
+          with open("form.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False)
+          PY
+
+      - name: Rate limit (max 3 open submissions per user)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          COUNT=$(gh issue list --author "$AUTHOR" --state open --limit 100 --json body \
+            | python3 -c 'import json,sys; print(sum(1 for i in json.load(sys.stdin) if "### 仓库 URL" in (i.get("body") or "")))')
+          echo "open submissions by $AUTHOR: $COUNT"
+          if [ "$COUNT" -gt 3 ]; then
+            gh issue comment "$ISSUE_NUM" --body "提交过于频繁：你已有 $COUNT 个进行中的提交 Issue（上限 3）。请等待现有提交完成后再提交新包。"
+            gh issue close "$ISSUE_NUM"
+            exit 1
+          fi
+
+      - name: Draft package definition
+        id: draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          REPO=$(jq -r .repo form.json)
+          ARGS=(draft "$REPO")
+          N=$(jq -r '.name // empty' form.json);        [ -z "$N" ] || ARGS+=(--name "$N")
+          D=$(jq -r '.description // empty' form.json); [ -z "$D" ] || ARGS+=(--description "$D")
+          B=$(jq -r '.binary // empty' form.json);      [ -z "$B" ] || ARGS+=(--binary "$B")
+          L=$(jq -r '.license // empty' form.json);     [ -z "$L" ] || ARGS+=(--license "$L")
+          python3 -u -m tribucket_gen "${ARGS[@]}" --json --out draft.json 2> draft_err.txt
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          exit $rc
+
+      - name: Handle no-template failure (rc=2)
+        if: failure() && steps.draft.outputs.rc == '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          {
+            echo "❌ 无法自动生成包定义——该仓库的 Release 资产命名不在已知模板内。"
+            echo '```'
+            head -c 800 draft_err.txt
+            echo '```'
+            echo "已关闭本 Issue 并加 needs-manual 标签，由维护者人工处理。"
+          } > comment.md
+          gh issue comment "$ISSUE_NUM" --body-file comment.md
+          gh issue edit "$ISSUE_NUM" --add-label needs-manual
+          gh issue close "$ISSUE_NUM"
+
+      - name: Handle transient failure (rc=1)
+        if: failure() && steps.draft.outputs.rc == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          {
+            echo "⚠️ 自动生成遇到临时错误（可能是网络或 GitHub API）："
+            echo '```'
+            head -c 400 draft_err.txt
+            echo '```'
+            echo "稍后编辑本 Issue 即会自动重试。"
+          } > comment.md
+          gh issue comment "$ISSUE_NUM" --body-file comment.md
+
+      - name: Validate definition
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          # validate exits 1 when ok=false; guard against `bash -e` aborting
+          # before the error comment below can be posted.
+          set +e
+          python3 -u -m tribucket_gen validate draft.json --json > validate.json
+          set -e
+          if [ "$(jq -r .ok validate.json)" != "true" ]; then
+            {
+              echo "❌ 校验未通过，请修改 Issue 后重新提交（编辑本 Issue 会自动重新生成）："
+              echo
+              jq -r '.errors[] | "- " + .' validate.json
+            } > comment.md
+            gh issue comment "$ISSUE_NUM" --body-file comment.md
+            exit 1
+          fi
+
+      - name: Comment draft on issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' > comment.md
+          import json
+          pkg = json.load(open("draft.json", encoding="utf-8"))
+          print("🤖 已根据最新 Release 资产自动生成包定义：")
+          print()
+          print("```json")
+          print(json.dumps(pkg, indent=2, ensure_ascii=False))
+          print("```")
+          print()
+          print("请检查以上定义。确认无误后，**由本 Issue 作者**回复 `@tribucket-bot confirm` 即可自动入库")
+          print("（一次 commit 写入 `packages/<name>.json` + `Formula/<name>.rb` + `bucket/<name>.json`）。")
+          print("如需修改，直接编辑本 Issue，机器人会重新生成。")
+          PY
+          gh issue comment "$ISSUE_NUM" --body-file comment.md
+          gh issue edit "$ISSUE_NUM" --add-label drafted
