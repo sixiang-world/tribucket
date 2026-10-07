@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/ClementTsang/bottom/releases/download/v$version/bottom_x86_64-pc-windows-gnu.zip"
+        "url": "https://github.com/ClementTsang/bottom/releases/download/$version/bottom_x86_64-pc-windows-gnu.zip"
       },
       "arm64": {
-        "url": "https://github.com/ClementTsang/bottom/releases/download/v$version/bottom_aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/ClementTsang/bottom/releases/download/$version/bottom_aarch64-pc-windows-msvc.zip"
       }
     }
   },

@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/adoptium/temurin8-binaries/releases/download/v$version/OpenJDK8U-jdk_x64_windows_hotspot_8u504b01.msi"
+        "url": "https://github.com/adoptium/temurin8-binaries/releases/download/$version/OpenJDK8U-jdk_x64_windows_hotspot_8u504b01.msi"
       }
     }
   },

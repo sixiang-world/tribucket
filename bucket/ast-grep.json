@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/ast-grep/ast-grep/releases/download/v$version/app-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/ast-grep/ast-grep/releases/download/$version/app-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/ast-grep/ast-grep/releases/download/v$version/app-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/ast-grep/ast-grep/releases/download/$version/app-aarch64-pc-windows-msvc.zip"
       }
     }
   },

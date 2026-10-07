@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/orf/gping/releases/download/v$version/gping-Windows-msvc-x86_64.zip"
+        "url": "https://github.com/orf/gping/releases/download/$version/gping-Windows-msvc-x86_64.zip"
       }
     }
   },

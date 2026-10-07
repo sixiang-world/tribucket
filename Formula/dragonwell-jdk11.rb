@@ -1,17 +1,17 @@
 class DragonwellJdk11 < Formula
   desc "Alibaba Dragonwell JDK 11 - downstream distribution of OpenJDK"
   homepage "https://www.aliyun.com/product/dragonwell"
-  version "dragonwell-extended-11.0.31.28_jdk-11.0.31-ga"
+  version "dragonwell-standard-11.0.32.28_jdk-11.0.32-ga"
   license "GPL-2.0"
 
   on_linux do
     on_arm do
-      url "https://github.com/dragonwell-project/dragonwell11/releases/download/dragonwell-extended-11.0.31.28_jdk-11.0.31-ga/Alibaba_Dragonwell_Extended_11.0.31.28.11_aarch64_linux-sbom.json"
-      sha256 "ffc1c17de56f682909cfac844dee120e6c05120efb2bcb8c3580b749e4cd44d4"
+      url "https://github.com/dragonwell-project/dragonwell11/releases/download/dragonwell-standard-11.0.32.28_jdk-11.0.32-ga/Alibaba_Dragonwell_Standard_11.0.32.28.9_aarch64_linux.tar.gz"
+      sha256 "c81c16e34c7ba8030c4a7c18559ac490191960e9a010d72b5b61cf159210ca94"
     end
     on_intel do
-      url "https://github.com/dragonwell-project/dragonwell11/releases/download/dragonwell-extended-11.0.31.28_jdk-11.0.31-ga/Alibaba_Dragonwell_Extended_11.0.31.28.11_aarch64_linux-sbom.json"
-      sha256 "ffc1c17de56f682909cfac844dee120e6c05120efb2bcb8c3580b749e4cd44d4"
+      url "https://github.com/dragonwell-project/dragonwell11/releases/download/dragonwell-standard-11.0.32.28_jdk-11.0.32-ga/Alibaba_Dragonwell_Standard_11.0.32.28.9_x64_linux.tar.gz"
+      sha256 "a2b9cea8d446b70b1a539e10c9131a87b5a7749a0ca2f77debd895c36990871b"
     end
   end
 

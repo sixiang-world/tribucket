@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/astral-sh/uv/releases/download/v$version/uv-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/astral-sh/uv/releases/download/$version/uv-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/astral-sh/uv/releases/download/v$version/uv-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/astral-sh/uv/releases/download/$version/uv-aarch64-pc-windows-msvc.zip"
       }
     }
   },

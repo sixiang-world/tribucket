@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/jqlang/jq/releases/download/v$version/jq-win64.exe"
+        "url": "https://github.com/jqlang/jq/releases/download/$version/jq-win64.exe"
       }
     }
   },
