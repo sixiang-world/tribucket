@@ -33,10 +33,11 @@ jobs:
           gh label create needs-manual --color D93F0B --force
 
       - name: Parse submission form
+        id: parse
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          python3 - <<'PY'
+          python3 - <<'PY' 2> parse_err.txt
           import json, os, re
           body = os.environ["ISSUE_BODY"]
           fields = {}
@@ -71,6 +72,23 @@ jobs:
           with open("form.json", "w", encoding="utf-8") as f:
               json.dump(data, f, ensure_ascii=False)
           PY
+
+      - name: Handle parse failure (author-fixable)
+        if: failure() && steps.parse.conclusion == 'failure' && steps.draft.conclusion == 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          {
+            echo "❌ 无法解析提交表单——请检查必填字段（仓库 URL / 一句话描述）是否已填写，仓库 URL 是否为有效的 GitHub 仓库地址。"
+            echo
+            echo '```'
+            head -c 400 parse_err.txt
+            echo '```'
+            echo
+            echo "修正后**编辑本 Issue** 即会自动重新生成。"
+          } > comment.md
+          gh issue comment "$ISSUE_NUM" --body-file comment.md
 
       - name: Rate limit (max 3 open submissions per user)
         env:
