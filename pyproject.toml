@@ -16,6 +16,9 @@ tribucket-gen = "tribucket_gen.__main__:main"
 [tool.setuptools.package-data]
 tribucket_gen = ["templates.json"]
 
+[tool.setuptools.packages.find]
+include = ["tribucket_gen*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
