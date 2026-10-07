@@ -154,7 +154,7 @@ def cmd_draft(args):
             templates_path=args.templates,
         )
     except DraftError as e:
-        is_no_template = "no known template" in str(e)
+        is_no_template = e.kind == "no-template"
         print(f"[draft error] {e}", file=sys.stderr)
         for a in e.assets[:20]:
             print(f"  asset: {a}", file=sys.stderr)

@@ -30,9 +30,12 @@ NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
 class DraftError(Exception):
-    def __init__(self, message, assets=None):
+    """kind: "no-template" (needs-manual in CI → exit 2) or "generic" (→ exit 1)."""
+
+    def __init__(self, message, assets=None, kind="generic"):
         super().__init__(message)
         self.assets = assets or []
+        self.kind = kind
 
 
 def sanitize_name(raw):
@@ -104,6 +107,7 @@ def choose_template(templates, assets, name, alt_names=()):
         raise DraftError(
             "no known template matches this repo's release assets",
             assets=[a["name"] for a in assets],
+            kind="no-template",
         )
     scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
     return scored[0][2]
@@ -131,15 +135,25 @@ def _alias_hit(assets, alias):
 def build_asset_pattern(tpl, name, assets, aliases=None, alt_names=()):
     """Build asset_pattern from the template's match_rule.
 
-    Per platform: rule-derived pattern (tried with each candidate name) →
-    platform-alias rescue (the rule's extension/format can differ from the
-    real assets, e.g. bare ``cosign-linux-amd64`` vs ``{name}-linux-amd64.tar.gz``;
-    the rescue records the exact matched asset name, never a guess) → NO_MATCH
-    （宁缺勿错 — prefer missing over wrong）.
+    Pass 1 (authoritative): rule-derived pattern per platform, tried with each
+    candidate name; records the exact asset each rule matched (rule_claimed).
+    Pass 2 (rescue): platforms whose rule matched nothing try platform aliases
+    (the rule's extension/format can differ from the real assets, e.g. bare
+    ``cosign-linux-amd64`` vs ``{name}-linux-amd64.tar.gz``); the rescue
+    records the exact matched asset name, never a guess.
+
+    A rescue never re-claims an asset already matched by another platform's
+    RULE — otherwise the ``apple-darwin`` alias would pull the x86_64 asset the
+    darwin_amd64 rule already claimed into darwin_arm64 (wrong-but-matching).
+    Sharing an asset between two RESCUES is still allowed (universal darwin
+    builds: per-arch rules match nothing, both platforms rescue the same file).
+    生成的 pattern 若匹配不到任何真实资产 → NO_MATCH（宁缺勿错）.
     """
     libc = detect_libc(assets)
     names = [name] + [n for n in alt_names if n and n != name]
     pattern = {}
+    rule_claimed = set()
+    rescueable = []
     for plat in PLATFORM_KEYS:
         rule = tpl.get("match_rule", {}).get(plat)
         if not rule or rule == "NO_MATCH":
@@ -149,15 +163,23 @@ def build_asset_pattern(tpl, name, assets, aliases=None, alt_names=()):
         for n in names:
             cand = rule.replace("{name}_{version}", "*").replace("{version}", "*")
             cand = cand.replace("{name}", n).replace("{libc}", libc)
-            if match_asset(assets, cand):
+            hit = match_asset(assets, cand)
+            if hit:
                 pat = cand
+                rule_claimed.add(hit["name"])
                 break
         if pat is None:
-            for alias in (aliases or {}).get(plat, []):
-                hit = _alias_hit(assets, alias)
-                if hit:
-                    pat = hit["name"]
-                    break
+            rescueable.append(plat)
+            pattern[plat] = None  # filled by the rescue pass
+        else:
+            pattern[plat] = pat
+    for plat in rescueable:
+        pat = None
+        for alias in (aliases or {}).get(plat, []):
+            hit = _alias_hit(assets, alias)
+            if hit and hit["name"] not in rule_claimed:
+                pat = hit["name"]
+                break
         # 生成的 pattern 若匹配不到任何真实资产 → NO_MATCH（宁缺勿错）
         pattern[plat] = pat if (pat and match_asset(assets, pat)) else "NO_MATCH"
     return pattern

@@ -108,3 +108,57 @@ def test_vendored_templates_in_sync():
     canonical = repo_root / "skills" / "tribucket-gen" / "templates.json"
     vendored = repo_root / "tribucket_gen" / "templates.json"
     assert vendored.read_text(encoding="utf-8") == canonical.read_text(encoding="utf-8")
+
+
+# --- fix-round-1 regression tests (appended; brief's 8 tests above unchanged) ---
+
+def test_alias_rescue_skips_rule_claimed_asset():
+    """Regression: the apple-darwin alias must not re-claim an asset already
+    matched by another platform's RULE-derived pattern — otherwise
+    darwin_arm64 silently points at the x86_64 binary the darwin_amd64 rule
+    already claimed (wrong-but-matching output)."""
+    assets = [asset("proj-1.0-x86_64-apple-darwin.tar.gz")]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    tpl = next(t for t in load_templates() if t["id"] == "rust-triple-bare")
+    pat = draft_mod.build_asset_pattern(tpl, "proj", assets, aliases=aliases)
+    assert pat["darwin_amd64"] == "x86_64-apple-darwin.tar.gz"
+    assert pat["darwin_arm64"] == "NO_MATCH"  # rule-claimed asset is off-limits to rescue
+
+
+def test_alias_rescue_still_works_when_no_rule_claimed():
+    """Universal darwin builds (SKILL.md: darwin_amd64/darwin_arm64 share one
+    pattern): with no rule claiming the asset, the apple-darwin alias rescue
+    must keep producing a pattern."""
+    assets = [asset("proj-1.0-universal-apple-darwin.tar.gz")]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    tpl = next(t for t in load_templates() if t["id"] == "rust-triple-bare")
+    pat = draft_mod.build_asset_pattern(tpl, "proj", assets, aliases=aliases)
+    assert pat["darwin_arm64"] == "proj-1.0-universal-apple-darwin.tar.gz"
+
+
+def test_draft_error_kind_attribute():
+    """DraftError carries a machine-readable kind: generic (default) vs no-template."""
+    assert DraftError("boom").kind == "generic"
+    assert DraftError("no known template", kind="no-template").kind == "no-template"
+
+
+def test_cmd_draft_exit_code_mapping(monkeypatch, capsys):
+    """cmd_draft pins the exit contract: no-template DraftError -> 2
+    (needs-manual in CI), other DraftError -> 1, transient error -> 1."""
+    import tribucket_gen.__main__ as cli
+
+    def no_template(repo, **kw):
+        raise DraftError("no known template matches this repo's release assets",
+                         assets=["weird-bin"], kind="no-template")
+
+    def generic(repo, **kw):
+        raise DraftError("invalid package name: ''")
+
+    def transient(repo, **kw):
+        raise RuntimeError("network down")
+
+    args = cli.build_parser().parse_args(["draft", "o/r"])
+    for fake, expected in ((no_template, 2), (generic, 1), (transient, 1)):
+        monkeypatch.setattr(draft_mod, "draft", fake)
+        assert cli.cmd_draft(args) == expected
+        assert "[draft error]" in capsys.readouterr().err
