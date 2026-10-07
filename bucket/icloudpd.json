@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v$version/icloud-1.32.3-windows-amd64.exe"
+        "url": "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v$version/icloud-$version-windows-amd64.exe"
       }
     }
   },

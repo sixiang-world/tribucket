@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "graalvm-community-jdk-17.0.9_windows-x64_bin.zip",
+      "java.exe",
       "java"
     ]
   ],

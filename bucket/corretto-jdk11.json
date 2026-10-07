@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "amazon-corretto-11-x64-windows-jdk.zip",
+      "java.exe",
       "java"
     ]
   ],

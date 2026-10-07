@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "cc-connect-v1.5.0-windows-amd64.zip",
+      "cc-connect.exe",
       "cc-connect"
     ]
   ],

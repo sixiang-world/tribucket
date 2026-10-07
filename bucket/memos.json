@@ -11,14 +11,14 @@
   },
   "bin": [
     [
-      "memos_0.31.0_windows_amd64.zip",
+      "memos.exe",
       "memos"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/usememos/memos/releases/download/v$version/memos_0.31.0_windows_amd64.zip"
+        "url": "https://github.com/usememos/memos/releases/download/v$version/memos_$version_windows_amd64.zip"
       }
     }
   },

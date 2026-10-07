@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "cfst_windows_amd64.zip",
+      "cfst.exe",
       "cfst"
     ]
   ],

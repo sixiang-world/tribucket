@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "siteone-crawler-v2.5.1-win-x64.zip",
+      "siteone-crawler.exe",
       "siteone-crawler"
     ]
   ],

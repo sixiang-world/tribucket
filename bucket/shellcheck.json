@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "shellcheck-v0.11.0.zip",
+      "shellcheck.exe",
       "shellcheck"
     ]
   ],

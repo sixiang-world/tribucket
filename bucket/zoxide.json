@@ -15,17 +15,17 @@
   },
   "bin": [
     [
-      "zoxide-0.10.0-x86_64-pc-windows-msvc.zip",
+      "zoxide.exe",
       "zoxide"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v$version/zoxide-0.10.0-x86_64-pc-windows-msvc.zip"
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v$version/zoxide-$version-x86_64-pc-windows-msvc.zip"
       },
       "arm64": {
-        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v$version/zoxide-0.10.0-aarch64-pc-windows-msvc.zip"
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v$version/zoxide-$version-aarch64-pc-windows-msvc.zip"
       }
     }
   },

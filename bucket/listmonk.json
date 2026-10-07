@@ -15,17 +15,17 @@
   },
   "bin": [
     [
-      "listmonk_6.2.0_windows_amd64.tar.gz",
+      "listmonk.exe",
       "listmonk"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_6.2.0_windows_amd64.tar.gz"
+        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_$version_windows_amd64.tar.gz"
       },
       "arm64": {
-        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_6.2.0_windows_arm64.tar.gz"
+        "url": "https://github.com/knadh/listmonk/releases/download/v$version/listmonk_$version_windows_arm64.tar.gz"
       }
     }
   },

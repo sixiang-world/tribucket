@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "node-v22.15.0-win-x64.zip",
+      "node.exe",
       "node"
     ]
   ],

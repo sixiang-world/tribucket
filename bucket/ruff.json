@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "ruff-x86_64-pc-windows-msvc.zip",
+      "ruff.exe",
       "ruff"
     ]
   ],

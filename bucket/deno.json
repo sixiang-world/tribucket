@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "deno-x86_64-pc-windows-msvc.zip",
+      "deno.exe",
       "deno"
     ]
   ],

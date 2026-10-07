@@ -11,14 +11,14 @@
   },
   "bin": [
     [
-      "glow_3.0.0_Windows_x86_64.zip",
+      "glow.exe",
       "glow"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/charmbracelet/glow/releases/download/v$version/glow_3.0.0_Windows_x86_64.zip"
+        "url": "https://github.com/charmbracelet/glow/releases/download/v$version/glow_$version_Windows_x86_64.zip"
       }
     }
   },

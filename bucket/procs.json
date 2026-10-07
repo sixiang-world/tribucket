@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "procs-v0.14.12-x86_64-windows.zip",
+      "procs.exe",
       "procs"
     ]
   ],

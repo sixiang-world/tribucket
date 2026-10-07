@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "bellsoft-jdk8u492+9-windows-amd64.zip",
+      "java.exe",
       "java"
     ]
   ],

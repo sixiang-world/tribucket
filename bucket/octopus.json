@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "octopus-windows-amd64.zip",
+      "octopus.exe",
       "octopus"
     ]
   ],

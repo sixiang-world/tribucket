@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "eza.exe_x86_64-pc-windows-gnu.zip",
+      "eza.exe",
       "eza"
     ]
   ],

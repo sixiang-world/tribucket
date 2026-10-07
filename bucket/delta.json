@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "delta-0.20.1-x86_64-pc-windows-msvc.zip",
+      "delta.exe",
       "delta"
     ]
   ],

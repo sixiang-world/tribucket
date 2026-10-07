@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "llmfit-v1.1.16-x86_64-pc-windows-msvc.zip",
+      "llmfit.exe",
       "llmfit"
     ]
   ],

@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "go1.24.3.windows-amd64.zip",
+      "go.exe",
       "go"
     ]
   ],

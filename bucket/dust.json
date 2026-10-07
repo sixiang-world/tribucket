@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "dust-v1.2.6-x86_64-pc-windows-gnu.zip",
+      "dust.exe",
       "dust"
     ]
   ],

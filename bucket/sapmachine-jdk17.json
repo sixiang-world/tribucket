@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "sapmachine-jdk-17.0.19_windows-x64_bin.zip",
+      "java.exe",
       "java"
     ]
   ],

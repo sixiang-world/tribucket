@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "k9s_Windows_amd64.zip",
+      "k9s.exe",
       "k9s"
     ]
   ],

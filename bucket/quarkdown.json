@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "quarkdown-windows-x64.zip",
+      "quarkdown.exe",
       "quarkdown"
     ]
   ],

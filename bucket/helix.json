@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "helix-25.07.1-x86_64-windows.zip",
+      "hx.exe",
       "hx"
     ]
   ],

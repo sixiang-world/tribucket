@@ -11,14 +11,14 @@
   },
   "bin": [
     [
-      "gum_2.0.2_Windows_x86_64.zip",
+      "gum.exe",
       "gum"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/charmbracelet/gum/releases/download/v$version/gum_2.0.2_Windows_x86_64.zip"
+        "url": "https://github.com/charmbracelet/gum/releases/download/v$version/gum_$version_Windows_x86_64.zip"
       }
     }
   },

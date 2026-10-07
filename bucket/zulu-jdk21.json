@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "zulu21.52.203-ca-jdk21.0.12.1-win_x64.zip",
+      "java.exe",
       "java"
     ]
   ],

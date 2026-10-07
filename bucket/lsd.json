@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "lsd-v1.2.0-x86_64-pc-windows-msvc.zip",
+      "lsd.exe",
       "lsd"
     ]
   ],

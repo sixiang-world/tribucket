@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "sqlite-tools-win-x64-3530100.zip",
+      "sqlite3.exe",
       "sqlite3"
     ]
   ],

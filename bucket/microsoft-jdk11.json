@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "microsoft-jdk-11-windows-x64.zip",
+      "java.exe",
       "java"
     ]
   ],

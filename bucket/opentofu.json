@@ -11,14 +11,14 @@
   },
   "bin": [
     [
-      "tofu_1.13.1_windows_amd64.zip",
+      "tofu.exe",
       "tofu"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/opentofu/opentofu/releases/download/v$version/tofu_1.13.1_windows_amd64.zip"
+        "url": "https://github.com/opentofu/opentofu/releases/download/v$version/tofu_$version_windows_amd64.zip"
       }
     }
   },

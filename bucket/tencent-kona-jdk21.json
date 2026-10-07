@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "TencentKona-21.0.12.b1_jdk_windows-x86_64_signed.zip",
+      "java.exe",
       "java"
     ]
   ],

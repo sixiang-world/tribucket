@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "claude-win32-x64.zip",
+      "claude.exe",
       "claude"
     ]
   ],

@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "tree-sitter-cli-windows-x64.zip",
+      "tree-sitter.exe",
       "tree-sitter"
     ]
   ],

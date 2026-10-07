@@ -15,17 +15,17 @@
   },
   "bin": [
     [
-      "sing-box-1.14.2-windows-amd64.zip",
+      "sing-box.exe",
       "sing-box"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.14.2-windows-amd64.zip"
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-amd64.zip"
       },
       "arm64": {
-        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-1.14.2-windows-arm64.zip"
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-arm64.zip"
       }
     }
   },

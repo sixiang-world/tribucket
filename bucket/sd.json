@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "sd-v1.1.0-x86_64-pc-windows-gnu.zip",
+      "sd.exe",
       "sd"
     ]
   ],

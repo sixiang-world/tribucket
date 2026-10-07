@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "fd-v10.5.0-x86_64-pc-windows-msvc.zip",
+      "fd.exe",
       "fd"
     ]
   ],

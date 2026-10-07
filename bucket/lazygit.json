@@ -15,17 +15,17 @@
   },
   "bin": [
     [
-      "lazygit_0.66.0_windows_x86_64.zip",
+      "lazygit.exe",
       "lazygit"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/jesseduffield/lazygit/releases/download/v$version/lazygit_0.66.0_windows_x86_64.zip"
+        "url": "https://github.com/jesseduffield/lazygit/releases/download/v$version/lazygit_$version_windows_x86_64.zip"
       },
       "arm64": {
-        "url": "https://github.com/jesseduffield/lazygit/releases/download/v$version/lazygit_0.66.0_windows_arm64.zip"
+        "url": "https://github.com/jesseduffield/lazygit/releases/download/v$version/lazygit_$version_windows_arm64.zip"
       }
     }
   },

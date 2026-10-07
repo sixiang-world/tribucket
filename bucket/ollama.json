@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "ollama-windows-amd64.zip",
+      "ollama.exe",
       "ollama"
     ]
   ],

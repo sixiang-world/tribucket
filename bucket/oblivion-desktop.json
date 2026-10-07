@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "oblivion-desktop-win-x64.zip",
+      "oblivion-desktop.exe",
       "oblivion-desktop"
     ]
   ],

@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "TencentKona-11.0.32.b1-jdk_linux-aarch64.tar.gz",
+      "java.exe",
       "java"
     ]
   ],

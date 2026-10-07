@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "bellsoft-jdk21.0.11+11-windows-amd64.zip",
+      "java.exe",
       "java"
     ]
   ],

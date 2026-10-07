@@ -15,17 +15,17 @@
   },
   "bin": [
     [
-      "hugo_0.167.0_windows-amd64.zip",
+      "hugo.exe",
       "hugo"
     ]
   ],
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/gohugoio/hugo/releases/download/v$version/hugo_0.167.0_windows-amd64.zip"
+        "url": "https://github.com/gohugoio/hugo/releases/download/v$version/hugo_$version_windows-amd64.zip"
       },
       "arm64": {
-        "url": "https://github.com/gohugoio/hugo/releases/download/v$version/hugo_0.167.0_windows-arm64.zip"
+        "url": "https://github.com/gohugoio/hugo/releases/download/v$version/hugo_$version_windows-arm64.zip"
       }
     }
   },

@@ -15,7 +15,7 @@
   },
   "bin": [
     [
-      "bottom_x86_64-pc-windows-gnu.zip",
+      "btm.exe",
       "btm"
     ]
   ],
