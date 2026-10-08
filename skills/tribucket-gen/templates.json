@@ -115,6 +115,25 @@
       "examples": ["qqmail-cli"]
     },
     {
+      "id": "underscore-version-x64",
+      "description": "Like underscore-version-amd64 but uses x64 instead of amd64 — e.g. gitleaks_8.18.5_linux_x64.tar.gz (GoReleaser with amd64→x64 renaming)",
+      "frequency": 4,
+      "match_rule": {
+        "linux_amd64": "{name}_{version}_linux_x64.tar.gz",
+        "linux_arm64": "{name}_{version}_linux_arm64.tar.gz",
+        "darwin_amd64": "{name}_{version}_darwin_x64.tar.gz",
+        "darwin_arm64": "{name}_{version}_darwin_arm64.tar.gz",
+        "windows_amd64": "{name}_{version}_windows_x64.zip",
+        "windows_arm64": "{name}_{version}_windows_arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}_.*_linux[_-]x64",
+        "darwin_amd64": "{name_pattern}_.*_darwin[_-]x64",
+        "windows_amd64": "{name_pattern}_.*_windows[_-]x64"
+      },
+      "examples": ["gitleaks", "duf"]
+    },
+    {
       "id": "underscore-version-caps",
       "description": "Underscore with capitalized platform — e.g. {name}_{version}_Linux_x86_64.tar.gz",
       "frequency": 4,
@@ -151,15 +170,72 @@
         "darwin_amd64": "{name_pattern}_darwin_amd64"
       },
       "examples": ["wgcf", "go-wxpush"]
+    },
+    {
+      "id": "hyphen-v-version",
+      "description": "Name-vX.Y.Z-os-arch — Go binaries keeping the v prefix in the filename — e.g. helm-v3.13.2-darwin-amd64.tar.gz",
+      "frequency": 8,
+      "match_rule": {
+        "linux_amd64": "{name}-v{version}-linux-amd64.tar.gz",
+        "linux_arm64": "{name}-v{version}-linux-arm64.tar.gz",
+        "darwin_amd64": "{name}-v{version}-darwin-amd64.tar.gz",
+        "darwin_arm64": "{name}-v{version}-darwin-arm64.tar.gz",
+        "windows_amd64": "{name}-v{version}-windows-amd64.zip",
+        "windows_arm64": "{name}-v{version}-windows-arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}-v{version}-linux-amd64",
+        "darwin_amd64": "{name_pattern}-v{version}-darwin-amd64",
+        "windows_amd64": "{name_pattern}-v{version}-windows-amd64"
+      },
+      "examples": ["helm", "mkcert"]
+    },
+    {
+      "id": "dot-version-os-arch",
+      "description": "Dot-separated version before os-arch — e.g. prometheus-2.48.0.darwin-amd64.tar.gz",
+      "frequency": 5,
+      "match_rule": {
+        "linux_amd64": "{name}-{version}.linux-amd64.tar.gz",
+        "linux_arm64": "{name}-{version}.linux-arm64.tar.gz",
+        "darwin_amd64": "{name}-{version}.darwin-amd64.tar.gz",
+        "darwin_arm64": "{name}-{version}.darwin-arm64.tar.gz",
+        "windows_amd64": "{name}-{version}.windows-amd64.zip",
+        "windows_arm64": "{name}-{version}.windows-arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}-{version}\\.linux-amd64",
+        "darwin_amd64": "{name_pattern}-{version}\\.darwin-amd64",
+        "windows_amd64": "{name_pattern}-{version}\\.windows-amd64"
+      },
+      "examples": ["prometheus", "alertmanager", "node_exporter"]
+    },
+    {
+      "id": "hyphen-version-mixed-separator",
+      "description": "Hyphen version then underscore os-arch — e.g. fzf-0.74.4-linux_amd64.tar.gz (mixed - and _ separators)",
+      "frequency": 6,
+      "match_rule": {
+        "linux_amd64": "{name}-{version}-linux_amd64.tar.gz",
+        "linux_arm64": "{name}-{version}-linux_arm64.tar.gz",
+        "darwin_amd64": "{name}-{version}-darwin_amd64.tar.gz",
+        "darwin_arm64": "{name}-{version}-darwin_arm64.tar.gz",
+        "windows_amd64": "{name}-{version}-windows_amd64.zip",
+        "windows_arm64": "{name}-{version}-windows_arm64.zip"
+      },
+      "detect": {
+        "linux_amd64": "{name_pattern}-{version}-linux_amd64",
+        "darwin_amd64": "{name_pattern}-{version}-darwin_amd64",
+        "windows_amd64": "{name_pattern}-{version}-windows_amd64"
+      },
+      "examples": ["fzf"]
     }
   ],
   "platform_aliases": {
-    "linux_amd64": ["linux-amd64", "linux_x86_64", "linux-x86_64", "linux-x64", "linux_x64", "linux-amd64"],
-    "linux_arm64": ["linux-arm64", "linux_aarch64", "linux-aarch64"],
-    "darwin_amd64": ["darwin-amd64", "darwin_x86_64", "darwin-x86_64", "darwin-x64", "macos-amd64", "macos-x64", "macos_x64", "osx-amd64"],
-    "darwin_arm64": ["darwin-arm64", "darwin_aarch64", "darwin-aarch64", "macos-arm64", "macos-arm64", "osx-arm64", "apple-darwin"],
-    "windows_amd64": ["windows-amd64", "windows_x86_64", "windows-x86_64", "windows-x64", "windows_x64", "win-amd64", "win-x64"],
-    "windows_arm64": ["windows-arm64", "windows_aarch64", "windows-aarch64", "win-arm64"]
+    "linux_amd64": ["linux_amd64", "linux-amd64", "linux_x86_64", "linux-x86_64", "linux-x64", "linux_x64"],
+    "linux_arm64": ["linux_arm64", "linux-arm64", "linux_aarch64", "linux-aarch64"],
+    "darwin_amd64": ["darwin_amd64", "darwin-amd64", "darwin_x86_64", "darwin-x86_64", "darwin-x64", "macos_amd64", "macos-amd64", "macOS_amd64", "macOS-amd64", "macos_x86_64", "macos-x86_64", "macOS_x86_64", "macos-x64", "macos_x64", "osx-amd64", "osx_amd64"],
+    "darwin_arm64": ["darwin_arm64", "darwin-arm64", "darwin_aarch64", "darwin-aarch64", "macos_arm64", "macos-arm64", "macOS_arm64", "macOS-arm64", "macos_aarch64", "macos-aarch64", "osx-arm64", "osx_arm64", "apple-darwin"],
+    "windows_amd64": ["windows_amd64", "windows-amd64", "windows_x86_64", "windows-x86_64", "windows-x64", "windows_x64", "win_amd64", "win-amd64", "win-x64", "win_x86_64", "win-x86_64", "win64"],
+    "windows_arm64": ["windows_arm64", "windows-arm64", "windows_aarch64", "windows-aarch64", "win_arm64", "win-arm64", "win-aarch64"]
   },
   "archive_formats": {
     ".tar.gz": "tar.gz",

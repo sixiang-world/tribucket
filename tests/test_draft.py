@@ -145,6 +145,143 @@ def test_alias_rescue_still_works_when_no_rule_claimed():
     assert pat["darwin_arm64"] == "proj-1.0-universal-apple-darwin.tar.gz"
 
 
+def test_alias_rescue_underscore_windows_tar_gz():
+    """Regression: a release that ships windows assets as ``_windows_amd64.tar.gz``
+    (not ``_windows_amd64.zip``) defeats the underscore-version-amd64 rule (wrong
+    archive extension) and must be recovered by the alias rescue. Before adding
+    ``windows_amd64`` (underscore) to platform_aliases, the rescue matched nothing
+    and both windows platforms came back NO_MATCH (payload-dumper-go, issue #3)."""
+    assets = [
+        asset("payload-dumper-go_2.1.0_linux_amd64.tar.gz"),
+        asset("payload-dumper-go_2.1.0_darwin_amd64.tar.gz"),
+        asset("payload-dumper-go_2.1.0_windows_amd64.tar.gz"),
+        asset("payload-dumper-go_2.1.0_windows_arm64.tar.gz"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    tpl = next(t for t in load_templates() if t["id"] == "underscore-version-amd64")
+    pat = draft_mod.build_asset_pattern(tpl, "payload-dumper-go", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "*_linux_amd64.tar.gz"
+    assert pat["windows_amd64"] == "payload-dumper-go_2.1.0_windows_amd64.tar.gz"
+    assert pat["windows_arm64"] == "payload-dumper-go_2.1.0_windows_arm64.tar.gz"
+
+
+def test_template_hyphen_v_version():
+    """Go binaries keeping the v prefix in the filename — e.g.
+    helm-v3.13.2-darwin-amd64.tar.gz. The hyphen-v-version template must
+    detect this shape and produce a glob-style pattern."""
+    templates = {t["id"]: t for t in load_templates()}
+    assert "hyphen-v-version" in templates
+    assets = [
+        asset("helm-v3.13.2-linux-amd64.tar.gz"),
+        asset("helm-v3.13.2-linux-arm64.tar.gz"),
+        asset("helm-v3.13.2-darwin-amd64.tar.gz"),
+        asset("helm-v3.13.2-darwin-arm64.tar.gz"),
+        asset("helm-v3.13.2-windows-amd64.zip"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    pat = draft_mod.build_asset_pattern(templates["hyphen-v-version"], "helm", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "helm-v*-linux-amd64.tar.gz"
+    assert pat["windows_amd64"] == "helm-v*-windows-amd64.zip"
+
+
+def test_template_hyphen_v_version_raw_binary_rescue():
+    """mkcert ships raw binaries (no archive) with the v prefix —
+    mkcert-v1.4.4-windows-amd64.exe. The hyphen-v-version rule targets .tar.gz
+    and so misses, but the alias rescue must recover each platform."""
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    templates = load_templates()
+    assets = [
+        asset("mkcert-v1.4.4-linux-amd64"),
+        asset("mkcert-v1.4.4-darwin-amd64"),
+        asset("mkcert-v1.4.4-windows-amd64.exe"),
+    ]
+    tpl = draft_mod.choose_template(templates, assets, "mkcert")
+    assert tpl["id"] == "hyphen-v-version"
+    pat = draft_mod.build_asset_pattern(tpl, "mkcert", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "mkcert-v1.4.4-linux-amd64"
+    assert pat["windows_amd64"] == "mkcert-v1.4.4-windows-amd64.exe"
+
+
+def test_template_dot_version_os_arch():
+    """Prometheus-style naming — version joined to os-arch by a dot, then dash
+    between os and arch — e.g. prometheus-2.48.0.darwin-amd64.tar.gz."""
+    templates = {t["id"]: t for t in load_templates()}
+    assert "dot-version-os-arch" in templates
+    assets = [
+        asset("prometheus-2.48.0.linux-amd64.tar.gz"),
+        asset("prometheus-2.48.0.linux-arm64.tar.gz"),
+        asset("prometheus-2.48.0.darwin-amd64.tar.gz"),
+        asset("prometheus-2.48.0.darwin-arm64.tar.gz"),
+        asset("prometheus-2.48.0.windows-amd64.zip"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    pat = draft_mod.build_asset_pattern(templates["dot-version-os-arch"], "prometheus", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "prometheus-*.linux-amd64.tar.gz"
+    assert pat["darwin_arm64"] == "prometheus-*.darwin-arm64.tar.gz"
+
+
+def test_template_hyphen_version_mixed_separator():
+    """fzf-style — hyphen between name/version and between version/os, but
+    underscore between os and arch: fzf-0.74.4-linux_amd64.tar.gz."""
+    templates = {t["id"]: t for t in load_templates()}
+    assert "hyphen-version-mixed-separator" in templates
+    assets = [
+        asset("fzf-0.74.4-linux_amd64.tar.gz"),
+        asset("fzf-0.74.4-darwin_amd64.tar.gz"),
+        asset("fzf-0.74.4-windows_amd64.zip"),
+        asset("fzf-0.74.4-windows_arm64.zip"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    pat = draft_mod.build_asset_pattern(templates["hyphen-version-mixed-separator"], "fzf", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "fzf-*-linux_amd64.tar.gz"
+    assert pat["windows_arm64"] == "fzf-*-windows_arm64.zip"
+
+
+def test_template_underscore_version_x64():
+    """gitleaks uses _x64 instead of _amd64 in asset names. Before adding the
+    underscore-version-x64 template, choose_template raised DraftError because
+    no detect regex matched _x64."""
+    assets = [
+        asset("gitleaks_8.30.1_linux_x64.tar.gz"),
+        asset("gitleaks_8.30.1_linux_arm64.tar.gz"),
+        asset("gitleaks_8.30.1_darwin_x64.tar.gz"),
+        asset("gitleaks_8.30.1_darwin_arm64.tar.gz"),
+        asset("gitleaks_8.30.1_windows_x64.zip"),
+        asset("gitleaks_8.30.1_windows_arm64.zip"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    templates = load_templates()
+    tpl = draft_mod.choose_template(templates, assets, "gitleaks")
+    assert tpl["id"] == "underscore-version-x64"
+    pat = draft_mod.build_asset_pattern(tpl, "gitleaks", assets, aliases=aliases)
+    assert pat["linux_amd64"] == "*_linux_x64.tar.gz"
+    assert pat["windows_amd64"] == "*_windows_x64.zip"
+    assert pat["windows_arm64"] == "*_windows_arm64.zip"
+
+
+def test_alias_macOS_capitalized():
+    """GitHub CLI (gh) uses capitalized macOS in asset names
+    (gh_2.102.0_macOS_amd64.zip) — the darwin aliases list must include the
+    capitalized variant or the underscore-version-amd64 rule (which expects
+    darwin_amd64) loses both darwin platforms."""
+    assets = [
+        asset("gh_2.102.0_linux_amd64.tar.gz"),
+        asset("gh_2.102.0_linux_arm64.tar.gz"),
+        asset("gh_2.102.0_macOS_amd64.zip"),
+        asset("gh_2.102.0_macOS_arm64.zip"),
+        asset("gh_2.102.0_windows_amd64.zip"),
+        asset("gh_2.102.0_windows_arm64.zip"),
+    ]
+    aliases = draft_mod.load_template_doc()["platform_aliases"]
+    assert any("macOS_amd64" in a for a in aliases["darwin_amd64"])
+    assert any("macOS_arm64" in a for a in aliases["darwin_arm64"])
+    templates = load_templates()
+    tpl = draft_mod.choose_template(templates, assets, "gh")
+    pat = draft_mod.build_asset_pattern(tpl, "gh", assets, aliases=aliases)
+    assert pat["darwin_amd64"] != "NO_MATCH"
+    assert pat["darwin_arm64"] != "NO_MATCH"
+
+
 def test_draft_error_kind_attribute():
     """DraftError carries a machine-readable kind: generic (default) vs no-template."""
     assert DraftError("boom").kind == "generic"
