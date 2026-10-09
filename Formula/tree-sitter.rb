@@ -1,28 +1,28 @@
 class TreeSitter < Formula
   desc "Parser generator tool and incremental parsing library"
   homepage "https://github.com/tree-sitter/tree-sitter"
-  version "0.27.0"
+  version "0.27.1"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-cli-macos-arm64.zip"
-      sha256 "f278063d8544160f6f89f7f8dba6ba112cb0dd1669757788d2bb7a8a613d2c58"
+      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.1/tree-sitter-cli-macos-arm64.zip"
+      sha256 "6362cda144b6e45d92c739d4eafb7e3c322f0545b0b959b4f7ca7d53fb3300fa"
     end
     on_intel do
-      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-cli-macos-x64.zip"
-      sha256 "4509c86918341ca50877ce20ef1507390257d203b4893f6c66b6f5cc632a61cd"
+      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.1/tree-sitter-cli-macos-x64.zip"
+      sha256 "fd7e60f57b6e00caecaa055b94da20d7875b05cef2277831588546e08ab8bb29"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-cli-linux-arm64.zip"
-      sha256 "6260b621bf5ab87027dfb463bf955504ef32cdcda62b81f28447753e48c83a62"
+      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.1/tree-sitter-cli-linux-arm64.zip"
+      sha256 "3c0d0113cae3fea36f2336c271cbdacbcdb349edb006319155652b9386803c55"
     end
     on_intel do
-      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-cli-linux-x64.zip"
-      sha256 "e4a3826bcd0fe099ee3a5617767374939cbc23c4a35b5b53f5fc04142525a2c1"
+      url "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.1/tree-sitter-cli-linux-x64.zip"
+      sha256 "c7e686aec16ba17053c2e6fd87600ccb10cf8ba3d055756b17e756d538e11114"
     end
   end
 
