@@ -1,16 +1,16 @@
 {
-  "version": "2026.10.8",
+  "version": "2026.10.10",
   "description": "Polyglot runtime manager (asdf replacement)",
   "homepage": "https://github.com/jdx/mise",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/jdx/mise/releases/download/v2026.10.8/mise-v2026.10.8-windows-x64.zip",
-      "hash": "2548132f9e8b8dc29027933e47a98582557b448dfec791dbecad66e9c760582b"
+      "url": "https://github.com/jdx/mise/releases/download/v2026.10.10/mise-v2026.10.10-windows-x64.zip",
+      "hash": "44b8254542c2261f6917220c3d33631f1d8354fb9f547f7b8070a7dede889e86"
     },
     "arm64": {
-      "url": "https://github.com/jdx/mise/releases/download/v2026.10.8/mise-v2026.10.8-windows-arm64.zip",
-      "hash": "c38a2353088896894df4a2e9c4ea4a9d1b2bee290c0dba9ea5a10e43646d41e1"
+      "url": "https://github.com/jdx/mise/releases/download/v2026.10.10/mise-v2026.10.10-windows-arm64.zip",
+      "hash": "9e875e5ae7fe800d9c07358174fe6b58abe5cceb7dc8dd2f29b4afe1efe1f173"
     }
   },
   "bin": [
