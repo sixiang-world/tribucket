@@ -1,28 +1,28 @@
 class Ollama < Formula
   desc "Get up and running with Llama 3, Mistral, Gemma 2, and other LLMs"
   homepage "https://github.com/ollama/ollama"
-  version "0.40.4"
+  version "0.40.5"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/ollama/ollama/releases/download/v0.40.4/ollama-darwin.tgz"
-      sha256 "a4ceae4b2aaf18df37ebcbfb56ba3a37a87838631112d66c2be07268693c8d58"
+      url "https://github.com/ollama/ollama/releases/download/v0.40.5/ollama-darwin.tgz"
+      sha256 "75f9907dafa2fd4c61b5967de2ebb81ccc17eb28da9172edbad0dbc717474dcf"
     end
     on_intel do
-      url "https://github.com/ollama/ollama/releases/download/v0.40.4/ollama-darwin.tgz"
-      sha256 "a4ceae4b2aaf18df37ebcbfb56ba3a37a87838631112d66c2be07268693c8d58"
+      url "https://github.com/ollama/ollama/releases/download/v0.40.5/ollama-darwin.tgz"
+      sha256 "75f9907dafa2fd4c61b5967de2ebb81ccc17eb28da9172edbad0dbc717474dcf"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/ollama/ollama/releases/download/v0.40.4/ollama-linux-arm64.tar.zst"
-      sha256 "1a314ac530d2c23bf6d2aaaf4a4aba8cc0b2a4ee8bc8fae3f3aa88bff7f7177b"
+      url "https://github.com/ollama/ollama/releases/download/v0.40.5/ollama-linux-arm64.tar.zst"
+      sha256 "fbe71ebb1a10e59b8480c4d2839826b5f9dff1a6d5c142428b2e7db9b1a2c642"
     end
     on_intel do
-      url "https://github.com/ollama/ollama/releases/download/v0.40.4/ollama-linux-amd64.tar.zst"
-      sha256 "15f31e9576d15a481e099b4145dba6e9f8c1f295927d6b8895300ae30ed3740a"
+      url "https://github.com/ollama/ollama/releases/download/v0.40.5/ollama-linux-amd64.tar.zst"
+      sha256 "dc5eabc292f9949546c90a97c820f924b035e05243b0de13c7f366182562169c"
     end
   end
 

@@ -1,28 +1,28 @@
 class Krillinai < Formula
   desc "AI video translation and dubbing tool powered by LLMs"
   homepage "https://github.com/KrillinAI/KrillinAI"
-  version "3.2.6"
+  version "3.2.7"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.6/KrillinAI-CLI-3.2.6-mac-arm64.tar.gz"
-      sha256 "fd4a4588d50f320aaed1a09ca6e9508969e85abea1239df73c40ce80118eb112"
+      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.7/KrillinAI-CLI-3.2.7-mac-arm64.tar.gz"
+      sha256 "a6ee66794b3f0c95b1f926c87f45dacbc6f9f4dff1de5b3af01e7be6189b1656"
     end
     on_intel do
-      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.6/KrillinAI-CLI-3.2.6-mac-x64.tar.gz"
-      sha256 "9ffaef1ca9e42f5572ee9708bce17f1983b0f843084d9a5eb65b4e10429a508c"
+      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.7/KrillinAI-CLI-3.2.7-mac-x64.tar.gz"
+      sha256 "9e41d88a6f06c96b103761f669d1b8f52334f349c59d2d16801fc9157476c423"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.6/KrillinAI-CLI-3.2.6-linux-arm64.tar.gz"
-      sha256 "39e5c0feaa6ba2fd2b077e3b70059a86c50e06c34cd334b922ae0e011a523c91"
+      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.7/KrillinAI-CLI-3.2.7-linux-arm64.tar.gz"
+      sha256 "1ef681d52d17e75eafa9e35f50d3ae3190188b0bfc366798ef304a64f56dbf13"
     end
     on_intel do
-      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.6/KrillinAI-CLI-3.2.6-linux-x64.tar.gz"
-      sha256 "2e25ed459ef04422c05334e8b8bd81371162091d76a5ef63313d75cb0d2eff33"
+      url "https://github.com/krillinai/OpenCreator/releases/download/v3.2.7/KrillinAI-CLI-3.2.7-linux-x64.tar.gz"
+      sha256 "5d799cf0cda3047f8185df3b9227919f801da919f2bafe267c100f4fa008fe72"
     end
   end
 
