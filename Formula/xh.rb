@@ -1,28 +1,28 @@
 class Xh < Formula
   desc "Friendly and fast HTTP requests tool (HTTPie alternative)"
   homepage "https://github.com/ducaale/xh"
-  version "0.26.2"
+  version "0.26.3"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/ducaale/xh/releases/download/v0.26.2/xh-v0.26.2-aarch64-apple-darwin.tar.gz"
-      sha256 "cc5739d061a8469d0011ca0ab92d4a5cd726cc56f0ef30108953b119f54d0719"
+      url "https://github.com/ducaale/xh/releases/download/v0.26.3/xh-v0.26.3-aarch64-apple-darwin.tar.gz"
+      sha256 "50d61bd755942752b054297a1612ec191654f137f8939673cda83c686cb5b0f2"
     end
     on_intel do
-      url "https://github.com/ducaale/xh/releases/download/v0.26.2/xh-v0.26.2-x86_64-apple-darwin.tar.gz"
-      sha256 "1f19ae1a2f411c58bd6943c638472cd5c4179ed019fe4f786e524b27da4c14a2"
+      url "https://github.com/ducaale/xh/releases/download/v0.26.3/xh-v0.26.3-x86_64-apple-darwin.tar.gz"
+      sha256 "b1c07e42238485bdcbed0982766f58b4daa631f0a33870100054ef5fbb4a3c4b"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/ducaale/xh/releases/download/v0.26.2/xh-v0.26.2-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "3a44900a8ac53f614aa0cd1d2e54ecf4e93584384c1ad091aa18d7992686d7eb"
+      url "https://github.com/ducaale/xh/releases/download/v0.26.3/xh-v0.26.3-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "a45d8cb6c234c6850f9fc2395fc3544ab7691fb511237f00179aedba1bcd525e"
     end
     on_intel do
-      url "https://github.com/ducaale/xh/releases/download/v0.26.2/xh-v0.26.2-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "8c53b6a23435754f9e2ea8ab8c0d0296a1921404b88132cf9b364ff6e8c22a6e"
+      url "https://github.com/ducaale/xh/releases/download/v0.26.3/xh-v0.26.3-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "cbbf53bd76007d57d95e4bed8ba7fb3b7fcec22af4bdfc1ff119cd5de351e74f"
     end
   end
 
