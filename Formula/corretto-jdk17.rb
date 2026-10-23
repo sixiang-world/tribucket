@@ -7,22 +7,22 @@ class CorrettoJdk17 < Formula
   on_macos do
     on_arm do
       url "https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.tar.gz"
-      sha256 "0452dc114b8b651324f4416489861b84f3085746e4303ffa5349d6531d7f92e5"
+      sha256 "85667cd211b7cef065a35d1ffbe16a19059493ac0130be5f0f93465458525d77"
     end
     on_intel do
       url "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-macos-jdk.tar.gz"
-      sha256 "cf269b31d6b987b16cf8acf3ce20aaee561858d4d424c482e686d783c63ef2d4"
+      sha256 "f13aa9654979894dddcd448f8b95b9b355c299c137cb47367cbb01b668b65f7b"
     end
   end
 
   on_linux do
     on_arm do
       url "https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-linux-jdk.tar.gz"
-      sha256 "5e2c0d3c7b4468c82030f37f589f906a81630885fc977741e107110d210201ff"
+      sha256 "495a5365af108172503c75d68476d5e8e4b0ff049908afc64feecb54b170de4c"
     end
     on_intel do
       url "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz"
-      sha256 "b852a8bc8890149c71141e784cde160d7ecb09bfa82b71209179b25902a0ebe3"
+      sha256 "b33adc502fdccdaa315feeafc5297b43e0009d0373182448920a46afe1656f34"
     end
   end
 
