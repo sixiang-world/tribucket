@@ -1,28 +1,28 @@
 class Mise < Formula
   desc "Polyglot runtime manager (asdf replacement)"
   homepage "https://github.com/jdx/mise"
-  version "2026.10.17"
+  version "2026.10.18"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-macos-arm64.tar.gz"
-      sha256 "d7c50c1683524a764260986ccc9c41c0de5e1fcd491714b5640b657b76781af6"
+      url "https://github.com/jdx/mise/releases/download/v2026.10.18/mise-v2026.10.18-macos-arm64.tar.gz"
+      sha256 "1b1cd6ad4a6176db5ddaf03bf71e131b26324af09cfcf14d7d7038bee60be85d"
     end
     on_intel do
-      url "https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-macos-x64.tar.gz"
-      sha256 "e42418100e2f781f9be00b9feaa60378e77551741faececc2bf360992c5410c8"
+      url "https://github.com/jdx/mise/releases/download/v2026.10.18/mise-v2026.10.18-macos-x64.tar.gz"
+      sha256 "81931f325cfc97481faa558297dbd1595aa9c4e745fd09c02479593449e082c0"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-linux-arm64.tar.gz"
-      sha256 "cac510e51793ad45e65fe92305bdbe4309c9c60b5907badbc7eba111738ab08f"
+      url "https://github.com/jdx/mise/releases/download/v2026.10.18/mise-v2026.10.18-linux-arm64.tar.gz"
+      sha256 "c5a49a47f8184f5649f3d8685b408bd72325a823f41cf618c60f3ffc303090a1"
     end
     on_intel do
-      url "https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-linux-x64.tar.gz"
-      sha256 "17565e268c5542d8ce944321e17af81e0b741b65af4aa7e8e010ee77376a4aa3"
+      url "https://github.com/jdx/mise/releases/download/v2026.10.18/mise-v2026.10.18-linux-x64.tar.gz"
+      sha256 "0d41b60745a6273a80089c86f80d8729042d2f57f87fda70aecc7d1c3ffbd3be"
     end
   end
 

@@ -18,11 +18,11 @@ class MicrosoftJdk17 < Formula
   on_linux do
     on_arm do
       url "https://aka.ms/download-jdk/microsoft-jdk-17-linux-aarch64.tar.gz"
-      sha256 "80a60422e032418ed25c503482b0cb1da82e0e05179a99500142993b56e148f1"
+      sha256 "fc80cf268662b058a7b360fb118f9a729987932d1ab8d72c5813e86df89c6034"
     end
     on_intel do
       url "https://aka.ms/download-jdk/microsoft-jdk-17-linux-x64.tar.gz"
-      sha256 "d00e5b04e9726b63d915706c7049e5297c9f40239ce8a12fcc68b7267fa91ad2"
+      sha256 "f7230e6d76ccfd62ceb11687a24e93d1f63d236e6a5fdeb8d923700075de42f8"
     end
   end
 
