@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://aka.ms/download-jdk/microsoft-jdk-17-windows-x64.zip",
-      "hash": "3d9006956fc8af5601cd24ffc4f468bef48279c7ebd8171b9bdf90d0aabfbf1f"
+      "hash": "49154292866386b2f4f09a3ecf3be07ab80a419149c84ec1d4419b9eec9e4b64"
     },
     "arm64": {
       "url": "https://aka.ms/download-jdk/microsoft-jdk-17-windows-aarch64.zip",
-      "hash": "6872e702181fe88773a80bc3684281c111091e29e7f190ac5af06b0315f8b849"
+      "hash": "2c0e7679022f1666da64b586f9941e86481c6f369212e918be3e505581085336"
     }
   },
   "bin": [
