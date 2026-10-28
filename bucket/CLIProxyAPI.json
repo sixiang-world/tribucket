@@ -1,16 +1,16 @@
 {
-  "version": "8.0.44",
+  "version": "8.0.46",
   "description": "CLI proxy API tool with wide platform support",
   "homepage": "https://github.com/router-for-me/CLIProxyAPI",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v8.0.44/CLIProxyAPI_8.0.44_windows_amd64.zip",
-      "hash": "fad909f3b1ef873dbf5484c586d87db61576dc353cbc6e7cb9262a1770e77e2e"
+      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v8.0.46/CLIProxyAPI_8.0.46_windows_amd64.zip",
+      "hash": "b203fe25bb90ad94dc3a4936bf49d08f0c7eca1a2fc6c923d0b9eca59557c67b"
     },
     "arm64": {
-      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v8.0.44/CLIProxyAPI_8.0.44_windows_aarch64.zip",
-      "hash": "6fd4da3655e8a2165b2699876e7fb1674ef62e4c3d12e8b86a038dbbe724efe5"
+      "url": "https://github.com/router-for-me/CLIProxyAPI/releases/download/v8.0.46/CLIProxyAPI_8.0.46_windows_aarch64.zip",
+      "hash": "83ede8ad3f97d9c8c09aa8097c432c9e377f7f5566f7ffbc10a9d9f74e07504c"
     }
   },
   "bin": [

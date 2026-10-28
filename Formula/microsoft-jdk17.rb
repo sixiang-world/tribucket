@@ -7,11 +7,11 @@ class MicrosoftJdk17 < Formula
   on_macos do
     on_arm do
       url "https://aka.ms/download-jdk/microsoft-jdk-17-macos-aarch64.tar.gz"
-      sha256 "a61837df9f18cf8c5bcff5c87b4f69267783d9eeb7d8ecbd05a831a530fb99de"
+      sha256 "6bc0241428f9485a3aa8fcf606c8395c24a5ff0f6d5e9dae2c70eae410a3f5f3"
     end
     on_intel do
       url "https://aka.ms/download-jdk/microsoft-jdk-17-macos-x64.tar.gz"
-      sha256 "ecd3f6f9c84b8fc06f1b2ddfd50759dbc95bbe6c2412161ea0cf9f525ea573aa"
+      sha256 "4a5f9e0cb0bb33c841e29cd6bb6d0eaf32893a5d404ea027d2b5123b72977ce5"
     end
   end
 

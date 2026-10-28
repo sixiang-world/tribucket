@@ -1,17 +1,17 @@
 class Hugo < Formula
   desc "The world's fastest framework for building websites"
   homepage "https://github.com/gohugoio/hugo"
-  version "0.168.0"
+  version "0.169.0"
   license "Apache-2.0"
 
   on_linux do
     on_arm do
-      url "https://github.com/gohugoio/hugo/releases/download/v0.168.0/hugo_0.168.0_linux-arm64.tar.gz"
-      sha256 "91ce984e998a955a3dc1b5852eb4e65d0ed0f6d12a5c51690df97a548e1fdeeb"
+      url "https://github.com/gohugoio/hugo/releases/download/v0.169.0/hugo_0.169.0_linux-arm64.tar.gz"
+      sha256 "ddadaaccbf437e3d39c33140b80c2180c4f46d027d16b7716c1282ea2e14e00c"
     end
     on_intel do
-      url "https://github.com/gohugoio/hugo/releases/download/v0.168.0/hugo_0.168.0_linux-amd64.tar.gz"
-      sha256 "fada83ad56bb27ed4cb7dd81590303bdac16140f944ac4e66fc248117e2d5594"
+      url "https://github.com/gohugoio/hugo/releases/download/v0.169.0/hugo_0.169.0_linux-amd64.tar.gz"
+      sha256 "2d2f0bfe357d8cb4cec02f6bb28a3bff34978c8dda44b618029c5eb9d66765a7"
     end
   end
 
