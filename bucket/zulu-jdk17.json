@@ -1,16 +1,16 @@
 {
-  "version": "17.0.21",
+  "version": "17.0.21.0.3",
   "description": "Azul Zulu JDK 17 - certified build of OpenJDK",
   "homepage": "https://www.azul.com/products/zulu-community/",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-win_x64.zip",
-      "hash": "ed209ff4293ff581c81d3b4268faf108fbe610e6ed43883de9e5f04308d68a72"
+      "url": "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-win_x64.zip",
+      "hash": "612efab667042036ad2e4da138cf690680e3cb99b5731c3b27ca00ffb0128230"
     },
     "arm64": {
-      "url": "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-win_aarch64.zip",
-      "hash": "638c96ff424c380c235f38a9523971040619de08979c7fc27ce6c60c9120430a"
+      "url": "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-win_aarch64.zip",
+      "hash": "f3c41d35c9b22a301f6db38c35f4e8e7c8f457e6e8eb8d133c227f77ef4358c3"
     }
   },
   "bin": [
@@ -22,10 +22,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-win_x64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-win_x64.zip"
       },
       "arm64": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-win_aarch64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-win_aarch64.zip"
       }
     }
   }

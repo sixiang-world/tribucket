@@ -1,28 +1,28 @@
 class ZuluJdk17 < Formula
   desc "Azul Zulu JDK 17 - certified build of OpenJDK"
   homepage "https://www.azul.com/products/zulu-community/"
-  version "17.0.21"
+  version "17.0.21.0.3"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-macosx_aarch64.tar.gz"
-      sha256 "8e51495d34f4d5a5b023e2e525c65afb3fb139e40507fcbc3dcf949ca13ce550"
+      url "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-macosx_aarch64.tar.gz"
+      sha256 "f4a4d641d4441f480939176208f333aa9403e0a68d27e87245cec98cc994f943"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-macosx_x64.tar.gz"
-      sha256 "2af1c17d9b2ba530328e52946fe3d4864c0670844918a1dbfb644eb2e2e3e08e"
+      url "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-macosx_x64.tar.gz"
+      sha256 "6de9a31bd21c09b787781ce90d5791168b522c2213571d742141e610b81ff7fd"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-linux_aarch64.tar.gz"
-      sha256 "07389f688d8fe0b77ad754824c09d0be1be19cd4e9f863195d6d545a3c37e988"
+      url "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-linux_aarch64.tar.gz"
+      sha256 "8a32c57a101b29fb2e31dd935709517d2a1117d4e696f13ff5035c665ac1d034"
     end
     on_intel do
-      url "https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jdk17.0.21-linux_x64.tar.gz"
-      sha256 "730ac4f645f601d3005bcdc8736c7e0630d402382e332c11d61ac2494436587f"
+      url "https://cdn.azul.com/zulu/bin/zulu17.70.113-ca-jdk17.0.21.0.3-linux_x64.tar.gz"
+      sha256 "81946095839140100ebff36ff52007676e260bbe482675dbc04772595ed94390"
     end
   end
 

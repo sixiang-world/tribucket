@@ -9,6 +9,10 @@ class TemurinJdk17 < Formula
       url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.21_9.pkg"
       sha256 "ab0bd83d1af973b8c4846b3939a1cbd71474fb07cf817074e1f9e8e40e97eb29"
     end
+    on_intel do
+      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_mac_hotspot_17.0.21_9.pkg"
+      sha256 "de08f77e8a715abadf0498cbca8255a47c63c6a9ee2ca27d26efee2640c0a5f8"
+    end
   end
 
   on_linux do
