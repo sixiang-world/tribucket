@@ -1,28 +1,28 @@
 class TencentKonaJdk21 < Formula
   desc "Tencent Kona - Tencent's distribution of OpenJDK"
   homepage "https://cloud.tencent.com/product/tkjdk"
-  version "TencentKona-21.0.12"
+  version "TencentKona-21.0.13.0.3"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1_jdk_macosx-aarch64_notarized.tar.gz"
-      sha256 "cfbfee68e8236adee8006e8816b1aa98a59d0ae7a2db276ae475a4fa7fbfdf8c"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.13.0.3/TencentKona-21.0.13.0.3.b1_jdk_macosx-aarch64_notarized.tar.gz"
+      sha256 "2e64f0dbe2c1ed4b71bd083a6623f4b12a55ea6de210a627b5a6eb43ad1d8df1"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1_jdk_macosx-x86_64_notarized.tar.gz"
-      sha256 "4032c58da90fc6aae8dedeb7236003798606ed830fededfe98512c525309763c"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.13.0.3/TencentKona-21.0.13.0.3.b1_jdk_macosx-x86_64_notarized.tar.gz"
+      sha256 "a9e7f122ff2ad504826c02c006db5828d58c380e480248e37a57e6a12455b7dd"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1-jdk_linux-aarch64.tar.gz"
-      sha256 "7594bf9c6c6aae8826dd9335479ddcc9a2c760ae693e61f1ec65b8c1247f8c76"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.13.0.3/TencentKona-21.0.13.0.3.b1-jdk_linux-aarch64.tar.gz"
+      sha256 "6248693a8be9af89fa811a92fd68a9b20f5ae2b8716029cfc11ee427a6fc48e2"
     end
     on_intel do
-      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.12/TencentKona-21.0.12.b1-jdk_linux-x86_64.tar.gz"
-      sha256 "22ee6933c7110af5814edcdae25c85605cf7dd08f94419b7c6fa9ff7f0065f2e"
+      url "https://github.com/Tencent/TencentKona-21/releases/download/TencentKona-21.0.13.0.3/TencentKona-21.0.13.0.3.b1-jdk_linux-x86_64.tar.gz"
+      sha256 "6d91a9272966c16bfd877322236e645abfffcd1b599b3b1285492fd2b85b5d4b"
     end
   end
 
