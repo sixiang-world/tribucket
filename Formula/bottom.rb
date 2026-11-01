@@ -1,28 +1,28 @@
 class Bottom < Formula
   desc "Cross-platform graphical system monitor"
   homepage "https://github.com/ClementTsang/bottom"
-  version "0.14.9"
+  version "0.15.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_aarch64-apple-darwin.tar.gz"
-      sha256 "28358e19a3d62b3778fc0d1778b0028a682059145c9ac38ac5076bf124d77714"
+      url "https://github.com/ClementTsang/bottom/releases/download/0.15.0/bottom_aarch64-apple-darwin.tar.gz"
+      sha256 "6d83c9eba811dd139392fa5b04baa75225c6aa120dad36a070e636660db023fd"
     end
     on_intel do
-      url "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_x86_64-apple-darwin.tar.gz"
-      sha256 "d0b1d446963ee3c4dfbfe2efd9614cfdc77f39e8268bf8cc2e0b5b6cea982774"
+      url "https://github.com/ClementTsang/bottom/releases/download/0.15.0/bottom_x86_64-apple-darwin.tar.gz"
+      sha256 "6a7f5e32fc2c272256ad5c77aa8aaede02e1e86cf3ba4715acb894d3d6d5b361"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_aarch64-linux-android.tar.gz"
-      sha256 "ab0962167505b8a56d7852952e17f1afeeb83f79ca21b5509ff0ba98c6ac4da1"
+      url "https://github.com/ClementTsang/bottom/releases/download/0.15.0/bottom_aarch64-linux-android.tar.gz"
+      sha256 "2cbf2ccc0ee85e826b40d453ff5a41192ee20f0b0d772ca526153cb5551ac75a"
     end
     on_intel do
-      url "https://github.com/ClementTsang/bottom/releases/download/0.14.9/bottom_x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "e0c325829e8bdcea25a8a7651da05dbb6f1fc109ac5d2f0187867d3d5d9c0df8"
+      url "https://github.com/ClementTsang/bottom/releases/download/0.15.0/bottom_x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "051888e0e064aa037728efed3fcf77820714f8f4dc7bea2b0179d40c54400c26"
     end
   end
 
