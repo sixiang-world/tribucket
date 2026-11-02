@@ -1,24 +1,24 @@
 class Dust < Formula
   desc "More intuitive version of du (disk usage)"
   homepage "https://github.com/bootandy/dust"
-  version "1.2.6"
+  version "1.2.7"
   license "Apache-2.0"
 
   on_macos do
     on_intel do
-      url "https://github.com/bootandy/dust/releases/download/v1.2.6/dust-v1.2.6-x86_64-apple-darwin.tar.gz"
-      sha256 "7603c92462bd56305847732eb25d70ab06386d7bcfbce7532b7cf3937fd9684f"
+      url "https://github.com/bootandy/dust/releases/download/v1.2.7/dust-v1.2.7-x86_64-apple-darwin.tar.gz"
+      sha256 "5eef77d18dfd2d1d56d1b3c415bc2d41b5b793bc63b5c7f706005d058a48a363"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/bootandy/dust/releases/download/v1.2.6/dust-v1.2.6-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "ec6a63bc275a33000443d444fd5424e56745aa995bc88e1080cd951e5e9e5cbf"
+      url "https://github.com/bootandy/dust/releases/download/v1.2.7/dust-v1.2.7-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "64496fe9e56dabb379308b3a079816818f6022d0b93638d06206a9144ca795d9"
     end
     on_intel do
-      url "https://github.com/bootandy/dust/releases/download/v1.2.6/dust-v1.2.6-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "14f788707aad217667f6812cf1a9639bf5c861a2ee815d486cffc36051f5e759"
+      url "https://github.com/bootandy/dust/releases/download/v1.2.7/dust-v1.2.7-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "ec3bf712c660dcaa5578b996741f5cca36b30c021c1e4b49352b11137a95a96e"
     end
   end
 

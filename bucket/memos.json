@@ -1,12 +1,12 @@
 {
-  "version": "26.10.0",
+  "version": "26.11.0",
   "description": "Open-source, self-hosted note-taking tool built for quick capture",
   "homepage": "https://github.com/usememos/memos",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/usememos/memos/releases/download/26.10.0/memos_26.10.0_windows_amd64.zip",
-      "hash": "aecb35ffdbf154a423fbd533777fa62a94dad899e50d37210abe0968c164976d"
+      "url": "https://github.com/usememos/memos/releases/download/26.11.0/memos_26.11.0_windows_amd64.zip",
+      "hash": "3b5f7b92e11dc38b39a70e68ba4e734de870e5e098ea5a43f2c6b2817e1cbcc0"
     }
   },
   "bin": [

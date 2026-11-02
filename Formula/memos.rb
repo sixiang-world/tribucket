@@ -1,28 +1,28 @@
 class Memos < Formula
   desc "Open-source, self-hosted note-taking tool built for quick capture"
   homepage "https://github.com/usememos/memos"
-  version "26.10.0"
+  version "26.11.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/usememos/memos/releases/download/26.10.0/memos_26.10.0_darwin_arm64.tar.gz"
-      sha256 "8db2970893f5f0adc4e0143de6b7c27453d8586766a7627219cf1d9e3563e12c"
+      url "https://github.com/usememos/memos/releases/download/26.11.0/memos_26.11.0_darwin_arm64.tar.gz"
+      sha256 "3bc92c7cd84aeefc71d601404b2a986309acb779309b8a5aaa34d3249609ffb5"
     end
     on_intel do
-      url "https://github.com/usememos/memos/releases/download/26.10.0/memos_26.10.0_darwin_amd64.tar.gz"
-      sha256 "eb79a53dbd9663eaeaa70b707f5d9649c5cd325da971575f52f999c31818c364"
+      url "https://github.com/usememos/memos/releases/download/26.11.0/memos_26.11.0_darwin_amd64.tar.gz"
+      sha256 "020353bb3b51a20278400c333b9515a46a7686f3ebe24849c653e4b284e3bcd1"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/usememos/memos/releases/download/26.10.0/memos_26.10.0_linux_arm64.tar.gz"
-      sha256 "b4219fd58993d01a1340913487121624fb076099f3686972437c7a40a02225a7"
+      url "https://github.com/usememos/memos/releases/download/26.11.0/memos_26.11.0_linux_arm64.tar.gz"
+      sha256 "1575ed41ce1f668a2e70b50f73c95d2f1b04605db83d4529b8914358b394145e"
     end
     on_intel do
-      url "https://github.com/usememos/memos/releases/download/26.10.0/memos_26.10.0_linux_amd64.tar.gz"
-      sha256 "873e639c6a9e9bac47af57d628477fa87b7e965fadf0354c7d1a4e5280681de7"
+      url "https://github.com/usememos/memos/releases/download/26.11.0/memos_26.11.0_linux_amd64.tar.gz"
+      sha256 "38b81c2bd1859555f4f7f277756541fd1ca332c94bbbee443626ace42d7b4061"
     end
   end
 

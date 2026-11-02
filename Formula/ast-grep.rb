@@ -1,28 +1,28 @@
 class AstGrep < Formula
   desc "Structural search/replace using AST patterns"
   homepage "https://github.com/ast-grep/ast-grep"
-  version "0.51.0"
+  version "0.51.1"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.0/app-aarch64-apple-darwin.zip"
-      sha256 "e18e13c27ed6c4b3ec4de00745b0755dee9dc26c035e226f4dd5d147dca99cc8"
+      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-aarch64-apple-darwin.zip"
+      sha256 "a95772097b4d02bd9d45ed63b300c37041ae3c36632b3bf19250cc7c10187dc4"
     end
     on_intel do
-      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.0/app-x86_64-apple-darwin.zip"
-      sha256 "8438fe549da59da28518c45bdaab5b851aabafe8fb4f8dc05c261a7649b4eca6"
+      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-x86_64-apple-darwin.zip"
+      sha256 "302b92868fa1b0439f0927b1f31668e03636b12a8e646fb1a3cd8de816c78242"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.0/app-aarch64-unknown-linux-gnu.zip"
-      sha256 "73af0ebe5958acee012754a5b2826a186580ef83333092408a7a01096fc30b8b"
+      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-aarch64-unknown-linux-gnu.zip"
+      sha256 "db02fae2d8eace5fc40c55242068882452dd03eab38a1d950d5fd981cf112926"
     end
     on_intel do
-      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.0/app-x86_64-unknown-linux-gnu.zip"
-      sha256 "a7eead5552d3a8daad70f5d50d935da44bd0c138e946b5b0a96b1d38169fa639"
+      url "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-x86_64-unknown-linux-gnu.zip"
+      sha256 "42514f77ae0c8a25d7d32154d31d3e7e16f3ab894f8ce76ce417de234ee49157"
     end
   end
 
