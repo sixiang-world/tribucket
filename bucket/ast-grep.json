@@ -4,6 +4,10 @@
   "homepage": "https://github.com/ast-grep/ast-grep",
   "license": "MIT",
   "architecture": {
+    "64bit": {
+      "url": "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-x86_64-pc-windows-msvc.zip",
+      "hash": "12a0cefb77498820ef6fb302ed8758cbda39be87d4c15120dc74c1dea968a50d"
+    },
     "arm64": {
       "url": "https://github.com/ast-grep/ast-grep/releases/download/0.51.1/app-aarch64-pc-windows-msvc.zip",
       "hash": "8b3f8fed40e99e0fa4df050859d2897fce454cba262d903486dc12a464237126"
@@ -17,6 +21,9 @@
   ],
   "autoupdate": {
     "architecture": {
+      "64bit": {
+        "url": "https://github.com/ast-grep/ast-grep/releases/download/$version/app-x86_64-pc-windows-msvc.zip"
+      },
       "arm64": {
         "url": "https://github.com/ast-grep/ast-grep/releases/download/$version/app-aarch64-pc-windows-msvc.zip"
       }
