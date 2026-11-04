@@ -1,28 +1,28 @@
 class Surrealdb < Formula
   desc "Scalable, distributed document-graph database"
   homepage "https://github.com/surrealdb/surrealdb"
-  version "3.3.5"
+  version "4.0.0"
   license "BSL-1.1"
 
   on_macos do
     on_arm do
-      url "https://github.com/surrealdb/surrealdb/releases/download/v3.3.5/surreal-v3.3.5.darwin-arm64.tgz"
-      sha256 "534140236e7246d86969015ba9ae8dd2f7f8f277ed1412cb17f3d397f95a1090"
+      url "https://github.com/surrealdb/surrealdb/releases/download/v4.0.0/surreal-v4.0.0.darwin-arm64.tgz"
+      sha256 "9e0b48796d73308bc717936142b676f3c83c58980275f784e738051eca8f6a18"
     end
     on_intel do
-      url "https://github.com/surrealdb/surrealdb/releases/download/v3.3.5/surreal-v3.3.5.darwin-amd64.tgz"
-      sha256 "a274451b30cf639df3b180b0e82ab8f7c52bc5244fa66aa65155a085f3eb6d31"
+      url "https://github.com/surrealdb/surrealdb/releases/download/v4.0.0/surreal-v4.0.0.darwin-amd64.tgz"
+      sha256 "7ef3eecf5b1a3e31928784e4a7a91f943ec8d882fe22df5cdf7e6c7b37ea771f"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/surrealdb/surrealdb/releases/download/v3.3.5/surreal-v3.3.5.linux-arm64.tgz"
-      sha256 "de945afaf48660a0d7370d7f631dc964a4cceb46b9cfe0c92ede9061df4cc5e6"
+      url "https://github.com/surrealdb/surrealdb/releases/download/v4.0.0/surreal-v4.0.0.linux-arm64.tgz"
+      sha256 "3d0feff9c3b56a05f168175bd1585e144093c36e740c32c40cf6e51d3466b81c"
     end
     on_intel do
-      url "https://github.com/surrealdb/surrealdb/releases/download/v3.3.5/surreal-v3.3.5.linux-amd64.tgz"
-      sha256 "8f3bc163405085343fc6db9746a8e0cd55503c939802ad2b35a466675a9c09cf"
+      url "https://github.com/surrealdb/surrealdb/releases/download/v4.0.0/surreal-v4.0.0.linux-amd64.tgz"
+      sha256 "e910760179b9f13d0773ce98ac50f9a537051156365239284c2dc687adf3049d"
     end
   end
 
