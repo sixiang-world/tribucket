@@ -1,28 +1,20 @@
 class TemurinJdk11 < Formula
   desc "Eclipse Temurin JDK 11 - OpenJDK binaries by Adoptium"
   homepage "https://adoptium.net"
-  version "jdk-11.0.32.1+1"
+  version "jdk-11.0.33+10"
   license "GPL-2.0"
 
   on_macos do
-    on_arm do
-      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_aarch64_mac_hotspot_11.0.32.1_1.pkg"
-      sha256 "e559ceb33cc71b402393997440b195c6d52647aff10d6cf0eaee148e9f333a91"
-    end
     on_intel do
-      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_x64_mac_hotspot_11.0.32.1_1.pkg"
-      sha256 "0180c3c43d6d9ab82173a1a0f0e9f57760793e9838b3ac2b1caaafa710d97319"
+      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.33%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.33_10.pkg"
+      sha256 "bf22c47b19698703d2da0f564219edfc50fd1b303d66a340f0a87344bfff943f"
     end
   end
 
   on_linux do
-    on_arm do
-      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.32.1_1.tar.gz"
-      sha256 "f27033e6f7523c1b0b2565a78e9c0e0abe5596a854ce00ca04ec1b06ece7a935"
-    end
     on_intel do
-      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_x64_linux_hotspot_11.0.32.1_1.tar.gz"
-      sha256 "5c3f68887c325d36d852ba534303e1f5f1f5cae7d6cc1e951d73e0d8e98a058d"
+      url "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.33%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.33_10.tar.gz"
+      sha256 "c4b8eaf56c93b95b689ffc08d155df1bcdbbffb666f8f71d21d97aedaea6f0ec"
     end
   end
 
