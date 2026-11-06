@@ -1,28 +1,28 @@
 class Opentofu < Formula
   desc "Open-source infrastructure as code tool (Terraform fork)"
   homepage "https://github.com/opentofu/opentofu"
-  version "1.13.8"
+  version "1.13.9"
   license "MPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/opentofu/opentofu/releases/download/v1.13.8/tofu_1.13.8_darwin_arm64.zip"
-      sha256 "7cd554aa1dd196ea87d5b009edeed0138ef2e21ff8154f829ef71b4f7421806d"
+      url "https://github.com/opentofu/opentofu/releases/download/v1.13.9/tofu_1.13.9_darwin_arm64.zip"
+      sha256 "29ba2f4c78556a8d25476e5070fe4745495ef649c4a3b827170eb7436d23feb3"
     end
     on_intel do
-      url "https://github.com/opentofu/opentofu/releases/download/v1.13.8/tofu_1.13.8_darwin_amd64.zip"
-      sha256 "325e929c2ac4a8fb2077a7d52ad9a3fa8c012a745a5e5da0bf3fdbbeb99a3fad"
+      url "https://github.com/opentofu/opentofu/releases/download/v1.13.9/tofu_1.13.9_darwin_amd64.zip"
+      sha256 "ac5505dd19d896f327d0ab727d4b853413c694931a7602b31f93c3a3e9d46d00"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/opentofu/opentofu/releases/download/v1.13.8/tofu_1.13.8_linux_arm64.zip"
-      sha256 "efb05ff0e2403c8c29a6c7a02d5d95bf86f987063d1bbd5ae3e47621f752d139"
+      url "https://github.com/opentofu/opentofu/releases/download/v1.13.9/tofu_1.13.9_linux_arm64.zip"
+      sha256 "04f7c93828b859d420269ed30f923ffebf09157b5d7fb95bf8d88a4d208b7fa3"
     end
     on_intel do
-      url "https://github.com/opentofu/opentofu/releases/download/v1.13.8/tofu_1.13.8_linux_amd64.zip"
-      sha256 "aa4382a5eefcf026309d07398ea803f97b9218a17d940999a938be22bfe9d73f"
+      url "https://github.com/opentofu/opentofu/releases/download/v1.13.9/tofu_1.13.9_linux_amd64.zip"
+      sha256 "bc44eb6b06446ba83bd4072114891987f590f66cca712737a7f1147c50c539ce"
     end
   end
 
