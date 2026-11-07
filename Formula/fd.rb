@@ -1,24 +1,24 @@
 class Fd < Formula
   desc "A simple, fast and user-friendly alternative to find"
   homepage "https://github.com/sharkdp/fd"
-  version "10.5.1"
+  version "10.5.2"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/sharkdp/fd/releases/download/v10.5.1/fd-v10.5.1-aarch64-apple-darwin.tar.gz"
-      sha256 "2d336895ed27b14c5cc9fc5eb22df03b3ee842b5dce80060e99d9cdc1b1b9fc7"
+      url "https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-aarch64-apple-darwin.tar.gz"
+      sha256 "81bf98a16d3d7230e4a9123fcede243d71ea31a577113476ed43f1cdf4773162"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/sharkdp/fd/releases/download/v10.5.1/fd-v10.5.1-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "86800e7dbe423cc7ed14076f40983f1bc739a299ca9a5ae5604cf261a87b3865"
+      url "https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "4b144f38bd7352cd4c95020b58e8e575476e60edcdf1dc5e0733e3d01efba6dd"
     end
     on_intel do
-      url "https://github.com/sharkdp/fd/releases/download/v10.5.1/fd-v10.5.1-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "d0e2b438c8c4946955f05e4cf51452deada8f7ed509e1ccd60235a468622716f"
+      url "https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "985e24041e9ef6e9a38e9e088743405dde23d7220aa96740f091862167d9ff28"
     end
   end
 
