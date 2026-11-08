@@ -1,28 +1,28 @@
 class Lazygit < Formula
   desc "Simple terminal UI for git commands"
   homepage "https://github.com/jesseduffield/lazygit"
-  version "0.66.2"
+  version "0.66.3"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.2/lazygit_0.66.2_darwin_arm64.tar.gz"
-      sha256 "fadda59ae7665ba556fcbaa704c7eade6e40d016d3f3b25d6327dd1f3f906a0c"
+      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.3/lazygit_0.66.3_darwin_arm64.tar.gz"
+      sha256 "6873e6b7a538b521c4d7ff3f76ec49e6dcafa41e6053a6aae33c12f62663e163"
     end
     on_intel do
-      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.2/lazygit_0.66.2_darwin_x86_64.tar.gz"
-      sha256 "de5d3771e4befa6fe17590e21445614998adc1ef34a71f4003df6764247517ab"
+      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.3/lazygit_0.66.3_darwin_x86_64.tar.gz"
+      sha256 "f6c116c09b960842351e3e142cc8be1784de611f19d09920421bd7639cccd30b"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.2/lazygit_0.66.2_linux_arm64.tar.gz"
-      sha256 "79a3161eeb642f0473e23db6341f7baabd4a5933e921a9c1167c5d5c765c41a4"
+      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.3/lazygit_0.66.3_linux_arm64.tar.gz"
+      sha256 "ac0b48237f3d0283813e7154ec063237e519532feb0470c0881a1793ee78fd42"
     end
     on_intel do
-      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.2/lazygit_0.66.2_linux_x86_64.tar.gz"
-      sha256 "158efc9ddfa1241fab5fb3526bb442c8dc6c4b1904d73213b9e4e93e03c52034"
+      url "https://github.com/jesseduffield/lazygit/releases/download/v0.66.3/lazygit_0.66.3_linux_x86_64.tar.gz"
+      sha256 "0a23f429a95f0d09db298b3c291536d818de066aa5a85c255806f0490ff6656b"
     end
   end
 

@@ -11,7 +11,7 @@
   },
   "bin": [
     [
-      "elasticsearch-9.5.4-windows-x86_64.zip",
+      "elasticsearch.exe",
       "elasticsearch"
     ]
   ],
