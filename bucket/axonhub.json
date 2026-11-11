@@ -1,16 +1,16 @@
 {
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc.3",
   "description": "Open-source AI Gateway — call 100+ LLMs with failover and load balancing",
   "homepage": "https://github.com/looplj/axonhub",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc2/axonhub_1.0.0-rc2_windows_amd64.zip",
-      "hash": "94027a639c1edb2cf6fd3ad7e13f628152edf0ed6c3be1e68e7d245c2761f4b7"
+      "url": "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_windows_amd64.zip",
+      "hash": "054ecaa385829a08e8857925b1ab315dcc1de578135e912ee5b35c7f8efedfd0"
     },
     "arm64": {
-      "url": "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc2/axonhub_1.0.0-rc2_windows_arm64.zip",
-      "hash": "6e643ce8e62fb502e5351048cd4174656ee6dc854d5bd19b74eb1a414ee18955"
+      "url": "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_windows_arm64.zip",
+      "hash": "01159c1878f8587b694b50f41b64a455ab6112f7dcdbf70486e0213e751f4f51"
     }
   },
   "bin": [
