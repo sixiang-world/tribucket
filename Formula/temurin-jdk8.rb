@@ -4,6 +4,13 @@ class TemurinJdk8 < Formula
   version "jdk8u512-b09"
   license "GPL-2.0"
 
+  on_macos do
+    on_intel do
+      url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u512-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u512b09.pkg"
+      sha256 "522bfd6d5b339f9d049d0bb747c819365e1746b9245aff0fb37b272558893650"
+    end
+  end
+
   on_linux do
     on_arm do
       url "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u512-b09/OpenJDK8U-jdk_aarch64_linux_hotspot_8u512b09.tar.gz"
