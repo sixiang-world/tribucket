@@ -1,28 +1,28 @@
 class Axonhub < Formula
   desc "Open-source AI Gateway — call 100+ LLMs with failover and load balancing"
   homepage "https://github.com/looplj/axonhub"
-  version "1.0.0-rc.3"
+  version "1.0.0-rc.4"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_darwin_arm64.zip"
-      sha256 "96bc0c7f6822aa3d51c649494e6f40cd19fb7ac3a27371c46d1e1483194426f4"
+      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.4/axonhub_1.0.0-rc.4_darwin_arm64.zip"
+      sha256 "2a1dd8040507cad4aa4d69bf8d165a4537c6115d9e00218296cfada799314385"
     end
     on_intel do
-      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_darwin_amd64.zip"
-      sha256 "94d06ec3c617bc4ebce6367423bda56a824c98c46b943d64d03f2516748955ba"
+      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.4/axonhub_1.0.0-rc.4_darwin_amd64.zip"
+      sha256 "86d87a48590fb926a6475271b98d2eae33d2da2e9ea7fed60aecc207f65e5af2"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_linux_arm64.zip"
-      sha256 "955ec9792c5c697461da5ce7cb9baeeccdd808dc34f7b2a7650116da2af14df3"
+      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.4/axonhub_1.0.0-rc.4_linux_arm64.zip"
+      sha256 "a14e1d5f5365749ac1c7f18fddde70bd6119a26ac7dc3f3d5dc2a57295131379"
     end
     on_intel do
-      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.3/axonhub_1.0.0-rc.3_linux_amd64.zip"
-      sha256 "33ceb453c9576bf3caf657047d4b66e32175a8a7f2332b4c45089ff15babd17e"
+      url "https://github.com/looplj/axonhub/releases/download/v1.0.0-rc.4/axonhub_1.0.0-rc.4_linux_amd64.zip"
+      sha256 "a60006e0dab315720875d3ebf39138dee63bbdaa64e44e040135e7c9df97cf5c"
     end
   end
 
