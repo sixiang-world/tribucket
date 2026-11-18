@@ -7,22 +7,22 @@ class MicrosoftJdk11 < Formula
   on_macos do
     on_arm do
       url "https://aka.ms/download-jdk/microsoft-jdk-11-macos-aarch64.tar.gz"
-      sha256 "c1efc666076916a8ecbc2346ca588dfac7375ad4a53a383618d7c124febbc00e"
+      sha256 "1b516ffe4df3bcf3f916420b8887b865f6f54561e73bfc7f7e628d4d2179d7fd"
     end
     on_intel do
       url "https://aka.ms/download-jdk/microsoft-jdk-11-macos-x64.tar.gz"
-      sha256 "e3bfbb68969a90c45495381093eba3225d85a71197ccc6779b992d2d199ef256"
+      sha256 "322027d811eecc7078733c4024e86b7ee08db762e8a884fd02e8a37cbe17971c"
     end
   end
 
   on_linux do
     on_arm do
       url "https://aka.ms/download-jdk/microsoft-jdk-11-linux-aarch64.tar.gz"
-      sha256 "a9102ad6478832df70ff1f35994c1c28aced8d8d4160cbca6688cad5133c4548"
+      sha256 "03b1a09eb3e274123434f9224dda3bafc675bfc5d8386db0b8bc12b1192b9136"
     end
     on_intel do
       url "https://aka.ms/download-jdk/microsoft-jdk-11-linux-x64.tar.gz"
-      sha256 "835411604b321042db7191479d9039f45d138f3d505183e24c3fad1713ed7fc0"
+      sha256 "aadc35414317a23db3827b284a5865fd74ec662f26c1f94f200136d9fc9248e3"
     end
   end
 

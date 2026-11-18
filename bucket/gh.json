@@ -1,16 +1,16 @@
 {
-  "version": "2.104.0",
+  "version": "2.105.0",
   "description": "GitHub CLI — GitHub from the command line",
   "homepage": "https://github.com/cli/cli",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_windows_amd64.zip",
-      "hash": "08c06d10482f12c478018cd259f64acbd5f625712cadf331aad19ba973c879e5"
+      "url": "https://github.com/cli/cli/releases/download/v2.105.0/gh_2.105.0_windows_amd64.zip",
+      "hash": "8813a72c899900afaa10e3fec8fbc64b908c89dbfe837e95ed2fa500fc140627"
     },
     "arm64": {
-      "url": "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_windows_arm64.zip",
-      "hash": "d56fbf5b9ad32e5985e3e7e1d8f4d28ae2994618986cd2cba9b50ac710dffe01"
+      "url": "https://github.com/cli/cli/releases/download/v2.105.0/gh_2.105.0_windows_arm64.zip",
+      "hash": "5282a09c7757210c6e2dfb11a56b11e14e646df9b3b6a49f155465f5f881c3b7"
     }
   },
   "bin": [

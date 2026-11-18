@@ -1,12 +1,12 @@
 {
-  "version": "sapmachine-27.0.1.0.3",
+  "version": "sapmachine-27.0.1.1",
   "description": "SAP's distribution of OpenJDK",
   "homepage": "https://github.com/SAP/SapMachine",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/SAP/SapMachine/releases/download/sapmachine-27.0.1.0.3/sapmachine-jdk-27.0.1.0.3_windows-x64_bin.zip",
-      "hash": "243a413089a7b6be254776c05ea077bc3a7b711c8096edb3611d3f85553ba65b"
+      "url": "https://github.com/SAP/SapMachine/releases/download/sapmachine-27.0.1.1/sapmachine-jdk-27.0.1.1_windows-x64_bin.zip",
+      "hash": "bbb8f35dd097dc7ed8390c78b1559530e7e31ca7cc659c230d03d429468ba825"
     }
   },
   "bin": [
@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/SAP/SapMachine/releases/download/$version/sapmachine-jdk-27.0.1.0.3_windows-x64_bin.zip"
+        "url": "https://github.com/SAP/SapMachine/releases/download/$version/sapmachine-jdk-27.0.1.1_windows-x64_bin.zip"
       }
     }
   },

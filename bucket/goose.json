@@ -1,12 +1,12 @@
 {
-  "version": "1.59.2",
+  "version": "1.60.1",
   "description": "Open-source AI agent by Block — extensible, runs in terminal",
   "homepage": "https://github.com/block/goose",
   "license": "Apache-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/aaif-goose/goose/releases/download/v1.59.2/goose-x86_64-pc-windows-msvc.zip",
-      "hash": "aef6462832e8cbdcb465b45605afafe8459052effd9b9cbf74817d3d22f46a2f"
+      "url": "https://github.com/aaif-goose/goose/releases/download/v1.60.1/goose-x86_64-pc-windows-msvc.zip",
+      "hash": "1b66929a43d9645cbe2b31691c84fef95c880aee57dd7a207050976d312f0238"
     }
   },
   "bin": [

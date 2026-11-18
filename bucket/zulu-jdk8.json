@@ -1,12 +1,12 @@
 {
-  "version": "8.0.512",
+  "version": "8.0.514",
   "description": "Azul Zulu JDK 8 - certified build of OpenJDK",
   "homepage": "https://www.azul.com/products/zulu-community/",
   "license": "GPL-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://cdn.azul.com/zulu/bin/zulu8.98.0.107-ca-jdk8.0.512-win_x64.zip",
-      "hash": "9284148d71bff3b34d678a5159bb5688a062f5084ef14abb3daea0a173bb0bf2"
+      "url": "https://cdn.azul.com/zulu/bin/zulu8.98.0.201-ca-jdk8.0.514-win_x64.zip",
+      "hash": "ab833a2af66a80e003dacc97c598eaa8fa1a54c2be441e661ef80214eba99a97"
     }
   },
   "bin": [
@@ -18,7 +18,7 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://cdn.azul.com/zulu/bin/zulu8.98.0.107-ca-jdk8.0.512-win_x64.zip"
+        "url": "https://cdn.azul.com/zulu/bin/zulu8.98.0.201-ca-jdk8.0.514-win_x64.zip"
       }
     }
   }
