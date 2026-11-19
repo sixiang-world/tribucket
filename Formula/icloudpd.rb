@@ -1,24 +1,24 @@
 class Icloudpd < Formula
   desc "A command-line tool to download photos from iCloud"
   homepage "https://github.com/icloud-photos-downloader/icloud_photos_downloader"
-  version "1.33.0"
+  version "1.33.1"
   license "MIT"
 
   on_macos do
     on_intel do
-      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.0/icloud-1.33.0-macos-amd64"
-      sha256 "9d7fdd13962844072bc86a78e1d97d6b4b672e6c014f75e8ce002541ce6b1ae2"
+      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.1/icloud-1.33.1-macos-amd64"
+      sha256 "4e0103eb4021663d406c7a2e7893442c89e4ee8e3909978a85fdbb4d9d9dc4b6"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.0/icloud-1.33.0-linux-arm64"
-      sha256 "8b520ac6d6defb702531394d343a954ae9814d454476215f40ed728ceef98dcb"
+      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.1/icloud-1.33.1-linux-arm64"
+      sha256 "0ca173ff88e15572a90215d39c226a039d0393d705d70b6066681cb9b869f8ff"
     end
     on_intel do
-      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.0/icloud-1.33.0-linux-amd64"
-      sha256 "d47f43b96fa3d714624813ca932d2023811b3e78aeaa6979abd06e1cda500d21"
+      url "https://github.com/icloud-photos-downloader/icloud_photos_downloader/releases/download/v1.33.1/icloud-1.33.1-linux-amd64"
+      sha256 "598fc11318a289c94ba031043987b31c311845fbaf993dbbf9fdd40ef0651582"
     end
   end
 

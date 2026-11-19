@@ -1,28 +1,20 @@
 class TemurinJdk17 < Formula
   desc "Eclipse Temurin JDK 17 - OpenJDK binaries by Adoptium"
   homepage "https://adoptium.net"
-  version "jdk-17.0.21+9"
+  version "jdk-17.0.21.1+2"
   license "GPL-2.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.21_9.pkg"
-      sha256 "ab0bd83d1af973b8c4846b3939a1cbd71474fb07cf817074e1f9e8e40e97eb29"
-    end
-    on_intel do
-      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_mac_hotspot_17.0.21_9.pkg"
-      sha256 "de08f77e8a715abadf0498cbca8255a47c63c6a9ee2ca27d26efee2640c0a5f8"
+      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21.1%2B2/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.21.1_2.pkg"
+      sha256 "7e990543a11e4a0895bd295d62bc94e4374fbf0512e7b4cb8944c0cd6d4da4de"
     end
   end
 
   on_linux do
-    on_arm do
-      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.21_9.tar.gz"
-      sha256 "3e4eca7ead088f080af1476007decf010a240a1eb4e1e78c54fa32fbcc347084"
-    end
     on_intel do
-      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_linux_hotspot_17.0.21_9.tar.gz"
-      sha256 "8b9b611d917e3dfd8419d3566b5949226f69b052fed7e109c1368add1dfe8711"
+      url "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21.1%2B2/OpenJDK17U-jdk_x64_linux_hotspot_17.0.21.1_2.tar.gz"
+      sha256 "0b0ac5eab6db6abaec68c9913bcddb31321e5da411c45073d520d9c125e6f7b4"
     end
   end
 
