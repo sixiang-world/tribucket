@@ -2,11 +2,8 @@ name: Validate packages
 
 on:
   push:
-    branches: [main]
-    paths: ['packages/**', 'Formula/**', 'bucket/**', '.github/workflows/**']
+    branches: ['**']
   pull_request:
-    branches: [main]
-    paths: ['packages/**', 'Formula/**', 'bucket/**', '.github/workflows/**']
   workflow_dispatch:
 
 permissions:
@@ -22,85 +19,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-      - name: Validate package JSON files
+      - name: Validate packages and hashes offline
+        run: python .github/scripts/validate-packages.py
+
+      - name: Detect package changes
+        id: diff
+        if: github.event_name != 'workflow_dispatch'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          set -eu
-          errors=0
-          required_fields="name repo description binary license homepage"
-          required_platforms="linux_amd64 linux_arm64 darwin_amd64 darwin_arm64 windows_amd64 windows_arm64"
-
-          for f in packages/*.json; do
-            echo "Checking $f..."
-
-            # Validate JSON syntax
-            if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
-              echo "  ERROR: Invalid JSON"
-              errors=$((errors + 1))
-              continue
-            fi
-
-            # Check required top-level fields
-            for field in $required_fields; do
-              val=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get(sys.argv[2],''))" "$f" "$field" 2>/dev/null)
-              if [ -z "$val" ]; then
-                echo "  ERROR: Missing required field '$field'"
-                errors=$((errors + 1))
-              fi
-            done
-
-            # Check asset_pattern platforms
-            for plat in $required_platforms; do
-              val=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ap=d.get('asset_pattern',{}); print(ap.get(sys.argv[2],''))" "$f" "$plat" 2>/dev/null)
-              if [ -z "$val" ]; then
-                echo "  WARNING: Missing asset_pattern for $plat"
-              fi
-            done
-
-            echo "  OK   $f"
-          done
-
-          if [ $errors -gt 0 ]; then
-            echo ""
-            echo "Validation failed with $errors error(s)."
-            exit 1
+          if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            BASE_SHA=$(git mktree </dev/null)
+          elif ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          fi
+          changed=$(git diff --name-only "$BASE_SHA" HEAD -- packages/)
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-          echo ""
-          echo "All package files valid."
-
-      - name: Check Formula sha256 not empty
-        run: |
-          set -eu
-          errors=0
-          for f in Formula/*.rb; do
-            if grep -q 'sha256 ""' "$f"; then
-              echo "ERROR: $f has empty sha256"
-              errors=$((errors + 1))
-            fi
-          done
-          if [ $errors -gt 0 ]; then exit 1; fi
-          echo "All Formula sha256 values present."
-
-      - name: Check Bucket hash not empty
-        run: |
-          set -eu
-          errors=0
-          for f in bucket/*.json; do
-            if ! python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [sys.exit(1) for arch,info in d.get('architecture',{}).items() if not info.get('hash','')]" "$f" 2>/dev/null; then
-              echo "ERROR: $f has empty hash"
-              errors=$((errors + 1))
-            fi
-          done
-          if [ $errors -gt 0 ]; then exit 1; fi
-          echo "All Bucket hash values present."
-
-      - name: Verify generate script (dry-run)
+      - name: Check latest release assets
+        if: github.event_name == 'workflow_dispatch' || steps.diff.outputs.changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u -m tribucket_gen render --dry-run --skip-hash
-
-      - name: Check asset patterns against latest releases
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u -m tribucket_gen check
+        run: |
+          python -u -m tribucket_gen render --dry-run --skip-hash
+          python -u -m tribucket_gen check

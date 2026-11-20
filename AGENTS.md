@@ -23,7 +23,7 @@ tribucket_gen/               # 生成引擎（Python 3.9+，仅标准库）
 ├── __main__.py              #   CLI 入口：render / check / draft / validate
 ├── release.py               #   GitHub Release 抓取 + HTTP 层（重试、403 快速失败、aria2 下载 + urllib 兜底）
 ├── assets.py                #   match_asset（substring→glob）、checksum 资产识别、check_asset_patterns
-├── hashing.py               #   SHA256 计算、checksum 文件解析、.cache/ 哈希缓存
+├── hashing.py               #   SHA256 计算及复用（现有清单和 .cache/）
 ├── checkver.py              #   版本探测：URL 提取（零配置）/ checkver 对象（jsonpath+regex+replace）/ "github"
 ├── core.py                  #   load_packages / resolve_package / process_package（4 元组兼容 API）
 ├── draft.py                 #   repo → 包定义草稿（模板评分 + alias rescue）
@@ -36,8 +36,8 @@ tribucket_gen/               # 生成引擎（Python 3.9+，仅标准库）
     └── portable.py          #     portable/<name>/（可选，--portable 触发）
 
 .github/workflows/
-├── generate.yml             #   每日 cron + packages/** push → render → 自动 commit
-├── validate.yml             #   push/PR → schema + sha256 非空 + render dry-run + check
+├── generate.yml             #   每周 + 包定义推送 → render、离线校验、提交和同步 CNB
+├── validate.yml             #   push/PR → 离线校验，包定义变更时检查上游
 └── mirror-sync.yml          #   push → 全量镜像到 CNB
 
 skills/tribucket-gen/        # AI Agent skill（SKILL.md + templates.json 权威源 + fetch_release.sh）
@@ -53,16 +53,18 @@ pyproject.toml               # 控制台脚本 tribucket-gen + wheel package-dat
 ```bash
 python -m tribucket_gen render [--only NAME ...] [--skip-hash] [--dry-run] [--portable] [--portable-dir DIR] [--verbose]
 python -m tribucket_gen check
+python -m tribucket_gen add <owner/repo> [--name N] [--description D] [--binary B] [--license SPDX] [--homepage URL]
 python -m tribucket_gen draft <owner/repo> [--name N] [--description D] [--binary B] [--license SPDX] [--homepage URL] [--templates PATH] [--json] [--out PATH]
 python -m tribucket_gen validate <file|-> [--json] [--offline] [--packages-dir DIR]
 python -m tribucket_gen --version
 ```
 
-- **render**：packages/*.json → Formula/bucket。download_url 包的新版本自动写回 `packages/<name>.json`；`--dry-run` 只打印不写盘；`--skip-hash` 跳过 SHA256（快速迭代）
+- **render** 生成 Formula 和 Scoop 清单。版本和完整 URL 一致时复用现有 SHA256。有包失败时保留成功写入的结果，打印汇总并以非零状态退出。`--dry-run` 只打印预演，`--skip-hash` 跳过 SHA256
 - **check**：全库 asset_pattern 对最新 Release 体检（✅ 全中 / ⚠️ 部分缺失 / ❌ 零匹配）
+- **add** 起草、校验并生成新包。失败时清理本次新增的文件
 - **draft** 生成定义草稿。退出码 `0` 表示成功，`1` 表示通用或网络错误，`2` 表示无匹配模板
 - **validate**：定义校验（schema + 在线资产匹配）。退出码 0/1；`-` 从 stdin 读；`--offline` 跳过在线检查
-- render/check 必须在仓库根目录运行（依赖 `packages/`）；draft/validate 可独立运行
+- add/render/check 必须在仓库根目录运行（依赖 `packages/`）。draft/validate 可独立运行
 - `pyproject.toml` 安装后另有等价控制台脚本 `tribucket-gen`
 
 ## 设计决定
@@ -88,17 +90,17 @@ python -m pytest tests/ -q
 
 ## CI
 
-- **generate.yml** 每日 05:17 UTC 运行，推送 `packages/**` 到 `main` 或手动触发也会运行。执行 `python -m tribucket_gen render`，有变更时自动提交
-- **validate.yml** 在包数据、产物或工作流变更时检查定义、产物的哈希和最新 Release 的资产匹配，并试跑 `render --dry-run --skip-hash`
+- **generate.yml** 每周一 05:17 UTC 运行，推送 `packages/**` 到 `main` 或手动触发也会运行。渲染结果通过离线校验后提交并推送，有 `CNB_TOKEN` 时直接同步 CNB。部分失败时完成这批有效更新后标记作业失败
+- **validate.yml** 在推送、PR 和手动触发时执行离线校验。包定义有变化或手动触发时才运行在线渲染预演和资产检查
 - **mirror-sync.yml** 在推送 `main` 或手动触发时将分支和标签同步到 CNB
 
 ## Adding a Package
 
-在仓库根目录执行。可让 Codex 按同样的步骤操作，并使用仓库的 [tribucket-gen 技能](skills/tribucket-gen/SKILL.md) 检查 Release 资产。
+在仓库根目录核对 Scoop 官方三个桶里的包名和上游来源，再运行 `python -m tribucket_gen add owner/repo --name example-tool`。可让 Codex 使用仓库的 [tribucket-gen 技能](skills/tribucket-gen/SKILL.md) 检查 Release 资产。需要手工调整定义时，按以下步骤操作。
 
-1. 核对 Scoop 官方三个桶里的包名和上游来源。用 `python -m tribucket_gen draft owner/repo --name example-tool --out example-tool.json` 在 `packages/` 之外起草定义。无匹配模板时，可参考现有定义，根据真实 Release 资产编写
+1. 用 `python -m tribucket_gen draft owner/repo --name example-tool --out example-tool.json` 在 `packages/` 之外起草定义。无匹配模板时，可参考现有定义，根据真实 Release 资产编写
 2. 审阅定义。必填 `name`、`repo`、`description`、`binary`、`license`、`homepage` 和 `asset_pattern`。`asset_pattern` 保留 `linux_amd64`、`linux_arm64`、`darwin_amd64`、`darwin_arm64`、`windows_amd64`、`windows_arm64` 六个键，缺失的平台填 `"NO_MATCH"`
-3. 运行 `python -m tribucket_gen validate example-tool.json`，通过后将定义移入 `packages/`。先校验再移入，因为 `validate` 会检查同名包是否已存在
+3. 运行 `python -m tribucket_gen validate example-tool.json`，通过后将定义移入 `packages/`
 4. 运行 `python -m tribucket_gen render --only example-tool` 生成 Scoop 清单和可用的 Formula，SHA256 由引擎计算。检查产物并与定义一起提交，例如 `pkg: add example-tool`
 
 `asset_pattern` 取值：完整资产名 / 含 `*` 的 glob / 平台尾巴子串（如 `x86_64-pc-windows-msvc.zip`）均可 —— match_asset 两级匹配会命中 `bat-v0.26.1-x86_64-pc-windows-msvc.zip` 这样的真实资产。

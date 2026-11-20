@@ -8,6 +8,7 @@ Supports three modes:
 import json
 import os
 import re as re_module
+from urllib.parse import urlparse
 
 
 # Match semver-like patterns in URLs: 1.2.3, v1.2.3, 2025.3.0, 21.0.7.1.1, 11.0.31+11
@@ -74,6 +75,8 @@ def resolve_jsonpath(data, expr):
 def http_get(url, token=None, retries=3):
     """Thin wrapper for testability — delegates to release.http_get."""
     from .release import http_get as hg
+    if token is None and urlparse(url).hostname == "api.github.com":
+        token = os.environ.get("GITHUB_TOKEN")
     return hg(url, token=token, retries=retries)
 
 
@@ -110,50 +113,30 @@ def run_checkver(pkg):
 
     # "github" shortcut
     if checkver_cfg == "github":
-        try:
-            repo = pkg.get("repo", "")
-            if not repo:
-                return hardcoded, {"version": hardcoded}
-            url = f"https://api.github.com/repos/{repo}/releases/latest"
-            body = http_get(url)
-            data = json.loads(body)
-            version = data["tag_name"].lstrip("v")
-            return version, {"version": version}
-        except Exception:
-            return hardcoded, {"version": hardcoded}
+        url = f"https://api.github.com/repos/{pkg['repo']}/releases/latest"
+        version = json.loads(http_get(url))["tag_name"].lstrip("v")
+        return version, {"version": version}
 
     # Object mode
     url = checkver_cfg.get("url")
     if not url:
         urls = [v for v in pkg["download_url"].values() if v and v != "NO_MATCH"]
         if urls:
-            from urllib.parse import urlparse
             parsed = urlparse(urls[0])
             url = f"{parsed.scheme}://{parsed.netloc}"
+    if not url:
+        raise ValueError("checkver has no URL")
 
     # 1. Fetch
-    try:
-        body = http_get(url)
-        content = body.decode("utf-8", errors="replace")
-    except Exception as e:
-        print(f"  [warn] checkver: failed to fetch {url}: {e}")
-        return hardcoded, {"version": hardcoded}
+    content = http_get(url).decode("utf-8")
 
     # 2. JSONPath
     jsonpath_expr = checkver_cfg.get("jsonpath")
     if jsonpath_expr:
-        try:
-            data = json.loads(content)
-            extracted = resolve_jsonpath(data, jsonpath_expr)
-            if extracted is None:
-                print(f"  [warn] checkver: jsonpath '{jsonpath_expr}' returned null")
-                return hardcoded, {"version": hardcoded}
-            if isinstance(extracted, (dict, list)):
-                content = json.dumps(extracted)
-            else:
-                content = str(extracted)
-        except json.JSONDecodeError:
-            print("  [warn] checkver: response is not valid JSON, using raw text")
+        extracted = resolve_jsonpath(json.loads(content), jsonpath_expr)
+        if extracted is None:
+            raise ValueError(f"checkver JSONPath {jsonpath_expr!r} returned null")
+        content = json.dumps(extracted) if isinstance(extracted, (dict, list)) else str(extracted)
 
     # 3. Regex
     regex = checkver_cfg.get("regex")
@@ -163,8 +146,7 @@ def run_checkver(pkg):
     pattern = _normalize_regex(regex)
     match = re_module.search(pattern, content)
     if not match:
-        print(f"  [warn] checkver: regex '{regex}' did not match response")
-        return hardcoded, {"version": hardcoded}
+        raise ValueError(f"checkver regex {regex!r} did not match the response")
 
     captures = match.groupdict()  # named groups: {name: value}
 
@@ -174,14 +156,14 @@ def run_checkver(pkg):
 
     # Guard: regex with zero capture groups
     if not captures:
-        print(f"  [warn] checkver: regex '{regex}' has no capture groups")
-        return hardcoded, {"version": hardcoded}
+        raise ValueError(f"checkver regex {regex!r} has no capture groups")
 
     # 4. Replace template
     replace_tmpl = checkver_cfg.get("replace", "${1}")
     version = replace_tmpl
     for name, value in captures.items():
-        version = version.replace(f"${{{name}}}", value)
+        if value is not None:
+            version = version.replace(f"${{{name}}}", value)
 
     captures["version"] = version
     return version, captures
@@ -253,6 +235,9 @@ def apply_autoupdate(autoupdate_tmpl, version, captures):
             continue
         url = tmpl
         for name, value in captures.items():
-            url = url.replace(f"${{{name}}}", value)
+            if value is not None:
+                url = url.replace(f"${{{name}}}", value)
+        if "${" in url:
+            raise ValueError(f"autoupdate for {platform} contains an unresolved placeholder")
         result[platform] = url
     return result

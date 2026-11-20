@@ -1,5 +1,9 @@
 """Tests for tribucket_gen.checkver."""
 import json
+from pathlib import Path
+from urllib.error import URLError
+
+import pytest
 
 from tribucket_gen import checkver
 
@@ -112,7 +116,7 @@ class TestRunCheckver:
     def test_named_capture_groups(self, monkeypatch):
         """Scoop-style (?<name>...) groups are available in captures."""
         def mock_http_get(url, token=None, retries=3):
-            return b"zulu21.50.19-ca-jdk21.0.11"
+            return b'{"filename":"zulu21.50.19-ca-jdk21.0.11"}'
 
         monkeypatch.setattr(checkver, "http_get", mock_http_get)
 
@@ -155,28 +159,24 @@ class TestRunCheckver:
         version, captures = checkver.run_checkver(pkg)
         assert version == "21.0.11"
 
-    def test_fallback_on_http_error(self, monkeypatch):
-        """When checkver.url fails, fall back to hardcoded version."""
+    @pytest.mark.parametrize("checkver_config", ["github", {"url": "https://x/api"}])
+    def test_propagates_network_error(self, monkeypatch, checkver_config):
         def mock_http_get(url, token=None, retries=3):
-            raise OSError("Connection refused")
+            raise URLError("Connection refused")
 
         monkeypatch.setattr(checkver, "http_get", mock_http_get)
 
         pkg = {
             "name": "tool",
+            "repo": "owner/tool",
             "version": "1.0.0",
             "download_url": {"linux_amd64": "https://broken.example.com/tool.tar.gz"},
-            "checkver": {
-                "url": "https://broken.example.com/api",
-                "regex": "v([\\d.]+)"
-            }
+            "checkver": checkver_config,
         }
-        version, captures = checkver.run_checkver(pkg)
-        assert version == "1.0.0"
-        assert captures["version"] == "1.0.0"
+        with pytest.raises(URLError, match="Connection refused"):
+            checkver.run_checkver(pkg)
 
-    def test_fallback_on_regex_mismatch(self, monkeypatch):
-        """When regex doesn't match, fall back to hardcoded version."""
+    def test_rejects_regex_mismatch(self, monkeypatch):
         def mock_http_get(url, token=None, retries=3):
             return b"unexpected format"
 
@@ -191,8 +191,24 @@ class TestRunCheckver:
                 "regex": "v([\\d.]+)"
             }
         }
+        with pytest.raises(ValueError, match="did not match the response"):
+            checkver.run_checkver(pkg)
+
+    def test_dragonwell_definition_tracks_extended_releases(self, monkeypatch):
+        definition = Path(__file__).resolve().parents[1] / "packages/dragonwell-jdk21.json"
+        pkg = json.loads(definition.read_text(encoding="utf-8"))
+        releases = [
+            {"tag_name": "dragonwell-standard-21.0.13.1.14+2_jdk-21.0.13.1-ga"},
+            {"tag_name": "dragonwell-extended-21.0.13.0.13+9_jdk-21.0.13-ga"},
+        ]
+        monkeypatch.setattr(checkver, "http_get", lambda url: json.dumps(releases).encode())
         version, captures = checkver.run_checkver(pkg)
-        assert version == "1.0.0"
+        urls = checkver.apply_autoupdate(pkg["autoupdate"], version, captures)
+        assert version == "21.0.13.0.13+9"
+        assert urls["windows_amd64"].endswith(
+            "dragonwell-extended-21.0.13.0.13%2B9_jdk-21.0.13-ga/"
+            "Alibaba_Dragonwell_Extended_21.0.13.0.13.9_x64_windows.zip"
+        )
 
 
 class TestUrlConstruction:

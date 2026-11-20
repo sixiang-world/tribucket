@@ -1,4 +1,6 @@
 """Tests for tribucket_gen.validate."""
+import json
+
 import pytest
 
 from tribucket_gen.validate import validate_definition
@@ -87,6 +89,25 @@ def test_duplicate_name_rejected(tmp_path):
     (tmp_path / "tool.json").write_text("{}", encoding="utf-8")
     errs, _ = validate_definition(GOOD, packages_dir=str(tmp_path), fetch_release=fake_fetch(RELEASE_ASSETS))
     assert any("already exists" in e for e in errs)
+
+
+def test_validate_offline_existing_definition(tmp_path, monkeypatch):
+    from tribucket_gen.__main__ import main
+
+    monkeypatch.chdir(tmp_path)
+    packages = tmp_path / "packages"
+    packages.mkdir()
+    definition = packages / "ExampleTool.json"
+    payload = json.dumps(dict(GOOD, name="ExampleTool"))
+    definition.write_text(payload, encoding="utf-8")
+    assert main(["validate", "--offline", str(definition)]) == 0
+
+    duplicate = tmp_path / "draft.json"
+    duplicate.write_text(payload, encoding="utf-8")
+    assert main(["validate", "--offline", str(duplicate)]) == 1
+
+    renamed = definition.rename(packages / "different.json")
+    assert main(["validate", "--offline", str(renamed)]) == 1
 
 
 def test_network_error_becomes_warning():

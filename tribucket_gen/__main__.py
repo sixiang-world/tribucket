@@ -2,8 +2,11 @@
 import argparse
 import json
 import os
+import shutil
 import sys
-import urllib.error
+import tempfile
+from functools import partial
+from pathlib import Path
 
 from . import __version__
 from .assets import check_asset_patterns
@@ -42,13 +45,16 @@ def build_parser():
 
     sub.add_parser("check", help="Validate asset_pattern of packages against latest releases")
 
-    d = sub.add_parser("draft", help="Draft a packages/*.json definition from a GitHub repo")
-    d.add_argument("repo")
-    d.add_argument("--name")
-    d.add_argument("--description")
-    d.add_argument("--binary")
-    d.add_argument("--license", dest="license_id")
-    d.add_argument("--homepage")
+    overrides = argparse.ArgumentParser(add_help=False)
+    overrides.add_argument("repo", metavar="owner/repo")
+    overrides.add_argument("--name")
+    overrides.add_argument("--description")
+    overrides.add_argument("--binary")
+    overrides.add_argument("--license", dest="license_id")
+    overrides.add_argument("--homepage")
+
+    sub.add_parser("add", parents=[overrides], help="Draft, validate, and render a new package")
+    d = sub.add_parser("draft", parents=[overrides], help="Draft a package definition from a GitHub repo")
     d.add_argument("--templates", default=None, help="Override templates.json path")
     d.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
     d.add_argument("--out", default=None, help="Write definition to this path")
@@ -61,81 +67,97 @@ def build_parser():
     return p
 
 
-def cmd_render(args):
-    repo_dir = _repo_root()
-    packages_dir = os.path.join(repo_dir, "packages")
-    formula_dir = os.path.join(repo_dir, "Formula")
-    bucket_dir = os.path.join(repo_dir, "bucket")
-    cache_dir = os.path.join(repo_dir, ".cache")
-    portable_dir = args.portable_dir or os.path.join(repo_dir, "portable")
+def _write_package_changes(repo_dir, changes):
+    """Stage the file contents before replacing any of a package's files."""
+    with tempfile.TemporaryDirectory(dir=repo_dir) as staging:
+        staging = Path(staging)
+        prepared = {}
+        for index, (path, content) in enumerate(changes.items()):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            new = staging / f"{index}.new"
+            new.write_text(content, encoding="utf-8")
+            backup = staging / f"{index}.bak" if path.exists() else None
+            if backup is not None:
+                shutil.copy2(path, backup)
+            prepared[path] = (new, backup)
 
-    pkgs = load_packages(packages_dir, only=args.only or None)
-    if not pkgs:
-        print("[error] No packages found.")
-        return 1
-
-    has_errors = False
-    for pkg in pkgs:
-        name = pkg["name"]
-        print(f"\n[{name}]")
+        replaced = []
         try:
-            formula, bucket, new_version, new_urls = process_package(
+            for path, (new, backup) in prepared.items():
+                os.replace(new, path)
+                replaced.append((path, backup))
+        except OSError:
+            for path, backup in reversed(replaced):
+                if backup is not None:
+                    os.replace(backup, path)
+                else:
+                    path.unlink()
+            raise
+
+
+def cmd_render(args):
+    repo_dir = Path(_repo_root())
+    cache_dir = repo_dir / ".cache"
+    portable_dir = args.portable_dir or repo_dir / "portable"
+    wanted = set(args.only)
+    paths = sorted(path for path in (repo_dir / "packages").glob("*.json")
+                   if not wanted or path.stem in wanted)
+    summary = {"updated": [], "unchanged": [], "failed": []}
+    for missing in sorted(wanted - {path.stem for path in paths}):
+        print(f"[error] {missing}: package not found")
+        summary["failed"].append(missing)
+
+    for pkg_path in paths:
+        name = pkg_path.stem
+        if args.verbose or args.dry_run:
+            print(f"\n[{name}]")
+        try:
+            pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+            if pkg["name"] != name:
+                raise ValueError("definition name does not match its filename")
+            formula, bucket, version, urls = process_package(
                 pkg, cache_dir, skip_hash=args.skip_hash, verbose=args.verbose
             )
-        except urllib.error.URLError as e:
-            print(f"  [warn] {name}: network error — {e}")
-            continue
-        except Exception as e:
-            print(f"  [error] {name}: {e}")
-            has_errors = True
-            continue
+            if formula is None and bucket is None:
+                raise ValueError("no Formula or Scoop manifest could be rendered")
 
-        if formula is None and bucket is None:
-            continue
+            changes = {}
+            for rel_path, text in ((f"Formula/{name}.rb", formula), (f"bucket/{name}.json", bucket)):
+                if text is None:
+                    continue
+                path = repo_dir / rel_path
+                if args.dry_run:
+                    print(f"\n--- {rel_path} ---\n{text}")
+                if not path.exists() or path.read_text(encoding="utf-8") != text:
+                    changes[path] = text
+            if version:
+                pkg["version"] = version
+                if urls:
+                    pkg["download_url"] = urls
+                changes[pkg_path] = json.dumps(pkg, indent=2, ensure_ascii=False) + "\n"
 
-        if new_version and not args.dry_run:
-            pkg_path = os.path.join(packages_dir, f"{name}.json")
-            try:
-                with open(pkg_path, encoding="utf-8") as f:
-                    pkg_data = json.load(f)
-                pkg_data["version"] = new_version
-                if new_urls:
-                    pkg_data["download_url"] = new_urls
-                with open(pkg_path, "w", encoding="utf-8") as f:
-                    json.dump(pkg_data, f, indent=2, ensure_ascii=False)
-                    f.write("\n")
-                print(f"  -> packages/{name}.json (version → {new_version})")
-            except Exception as e:
-                print(f"  [warn] {name}: failed to write back version: {e}")
-
-        if args.dry_run:
-            if formula:
-                print(f"\n--- Formula/{name}.rb ---")
-                print(formula)
-            if bucket:
-                print(f"\n--- bucket/{name}.json ---")
-                print(bucket)
-            if args.portable:
-                generate_portable(pkg, portable_dir, dry_run=True, verbose=args.verbose)
+            if args.portable and not generate_portable(
+                pkg, portable_dir, dry_run=args.dry_run, verbose=args.verbose
+            ):
+                raise ValueError("portable outputs could not be rendered")
+            if changes and not args.dry_run:
+                _write_package_changes(repo_dir, changes)
+                for path in changes:
+                    print(f"  -> {path.relative_to(repo_dir).as_posix()}")
+        except Exception as exc:
+            print(f"[error] {name}: {exc}")
+            summary["failed"].append(name)
         else:
-            if formula:
-                os.makedirs(formula_dir, exist_ok=True)
-                with open(os.path.join(formula_dir, f"{name}.rb"), "w", encoding="utf-8") as f:
-                    f.write(formula)
-                print(f"  -> Formula/{name}.rb")
-            if bucket:
-                os.makedirs(bucket_dir, exist_ok=True)
-                with open(os.path.join(bucket_dir, f"{name}.json"), "w", encoding="utf-8") as f:
-                    f.write(bucket)
-                print(f"  -> bucket/{name}.json")
-            if args.portable:
-                generate_portable(pkg, portable_dir, verbose=args.verbose)
-                print(f"  -> portable/{name}/")
+            summary["updated" if changes else "unchanged"].append(name)
 
-    print(f"\nDone. Processed {len(pkgs)} package(s).")
-    if has_errors:
-        print("Some packages had errors (see above).")
+    print("\nRender summary" + (" (dry run)" if args.dry_run else ""))
+    for status, names in summary.items():
+        print(f"  {status} ({len(names)}): {', '.join(names) or 'none'}")
+    if summary["failed"]:
         return 2
+    if not paths:
+        print("[error] No packages found.")
+        return 1
     return 0
 
 
@@ -151,13 +173,14 @@ def cmd_check(args):
     return 0 if ok else 1
 
 
-def cmd_draft(args):
+def cmd_draft(args, *, add=False):
     from .draft import DraftError, draft
+    root = Path(_repo_root()) if add else None
     try:
         pkg, notes = draft(
             args.repo, name=args.name, description=args.description,
             binary=args.binary, license_id=args.license_id, homepage=args.homepage,
-            templates_path=args.templates,
+            templates_path=getattr(args, "templates", None), token=os.environ.get("GITHUB_TOKEN"),
         )
     except DraftError as e:
         is_no_template = e.kind == "no-template"
@@ -168,6 +191,8 @@ def cmd_draft(args):
     except Exception as e:  # network etc.
         print(f"[draft error] {e}", file=sys.stderr)
         return 1
+    if add:
+        return _add_package(root, pkg)
     if args.json or args.out:
         payload = json.dumps(pkg, indent=2, ensure_ascii=False) + "\n"
         if args.out:
@@ -182,7 +207,39 @@ def cmd_draft(args):
     return 0
 
 
-def cmd_validate(args):
+def _add_package(root, pkg):
+    name = pkg["name"]
+    definition = root / "packages" / f"{name}.json"
+    outputs = (root / "Formula" / f"{name}.rb", root / "bucket" / f"{name}.json")
+    created = []
+    status = 1
+    try:
+        for path in (definition, *outputs):
+            if path.parent.is_dir() and any(
+                existing.name.casefold() == path.name.casefold() for existing in path.parent.iterdir()
+            ):
+                print(f"[error] {path.relative_to(root)} already exists", file=sys.stderr)
+                return 1
+        with definition.open("x", encoding="utf-8", newline="\n") as f:
+            created.append(definition)
+            json.dump(pkg, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        parser = build_parser()
+        if cmd_validate(parser.parse_args(["validate", str(definition)]), strict=True):
+            return 1
+        created.extend(outputs)
+        status = cmd_render(parser.parse_args(["render", "--only", name]))
+        return status
+    except (OSError, ValueError) as e:
+        print(f"[add error] {e}", file=sys.stderr)
+        return 1
+    finally:
+        if status:
+            for path in created:
+                path.unlink(missing_ok=True)
+
+
+def cmd_validate(args, *, strict=False):
     from .validate import validate_definition
     if args.file == "-":
         pkg = json.load(sys.stdin)
@@ -193,8 +250,14 @@ def cmd_validate(args):
     fetch = None
     if not args.offline:
         from .release import fetch_latest_release
-        fetch = fetch_latest_release
-    errors, warnings = validate_definition(pkg, packages_dir=packages_dir, fetch_release=fetch)
+        fetch = partial(fetch_latest_release, token=os.environ.get("GITHUB_TOKEN"))
+    errors, warnings = validate_definition(
+        pkg, packages_dir=packages_dir, fetch_release=fetch,
+        definition_path=None if args.file == "-" else args.file,
+    )
+    if strict:
+        errors.extend(warnings)
+        warnings = []
     if args.json:
         print(json.dumps({"ok": not errors, "errors": errors, "warnings": warnings},
                          ensure_ascii=False, indent=2))
@@ -216,6 +279,8 @@ def main(argv=None):
         return cmd_check(args)
     if args.command == "draft":
         return cmd_draft(args)
+    if args.command == "add":
+        return cmd_draft(args, add=True)
     if args.command == "validate":
         return cmd_validate(args)
     return 1

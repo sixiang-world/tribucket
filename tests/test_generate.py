@@ -2,6 +2,7 @@
 import json
 import os
 import hashlib
+from pathlib import Path
 import pytest
 
 from tribucket_gen.__main__ import build_parser
@@ -216,7 +217,7 @@ class TestSHA256:
 
     def test_filename_traversal_sanitized(self, tmp_path, monkeypatch):
         """A URL-derived filename containing path separators cannot escape the
-        per-package tmp dir — get_sha256_for_asset must strip them."""
+        temporary download directory — get_sha256_for_asset must strip them."""
         captured = {}
 
         def fake_download(url, dest_path, token=None, verbose=False):
@@ -225,14 +226,17 @@ class TestSHA256:
                 f.write(b"x")
 
         monkeypatch.setattr("tribucket_gen.hashing.download_file", fake_download)
+        monkeypatch.setattr("tribucket_gen.hashing.tempfile.tempdir", str(tmp_path))
         cache_dir = str(tmp_path / ".cache")
         malicious_filename = "..\\..\\evil.exe"
         get_sha256_for_asset(
             "https://x/evil.exe", malicious_filename,
             [], [], cache_dir, "pkg", "1.0", verbose=False,
         )
-        # The basename after stripping path separators is "evil.exe"
-        assert captured["dest_path"].replace("\\", "/").endswith("/pkg/1.0/evil.exe")
+        dest = Path(captured["dest_path"])
+        assert dest.name == "evil.exe"
+        assert dest.parent.parent == tmp_path
+        assert not dest.parent.exists()
 
     def test_parse_checksum_file(self):
         content = "abc123  tool-linux-amd64.tar.gz\ndef456  tool-linux-arm64.tar.gz\n"
@@ -490,12 +494,12 @@ class TestFullPipeline:
             ]
         }
         checksum_content = (
-            "aaa111  tool-linux-amd64.tar.gz\n"
-            "bbb222  tool-linux-arm64.tar.gz\n"
-            "ccc333  tool-darwin-amd64.tar.gz\n"
-            "ddd444  tool-darwin-arm64.tar.gz\n"
-            "eee555  tool-windows-amd64.exe\n"
-            "fff666  tool-windows-arm64.exe\n"
+            f"{'a' * 64}  tool-linux-amd64.tar.gz\n"
+            f"{'b' * 64}  tool-linux-arm64.tar.gz\n"
+            f"{'c' * 64}  tool-darwin-amd64.tar.gz\n"
+            f"{'d' * 64}  tool-darwin-arm64.tar.gz\n"
+            f"{'e' * 64}  tool-windows-amd64.exe\n"
+            f"{'f' * 64}  tool-windows-arm64.exe\n"
         )
 
         def mock_http_get(url, token=None, retries=3):
@@ -528,11 +532,11 @@ class TestFullPipeline:
 
         assert "class Tool < Formula" in formula
         assert 'version "1.0.0"' in formula
-        assert 'sha256 "aaa111"' in formula
+        assert f'sha256 "{"a" * 64}"' in formula
 
         bucket_parsed = json.loads(bucket)
         assert bucket_parsed["version"] == "1.0.0"
-        assert bucket_parsed["architecture"]["64bit"]["hash"] == "eee555"
+        assert bucket_parsed["architecture"]["64bit"]["hash"] == "e" * 64
 
         # GitHub release packages don't trigger write-back
         assert new_version is None

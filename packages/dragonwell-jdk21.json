@@ -23,9 +23,16 @@
     "windows_arm64": "NO_MATCH"
   },
   "checkver": {
-    "url": "https://api.github.com/repos/dragonwell-project/dragonwell21/releases/latest",
-    "jsonpath": "$.tag_name",
-    "regex": "dragonwell-extended-(?P<ver>[\\d.]+\\+\\d+)",
-    "replace": "${ver}"
+    "url": "https://api.github.com/repos/dragonwell-project/dragonwell21/releases",
+    "regex": "\"tag_name\"\\s*:\\s*\"dragonwell-extended-(?P<build>[\\d.]+)\\+(?P<revision>\\d+)_jdk-(?P<jdk>[\\d.]+)-ga\"",
+    "replace": "${build}+${revision}"
+  },
+  "autoupdate": {
+    "linux_amd64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-${build}%2B${revision}_jdk-${jdk}-ga/Alibaba_Dragonwell_Extended_${build}.${revision}_x64_linux.tar.gz",
+    "linux_arm64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-${build}%2B${revision}_jdk-${jdk}-ga/Alibaba_Dragonwell_Extended_${build}.${revision}_aarch64_linux.tar.gz",
+    "darwin_amd64": "NO_MATCH",
+    "darwin_arm64": "NO_MATCH",
+    "windows_amd64": "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-${build}%2B${revision}_jdk-${jdk}-ga/Alibaba_Dragonwell_Extended_${build}.${revision}_x64_windows.zip",
+    "windows_arm64": "NO_MATCH"
   }
 }

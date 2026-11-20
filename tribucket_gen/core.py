@@ -2,10 +2,11 @@
 import json
 import os
 import re
+from urllib.parse import urlsplit
 
 from .release import fetch_latest_release
 from .assets import match_asset
-from .hashing import get_cached_hash, get_sha256_for_asset
+from .hashing import get_sha256_for_asset, load_generated_hashes
 from .checkver import run_checkver, apply_autoupdate, in_place_replace
 from .render import Ctx, render_all
 
@@ -63,6 +64,17 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
     """
     name = pkg["name"]
     token = os.environ.get("GITHUB_TOKEN")
+    generated_hashes = {} if skip_hash else load_generated_hashes(cache_dir, name)
+
+    def asset_hash(version, url, filename, assets=(), checksums=()):
+        if skip_hash:
+            return ""
+        sha = generated_hashes.get((version, url))
+        if sha:
+            if verbose:
+                print(f"  [manifest hash hit] {filename}")
+            return sha
+        return get_sha256_for_asset(url, filename, assets, checksums, cache_dir, name, version, verbose)
 
     platforms = {}  # platform_key -> {url, sha256}
     windows = {}    # arch_key -> {url, hash, filename}
@@ -78,16 +90,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
         download_urls = pkg["download_url"]
 
         # 1. Run checkver to detect latest version
-        try:
-            latest_version, captures = run_checkver(pkg)
-        except Exception as e:
-            print(f"  [warn] {name}: checkver error: {e}, using hardcoded version")
-            latest_version = hardcoded_version
-            captures = {"version": hardcoded_version}
-
-        if latest_version is None:
-            latest_version = hardcoded_version
-            captures = {"version": hardcoded_version}
+        latest_version, captures = run_checkver(pkg)
 
         # 2. Construct new URLs if version changed
         if latest_version != hardcoded_version:
@@ -116,22 +119,9 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
             if not url or url == "NO_MATCH":
                 continue
 
-            filename = url.split("/")[-1]
+            filename = urlsplit(url).path.rsplit("/", 1)[-1]
 
-            # Get SHA256
-            if skip_hash:
-                sha = ""
-            else:
-                sha = get_cached_hash(cache_dir, name, version, filename)
-                if sha:
-                    if verbose:
-                        print(f"  [cache hit] {filename}")
-                else:
-                    # No checksum assets for custom downloads — pass empty lists
-                    sha = get_sha256_for_asset(
-                        url, filename, [], [],
-                        cache_dir, name, version, verbose,
-                    )
+            sha = asset_hash(version, url, filename)
 
             platforms[plat_key] = {"url": url, "sha256": sha}
 
@@ -170,7 +160,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
     # Match assets per platform
     for plat_key in PLATFORM_KEYS:
         pattern = pkg.get("asset_pattern", {}).get(plat_key)
-        if not pattern:
+        if not pattern or pattern == "NO_MATCH":
             continue
         asset = match_asset(all_assets, pattern)
         if not asset:
@@ -180,19 +170,7 @@ def resolve_package(pkg, cache_dir, skip_hash=False, verbose=False):
         url = asset["browser_download_url"]
         filename = asset["name"]
 
-        # Get SHA256
-        if skip_hash:
-            sha = ""
-        else:
-            sha = get_cached_hash(cache_dir, name, version, filename)
-            if sha:
-                if verbose:
-                    print(f"  [cache hit] {filename}")
-            else:
-                sha = get_sha256_for_asset(
-                    url, filename, all_assets, checksum_assets,
-                    cache_dir, name, version, verbose,
-                )
+        sha = asset_hash(version, url, filename, all_assets, checksum_assets)
 
         platforms[plat_key] = {"url": url, "sha256": sha}
 

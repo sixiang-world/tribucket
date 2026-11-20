@@ -1,7 +1,62 @@
 """SHA256 computation, checksum parsing, and hash caching for the tribucket generator."""
-import hashlib, os, tempfile, urllib.error, http.client
+import hashlib
+import http.client
+import json
+import os
+import re
+import tempfile
+import urllib.error
 
 from .release import http_get, download_file
+
+
+_SHA256_RE = re.compile(r"[0-9a-fA-F]{64}")
+_FORMULA_VERSION_RE = re.compile(r'^  version "([^"\n]+)"[ \t]*$', re.MULTILINE)
+_FORMULA_HASH_RE = re.compile(
+    r'^([ \t]+)url "([^"\n]+)"[ \t]*\n\1sha256 "([0-9a-fA-F]{64})"[ \t]*$',
+    re.MULTILINE,
+)
+
+
+def load_generated_hashes(cache_dir, pkg_name):
+    """Read (version, URL) hashes from the render outputs beside .cache."""
+    root = os.path.dirname(os.path.abspath(cache_dir))
+    hashes = {}
+
+    def record(version, url, sha):
+        if not isinstance(version, str) or not isinstance(url, str):
+            return
+        if isinstance(sha, str) and _SHA256_RE.fullmatch(sha):
+            key = (version, url)
+            if key not in hashes:
+                hashes[key] = sha
+            elif hashes[key] and hashes[key].lower() != sha.lower():
+                hashes[key] = None
+
+    try:
+        with open(os.path.join(root, "bucket", pkg_name + ".json"), encoding="utf-8") as f:
+            manifest = json.load(f)
+    except (OSError, ValueError):
+        manifest = {}
+    if isinstance(manifest, dict):
+        version = manifest.get("version")
+        record(version, manifest.get("url"), manifest.get("hash"))
+        arches = manifest.get("architecture", {})
+        if isinstance(arches, dict):
+            for entry in arches.values():
+                if isinstance(entry, dict):
+                    record(version, entry.get("url"), entry.get("hash"))
+
+    try:
+        with open(os.path.join(root, "Formula", pkg_name + ".rb"), encoding="utf-8") as f:
+            formula = f.read()
+    except (OSError, UnicodeError):
+        return hashes
+    versions = _FORMULA_VERSION_RE.findall(formula)
+    if len(versions) == 1:
+        for _, url, sha in _FORMULA_HASH_RE.findall(formula):
+            record(versions[0], url, sha)
+    return hashes
 
 
 def cache_key_path(cache_dir, pkg_name, version, filename):
@@ -45,7 +100,16 @@ def parse_checksum_file(content, target_filename):
 
 
 def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, pkg_name, version, verbose):
-    """Get SHA256 for an asset, trying checksum files first, then downloading."""
+    """Get SHA256 from its URL cache entry, a checksum file, or the asset."""
+    # Older filename-only keys cannot distinguish URLs with the same basename.
+    cache_dir = os.path.join(cache_dir, "by-url")
+    cache_key = hashlib.sha256(url.encode("utf-8")).hexdigest()
+    cached = get_cached_hash(cache_dir, pkg_name, version, cache_key)
+    if cached and _SHA256_RE.fullmatch(cached):
+        if verbose:
+            print(f"  [cache hit] {filename}")
+        return cached
+
     # Try to find hash from checksum files in the release
     for cksum_asset in checksum_assets:
         cksum_url = cksum_asset["browser_download_url"]
@@ -55,10 +119,10 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
             body = http_get(cksum_url)
             content = body.decode("utf-8", errors="replace")
             sha = parse_checksum_file(content, filename)
-            if sha:
+            if sha and _SHA256_RE.fullmatch(sha):
                 if verbose:
                     print(f"  [checksum hit] {filename} = {sha}")
-                write_cache(cache_dir, pkg_name, version, filename, sha)
+                write_cache(cache_dir, pkg_name, version, cache_key, sha)
                 return sha
         except (urllib.error.URLError, http.client.HTTPException, urllib.error.HTTPError):
             continue
@@ -66,22 +130,12 @@ def get_sha256_for_asset(url, filename, all_assets, checksum_assets, cache_dir, 
     # Fallback: download and compute
     if verbose:
         print(f"  Downloading {filename} to compute SHA256...")
-    # Put the temp file inside a per-package subdir (instead of a flat
-    # "tribucket_{pkg}_{filename}" name) so the download progress log shows the
-    # REAL asset name, not a confusing prefixed temp name.
-    tmp_dir = os.path.join(tempfile.gettempdir(), "tribucket", pkg_name, version or "0")
-    os.makedirs(tmp_dir, exist_ok=True)
-    # filename is URL-derived; defensively strip any path separators so a
-    # malicious or malformed URL cannot escape tmp_dir.
     filename = filename.replace("\\", "/").rsplit("/", 1)[-1]
-    tmp_path = os.path.join(tmp_dir, filename)
-    try:
+    if filename in ("", ".", ".."):
+        filename = "asset"
+    with tempfile.TemporaryDirectory(prefix="tribucket-") as tmp_dir:
+        tmp_path = os.path.join(tmp_dir, filename)
         download_file(url, tmp_path, verbose=verbose)
         sha = compute_sha256(tmp_path)
-        write_cache(cache_dir, pkg_name, version, filename, sha)
-        return sha
-    finally:
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
+    write_cache(cache_dir, pkg_name, version, cache_key, sha)
+    return sha

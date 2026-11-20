@@ -67,7 +67,7 @@ def check_asset_patterns(pkgs):
       —   download_url package (always fine)
       ?   network error (couldn't check)
 
-    Returns True if all packages pass (no ❌), False otherwise.
+    Returns True if all packages could be checked and none has zero matches.
     """
     token = os.environ.get("GITHUB_TOKEN")
     all_ok = True
@@ -91,6 +91,7 @@ def check_asset_patterns(pkgs):
             version, all_assets, _ = fetch_latest_release(repo, token)
         except Exception as e:
             print(f"  ?  {name}: network error — {e}")
+            all_ok = False
             continue
 
         # Check each platform

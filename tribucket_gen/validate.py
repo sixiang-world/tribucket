@@ -1,8 +1,8 @@
 """Validate packages/*.json definitions (schema + online asset resolution)."""
-import os
 import re
+from pathlib import Path
 
-NAME_RE = re.compile(r"^[a-z][a-z0-9-]*$")
+NAME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9-]*$")
 REPO_RE = re.compile(r"^[\w.-]+/[\w.-]+$")
 
 PLATFORM_KEYS = [
@@ -15,7 +15,7 @@ STRING_FIELDS = ["name", "repo", "description", "binary", "license", "homepage"]
 MIN_MATCHED_PLATFORMS = 2
 
 
-def validate_definition(pkg, packages_dir=None, fetch_release=None, token=None):
+def validate_definition(pkg, packages_dir=None, fetch_release=None, token=None, *, definition_path=None):
     """Return (errors, warnings). fetch_release(repo) -> (version, assets, checksums)."""
     errors, warnings = [], []
     if not isinstance(pkg, dict):
@@ -26,16 +26,19 @@ def validate_definition(pkg, packages_dir=None, fetch_release=None, token=None):
             errors.append(f"missing required field: {f}")
 
     name = pkg.get("name", "") or ""
-    if name and not NAME_RE.match(name):
-        errors.append(f"invalid name {name!r}: must match ^[a-z0-9][a-z0-9-]*$")
+    valid_name = isinstance(name, str) and NAME_RE.fullmatch(name)
+    if name and not valid_name:
+        errors.append(f"invalid name {name!r}: must match {NAME_RE.pattern}")
 
     repo = pkg.get("repo", "") or ""
-    if repo and not REPO_RE.match(repo):
+    if repo and (not isinstance(repo, str) or not REPO_RE.fullmatch(repo)):
         errors.append(f"invalid repo {repo!r}: expected owner/repo")
 
     for f in STRING_FIELDS:
         v = pkg.get(f)
-        if isinstance(v, str) and (re.search(r"[\x00-\x1f\x7f]", v) or '"' in v or "#{" in v):
+        if v and not isinstance(v, str):
+            errors.append(f"field {f!r} must be a string")
+        elif isinstance(v, str) and (re.search(r"[\x00-\x1f\x7f]", v) or '"' in v or "#{" in v):
             errors.append(
                 f"field {f!r} contains forbidden characters (control chars, double quotes, or Ruby interpolation)"
             )
@@ -47,14 +50,25 @@ def validate_definition(pkg, packages_dir=None, fetch_release=None, token=None):
         for k in PLATFORM_KEYS:
             if k not in ap:
                 errors.append(f"asset_pattern missing platform key: {k}")
-        for k in ap:
+        for k, pattern in ap.items():
             if k not in PLATFORM_KEYS:
                 errors.append(f"unknown platform key: {k}")
+            if not isinstance(pattern, str) or not pattern:
+                errors.append(f"asset_pattern[{k}] must be a non-empty string")
 
-    if packages_dir and name and os.path.exists(os.path.join(packages_dir, f"{name}.json")):
-        errors.append(f"package {name!r} already exists in packages/")
+    if packages_dir and valid_name:
+        directory = Path(packages_dir).resolve()
+        source = Path(definition_path).resolve() if definition_path else None
+        filename = f"{name}.json"
+        if source and source.parent == directory and source.name != filename:
+            errors.append(f"definition filename must be {filename!r}")
+        if directory.is_dir() and any(
+            path.name.casefold() == filename.casefold() and path != source
+            for path in directory.iterdir()
+        ):
+            errors.append(f"package {name!r} already exists in packages/")
 
-    if ap and isinstance(ap, dict) and fetch_release is not None and repo and REPO_RE.match(repo):
+    if not errors and fetch_release is not None:
         try:
             _, assets, _ = fetch_release(repo)
         except Exception as e:

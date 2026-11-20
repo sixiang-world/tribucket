@@ -2,7 +2,13 @@
 
 ## 用途
 
-给定一个 GitHub 仓库链接，自动分析其 Release 资产命名规律，生成符合 tribucket 规范的 `packages/<name>.json` 定义文件。
+在含有 `packages/` 目录的仓库根目录，先核对上游软件是否已被 Scoop 官方 `main`、`extras` 或 `java` 收录，再用 `add` 起草、校验并生成新包。
+
+```bash
+python -m tribucket_gen add owner/repo
+```
+
+可用 `--name`、`--description`、`--binary`、`--license`、`--homepage` 覆盖元数据。命令生成 `packages/<name>.json` 和受支持平台的安装清单，失败时清理本次新增的文件。需要预览或修改定义时，可先用 `draft`。遇到模板无法识别的 Release，按下面的流程检查资产并编写定义。
 
 ## 核心流程
 
@@ -169,12 +175,12 @@ bash "$SKILL_DIR/fetch_release.sh" <owner/repo>
 3. 用到你自己维护的 Homebrew tap / Scoop bucket 里（Formula/bucket 的模板可参考 tribucket 仓库的
    `tribucket_gen/render/homebrew.py` 与 `render/scoop.py`，或让 AI 按其逻辑生成）
 
-### 路径 B：uvx 拉起完整引擎（draft/validate/render 全流程）
+### 路径 B：uvx 拉起完整引擎
+
+在已有 `packages/` 目录的仓库根目录运行。
 
 ```bash
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen draft <owner/repo> --json
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen validate packages/<name>.json
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen render --only <name>
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen add owner/repo --name example-tool
 ```
 
 ## 工具位置

@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['packages/**']
   schedule:
-    - cron: '17 5 * * *'  # Daily at 05:17 UTC
+    - cron: '17 5 * * 1'  # Mondays at 05:17 UTC
   workflow_dispatch:
 
 permissions:
@@ -21,30 +21,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      - name: Install aria2
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq aria2
-
       - name: Generate Formula and Bucket
+        id: render
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u -m tribucket_gen render
+        run: |
+          exit_code=0
+          python -u -m tribucket_gen render || exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
       - name: Check for changes
         id: diff
         run: |
-          git diff --quiet Formula/ bucket/ packages/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+          git add -A -- Formula/ bucket/ packages/
+          changed=$(git diff --cached --name-only -- Formula/ bucket/ packages/)
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate packages before committing
+        if: steps.diff.outputs.changed == 'true'
+        run: python .github/scripts/validate-packages.py
 
       - name: Commit and push
         if: steps.diff.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/ bucket/ packages/
           python3 - <<'PY'
           import json, os, subprocess
 
@@ -77,8 +88,8 @@ jobs:
           # Formula-only entries (no bucket counterpart) are listed by formula name
           display = sorted(bucket_changes)
           formula_only = [fn for fn in sorted(formula_names)
-                          if fn.lower() not in bucket_changes
-                          and not os.path.exists(f"bucket/{fn.lower()}.json")]
+                          if fn not in bucket_changes
+                          and not os.path.exists(f"bucket/{fn}.json")]
           display += formula_only
 
           title_names = ", ".join(display) or "definitions"
@@ -106,5 +117,25 @@ jobs:
           PY
           git commit -F commit_msg.txt
           rm -f commit_msg.txt
-          git pull --rebase origin main
-          git push
+          git push origin HEAD:refs/heads/main
+
+      - name: Sync generated commit to CNB
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          CNB_TOKEN: ${{ secrets.CNB_TOKEN }}
+        run: |
+          if [[ -z "$CNB_TOKEN" ]]; then
+            echo "CNB_TOKEN is unset. Skipping mirror sync."
+            exit 0
+          fi
+          git -c credential.helper= \
+            -c 'credential.helper=!f() { if [ "$1" = get ]; then printf "username=cnb\npassword=%s\n" "$CNB_TOKEN"; fi; }; f' \
+            push https://cnb.cool/shisheng820/tribucket.git HEAD:refs/heads/main
+
+      - name: Report render failures
+        if: ${{ !cancelled() && steps.render.outputs.exit_code != '' && steps.render.outputs.exit_code != '0' }}
+        env:
+          RENDER_EXIT_CODE: ${{ steps.render.outputs.exit_code }}
+        run: |
+          echo "::error::Package render exited with status $RENDER_EXIT_CODE. See its summary for failed packages."
+          exit "$RENDER_EXIT_CODE"
