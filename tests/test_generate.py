@@ -579,6 +579,7 @@ class TestCheckverIntegration:
 
         monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
         monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.release._has_aria2", lambda: None)
 
         pkg = {
             "name": "demo",
@@ -619,6 +620,7 @@ class TestCheckverIntegration:
 
         monkeypatch.setattr("tribucket_gen.release.http_get", mock_http_get)
         monkeypatch.setattr("tribucket_gen.hashing.http_get", mock_http_get)
+        monkeypatch.setattr("tribucket_gen.release._has_aria2", lambda: None)
 
         pkg = {
             "name": "go",

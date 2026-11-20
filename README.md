@@ -1,46 +1,48 @@
 # tribucket
 
-Issue 驱动的多软件源聚合仓库：提交一个 GitHub 仓库，自动生成 **Homebrew Formula** 与 **Scoop bucket**。
+**v4.1 Maintenance Edition** 是以 Windows Scoop 为主的个人软件源，同时为支持的包提供 Homebrew Formula。这里收录 Scoop 官方 `main`、`extras`、`java` 尚未收录的软件，包括自维护工具。
 
-## 安装软件
+## Windows · Scoop
 
-```bash
-# Homebrew
-brew install sixiang-world/tribucket/<name>
-# Scoop
+```powershell
 scoop bucket add tribucket https://github.com/sixiang-world/tribucket
-scoop install <name>
+scoop install tribucket/qqmail-cli
 ```
 
-全部可用包见 [`packages/`](packages/) 目录（106+ 个）。
+将 `qqmail-cli` 替换为所需包名。可用清单见 [`bucket/`](bucket/)。
 
-## 提交新包
+已由官方桶维护的软件请从对应桶安装。`main` 随 Scoop 提供，`extras` 和 `java` 可用 `scoop bucket add extras` 和 `scoop bucket add java` 启用。[Scoop 官方桶列表](https://github.com/ScoopInstaller/Scoop#known-application-buckets)
 
-1. [打开一个包提交 Issue](https://github.com/sixiang-world/tribucket/issues/new?template=package-submission.yml)，填几个基本字段（仓库 URL、一句话描述）
-2. 机器人分析最新 Release 资产，自动生成包定义并贴回评论
-3. 确认无误后回复 `@tribucket-bot confirm` —— 一次 commit 原子入库（定义 + Formula + bucket）
+## Homebrew
 
-支持的资产命名模板见 [skills/tribucket-gen/templates.json](skills/tribucket-gen/templates.json)；不在模板内的仓库会转人工处理。
+```bash
+brew tap sixiang-world/tribucket https://github.com/sixiang-world/tribucket.git
+brew install sixiang-world/tribucket/qqmail-cli
+```
+
+可用清单见 [`Formula/`](Formula/)。
+
+## 本地维护
+
+维护者在本地新增或修改 `packages/*.json`。公开 Issue 收包流程已停用。用 `tribucket_gen` 的 `draft` 起草、`validate` 校验，再用 `render` 生成 Scoop 清单和 Homebrew Formula。也可让 Codex 按仓库技能完成同一流程。[维护步骤](AGENTS.md#adding-a-package) · [tribucket-gen 技能](skills/tribucket-gen/SKILL.md)
+
+GitHub Actions 每日检查上游版本。CNB 镜像同步可在推送 `main` 时触发，也可手动运行。
 
 ## 独立使用 tribucket-gen
 
-不依赖本仓库，给自己维护的 tap/bucket 生成软件源：
+引擎支持 Python 3.9+，仅使用标准库。在自己维护的 tap 或 bucket 根目录起草并校验定义。
 
 ```bash
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen draft <owner/repo> --json
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen validate packages/<name>.json
-uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen render --only <name>
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen draft owner/repo --name example-tool --out example-tool.json
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen validate example-tool.json
 ```
 
-（Python 3.9+，仅标准库。也可安装 [skill](skills/tribucket-gen/) 到你的 AI Agent。）
-
-## 引擎命令（仓库内）
+通过后将定义移入 `packages/`，再生成安装清单。
 
 ```bash
-python -m tribucket_gen render [--only NAME] [--dry-run]   # 生成 Formula/bucket
-python -m tribucket_gen check                              # 全库资产模式体检
-python -m tribucket_gen draft <owner/repo> --json          # repo → 包定义草稿
-python -m tribucket_gen validate <file>                    # 定义校验
+uvx --from git+https://github.com/sixiang-world/tribucket tribucket-gen render --only example-tool
 ```
 
-上游新版本由 CI 每日自动跟进（cron）；详见 [AGENTS.md](AGENTS.md)。
+## 许可证
+
+仓库使用 [MIT 许可证](LICENSE)。软件包的许可证记录在各自的定义中。

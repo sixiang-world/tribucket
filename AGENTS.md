@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-tribucket 是 Issue 驱动的多软件源聚合仓库：`packages/*.json`（唯一数据源）→ tribucket_gen 引擎 → `Formula/*.rb`（Homebrew）+ `bucket/*.json`（Scoop）。贡献走 Issue 表单流水线（提交 → 机器人生成 → 作者 confirm → 单 commit 入库）。
+tribucket v4.1 Maintenance Edition 是以 Windows Scoop 为主的个人软件源，同时保留 Homebrew 兼容。`packages/*.json` 是唯一数据源，由 `tribucket_gen` 生成 `bucket/*.json` 和 `Formula/*.rb`。包定义由维护者在本地维护，可用 Codex 协助。公开 Issue 收包流程已停用。
 
 - 引擎是 Python 3.9+ 包（仅标准库，零第三方依赖），也可脱离本仓库独立使用（`uvx --from git+... tribucket-gen ...`，或作为 [skill](skills/tribucket-gen/SKILL.md) 装进 AI Agent）
 - 旧架构（tribucket CLI、网站、KV 分发链路）已归档下线，代码在 `archive/cli-v2/`，仅作历史参考
@@ -10,10 +10,10 @@ tribucket 是 Issue 驱动的多软件源聚合仓库：`packages/*.json`（唯�
 ## Critical Rules
 
 1. **绝不手工编辑** `Formula/*.rb`、`bucket/*.json` —— 全部由 `python -m tribucket_gen render` 生成
-2. 包变更只进 `packages/*.json`（维护者手工路径）或 Issue 流水线（社区路径）
+2. 收录 Scoop 官方 `main`、`extras`、`java` 尚未收录的软件。按清单文件名和上游来源核对是否重复。改包先改 `packages/*.json`，下架时同时删除对应的定义、Scoop 清单和 Formula
 3. `templates.json` 权威源在 `skills/tribucket-gen/templates.json`，引擎与 skill 共享，不得再复制副本；`tribucket_gen/templates.json` 是随 wheel 分发的 vendored 副本（安装成包后 `skills/` 不存在时兜底），与权威源的字节一致性由 `tests/test_draft.py::test_vendored_templates_in_sync` 守护，不要手改副本
 4. `GITHUB_TOKEN` 提升 API 限额；`HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` 代理支持（`release.http_get` 走 urllib 环境代理，`download_file` 传 token header）
-5. 渲染逻辑只有一份（`tribucket_gen/render/`），Issue 入库与 cron 每日更新共用同一条 render 路径 —— 不要在 CI 脚本里另写生成逻辑
+5. 本地维护与 CI 共用 `tribucket_gen/render/` 的渲染逻辑
 
 ## Repository Layout
 
@@ -36,15 +36,9 @@ tribucket_gen/               # 生成引擎（Python 3.9+，仅标准库）
     └── portable.py          #     portable/<name>/（可选，--portable 触发）
 
 .github/workflows/
-├── issue-draft.yml          #   Issue opened/edited → 解析表单 → draft → validate → 评论 + drafted 标签
-├── issue-confirm.yml        #   作者回复 @tribucket-bot confirm → 重校验 → 单 commit 入库
 ├── generate.yml             #   每日 cron + packages/** push → render → 自动 commit
 ├── validate.yml             #   push/PR → schema + sha256 非空 + render dry-run + check
 └── mirror-sync.yml          #   push → 全量镜像到 CNB
-
-.github/ISSUE_TEMPLATE/
-├── package-submission.yml   #   包提交表单（仓库 URL / 包名 / 一句话描述 / binary 名称 / license / 备注）
-└── config.yml
 
 skills/tribucket-gen/        # AI Agent skill（SKILL.md + templates.json 权威源 + fetch_release.sh）
 tests/                       # pytest 单元测试；fixture 定义在 tests/fixtures/packages/
@@ -53,44 +47,6 @@ archive/cli-v2/              # 归档：旧 tribucket CLI（TypeScript，编译�
 archive/python-v1/           # 归档：v1 Python CLI —— 仅历史参考
 pyproject.toml               # 控制台脚本 tribucket-gen + wheel package-data（templates.json）
 ```
-
-## Issue 提交流水线
-
-### 表单字段（package-submission.yml）
-
-| 字段 | 必填 | 说明 |
-|------|------|------|
-| `仓库 URL` | ✅ | `https://github.com/owner/repo`（正则校验，`.git` 后缀自动剥除） |
-| `包名` | ❌ | 留空则用仓库名（sanitize 为 `^[a-z0-9][a-z0-9-]*$`） |
-| `一句话描述` | ✅ | 写入 Formula 与 bucket |
-| `binary 名称` | ❌ | 留空则用包名 |
-| `license` | ❌ | 留空则从 GitHub API 自动探测（SPDX） |
-| `备注` | ❌ | 仅人工阅读，不进定义 |
-
-### issue-draft.yml（on: issues opened/edited；body 含 `### 仓库 URL` 才触发）
-
-1. **解析表单**（按 `### <label>` 分节；失败 → 评论提示，**不关 Issue**，作者编辑后自动重跑）
-2. **Rate limit**：同一作者已有 >3 个含表单的 open Issue → 评论 + 关闭（上限 3）
-3. **draft**：`python -m tribucket_gen draft <repo> --json --out` —— rc=0 继续；rc=1（网络/临时错误）→ 评论提示稍后编辑重试；rc=2（无已知模板）→ 评论 + `needs-manual` 标签 + 关闭
-4. **validate**：`validate draft.json` 不过 → 贴出全部错误，作者编辑重试
-5. **成功**：贴生成的定义 JSON + 加 `drafted` 标签，提示作者回复 `@tribucket-bot confirm`
-
-### issue-confirm.yml（on: issue_comment created）
-
-守卫（全部满足才跑）：评论者 == Issue 作者（author-only）&& 评论体精确等于 `@tribucket-bot confirm`（`==`，非子串）&& 非 PR && 有 `drafted` 标签且无 `processing` 标签。
-
-流程：`drafted` → `processing` → 重新解析表单 → **重 draft + 重 validate**（服务端复核，不信任 Issue 内容）→ `render --only <name>` → **单 commit** `pkg: add <name> (via #N)` 写入 `packages/<name>.json` + `Formula/<name>.rb` + `bucket/<name>.json` → 关 Issue 并贴 commit SHA。中途失败 → 评论 + 恢复 `drafted` 状态。
-
-### 安全机制（6 条）
-
-1. **Author-only confirm**：只有 Issue 作者本人的评论能触发入库
-2. **精确口令匹配**：评论体整体 `==` `@tribucket-bot confirm`，防止口令夹带在长文本里被误触发
-3. **服务端复核**：confirm 时重新 draft + validate，绝不直接采用 Issue/评论中的定义文本
-4. **asset_pattern 永不由用户输入**：完全由 draft 从模板 + 真实 Release 资产推导
-5. **包名白名单**：`^[a-z0-9][a-z0-9-]*$`（draft sanitize + validate 双重校验），杜绝路径注入与 Ruby/JSON 断行
-6. **仓库级 commit 串行化**：issue-confirm.yml 与 generate.yml 共用 `concurrency: package-commits`（cancel-in-progress: false），confirm 提交与 cron 渲染不会在 push 上互相冲撞
-
-残余风险（已接受）：作者 confirm 一个指向自己仓库 Release 的恶意包 —— 定义生成自其自己仓库的资产，流水线无法区分。处置方式：revert 入库 commit 即完成下架（删 `packages/<name>.json` 及对应渲染产物）。
 
 ## 引擎命令
 
@@ -104,7 +60,7 @@ python -m tribucket_gen --version
 
 - **render**：packages/*.json → Formula/bucket。download_url 包的新版本自动写回 `packages/<name>.json`；`--dry-run` 只打印不写盘；`--skip-hash` 跳过 SHA256（快速迭代）
 - **check**：全库 asset_pattern 对最新 Release 体检（✅ 全中 / ⚠️ 部分缺失 / ❌ 零匹配）
-- **draft**：repo → 定义草稿。**退出码语义：0 成功；1 通用/网络错误；2 无已知模板**（CI 由此分流 needs-manual）
+- **draft** 生成定义草稿。退出码 `0` 表示成功，`1` 表示通用或网络错误，`2` 表示无匹配模板
 - **validate**：定义校验（schema + 在线资产匹配）。退出码 0/1；`-` 从 stdin 读；`--offline` 跳过在线检查
 - render/check 必须在仓库根目录运行（依赖 `packages/`）；draft/validate 可独立运行
 - `pyproject.toml` 安装后另有等价控制台脚本 `tribucket-gen`
@@ -123,29 +79,27 @@ python -m tribucket_gen --version
 ## Testing
 
 ```bash
-py -m pytest tests/ -q        # 123 passed, 3 skipped
+python -m pytest tests/ -q
 ```
 
 - 全部单元测试**无网络**：GitHub 交互经 `fetcher` / `meta_fetcher` 参数注入（monkeypatch），fixture 定义放在 `tests/fixtures/packages/`
 - `test_draft.py`：模板匹配、alias-rescue 双规则、退出码映射、**vendored templates 字节一致守护**
-- `test_render_registry.py`：注册表与渲染输出；`test_validate.py`：schema + ≥2 平台规则；`test_checkver.py` / `test_checkver_fix.py`：版本探测三模式及其回归修复；`test_generate.py`：核心渲染流程
+- `test_render_registry.py`：注册表与渲染输出；`test_validate.py`：schema + ≥2 平台规则；`test_checkver.py`：版本探测；`test_generate.py`：核心渲染流程
 
 ## CI
 
-- **generate.yml**：cron `17 5 * * *`（每日 05:17 UTC）+ push 到 main 的 `packages/**` + workflow_dispatch。跑 `python -m tribucket_gen render`，有变更则自动提交 `chore: update Formula/Bucket (...)`（正文逐包列版本变化）。concurrency `package-commits`（与 issue-confirm 串行）
-- **issue-draft.yml / issue-confirm.yml**：见「Issue 提交流水线」
-- **validate.yml**（未改动）：push/PR 触发（packages/Formula/bucket/workflows 路径）→ JSON schema + 必填字段检查 → Formula sha256 非空 → bucket hash 非空 → `render --dry-run --skip-hash` → `check`
-- **mirror-sync.yml**（未改动）：push 到 main → 全量镜像到 CNB
-- **无 release 流水线**：release.yml / .cnb.yml 已删除 —— 本仓库只产出软件源定义，不分发自身二进制
+- **generate.yml** 每日 05:17 UTC 运行，推送 `packages/**` 到 `main` 或手动触发也会运行。执行 `python -m tribucket_gen render`，有变更时自动提交
+- **validate.yml** 在包数据、产物或工作流变更时检查定义、产物的哈希和最新 Release 的资产匹配，并试跑 `render --dry-run --skip-hash`
+- **mirror-sync.yml** 在推送 `main` 或手动触发时将分支和标签同步到 CNB
 
-## Adding a Package（维护者手工路径）
+## Adding a Package
 
-社区路径走 Issue 表单（见 README「提交新包」），机器人全自动。维护者手工路径用于模板覆盖不到、需要人工判断的包：
+在仓库根目录执行。可让 Codex 按同样的步骤操作，并使用仓库的 [tribucket-gen 技能](skills/tribucket-gen/SKILL.md) 检查 Release 资产。
 
-1. 编辑 `packages/<name>.json`：必填 `name` / `repo` / `description` / `binary` / `license` / `homepage` + `asset_pattern`（6 平台全键：`linux_amd64` `linux_arm64` `darwin_amd64` `darwin_arm64` `windows_amd64` `windows_arm64`，不支持的平台填 `"NO_MATCH"`，不要省略键）
-2. `python -m tribucket_gen render --only <name>`（可先 `--dry-run` 预览）生成 Formula + bucket，SHA256 自动计算
-3. `python -m tribucket_gen validate packages/<name>.json` 自检
-4. 三个文件一起提交（conventional commit，如 `pkg: add <name>`）
+1. 核对 Scoop 官方三个桶里的包名和上游来源。用 `python -m tribucket_gen draft owner/repo --name example-tool --out example-tool.json` 在 `packages/` 之外起草定义。无匹配模板时，可参考现有定义，根据真实 Release 资产编写
+2. 审阅定义。必填 `name`、`repo`、`description`、`binary`、`license`、`homepage` 和 `asset_pattern`。`asset_pattern` 保留 `linux_amd64`、`linux_arm64`、`darwin_amd64`、`darwin_arm64`、`windows_amd64`、`windows_arm64` 六个键，缺失的平台填 `"NO_MATCH"`
+3. 运行 `python -m tribucket_gen validate example-tool.json`，通过后将定义移入 `packages/`。先校验再移入，因为 `validate` 会检查同名包是否已存在
+4. 运行 `python -m tribucket_gen render --only example-tool` 生成 Scoop 清单和可用的 Formula，SHA256 由引擎计算。检查产物并与定义一起提交，例如 `pkg: add example-tool`
 
 `asset_pattern` 取值：完整资产名 / 含 `*` 的 glob / 平台尾巴子串（如 `x86_64-pc-windows-msvc.zip`）均可 —— match_asset 两级匹配会命中 `bat-v0.26.1-x86_64-pc-windows-msvc.zip` 这样的真实资产。
 

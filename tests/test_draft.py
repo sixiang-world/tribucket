@@ -289,8 +289,7 @@ def test_draft_error_kind_attribute():
 
 
 def test_cmd_draft_exit_code_mapping(monkeypatch, capsys):
-    """cmd_draft pins the exit contract: no-template DraftError -> 2
-    (needs-manual in CI), other DraftError -> 1, transient error -> 1."""
+    """Draft returns 2 for no template and 1 for other failures."""
     import tribucket_gen.__main__ as cli
 
     def no_template(repo, **kw):
