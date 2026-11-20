@@ -1,17 +1,17 @@
 class DragonwellJdk21 < Formula
   desc "Alibaba Dragonwell - downstream distribution of OpenJDK"
   homepage "https://www.aliyun.com/product/dragonwell"
-  version "21.0.11.0.11+10"
+  version "21.0.13.0.13+9"
   license "GPL-2.0"
 
   on_linux do
     on_arm do
-      url "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_aarch64_linux.tar.gz"
-      sha256 "326cee2bffa56f255ccc6b581904c91e3c5cd7b28cc2eb20afb0531cf476f94d"
+      url "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.13.0.13%2B9_jdk-21.0.13-ga/Alibaba_Dragonwell_Extended_21.0.13.0.13.9_aarch64_linux.tar.gz"
+      sha256 "2b2e5df7449a0c7c8764e2fbf169420a588224723b3ed839424e6f7743dfcdbe"
     end
     on_intel do
-      url "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.11.0.11%2B10_jdk-21.0.11-ga/Alibaba_Dragonwell_Extended_21.0.11.0.11.10_x64_linux.tar.gz"
-      sha256 "12c642f8d6c6e0930b9b4e673d47822227ea46e7559c7b7b6b4c0331ace0580f"
+      url "https://github.com/dragonwell-project/dragonwell21/releases/download/dragonwell-extended-21.0.13.0.13%2B9_jdk-21.0.13-ga/Alibaba_Dragonwell_Extended_21.0.13.0.13.9_x64_linux.tar.gz"
+      sha256 "9b1a05a13e343afea4c42c01110e058fbf8aea9cf317d712f31931acf36b4938"
     end
   end
 
