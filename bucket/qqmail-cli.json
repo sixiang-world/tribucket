@@ -1,16 +1,16 @@
 {
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Unofficial safety-first QQ Mail CLI for scripts and AI agents",
   "homepage": "https://github.com/sixiang-world/qqmail-cli",
   "license": "Apache-2.0",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/sixiang-world/qqmail-cli/releases/download/v0.5.0/qqmail-cli_0.5.0_windows_amd64.zip",
-      "hash": "a5b1604715e26a7b25ae83b3a70eba99af28b4d8dfd355ea0b7f4fc804168300"
+      "url": "https://github.com/sixiang-world/qqmail-cli/releases/download/v0.6.0/qqmail-cli_0.6.0_windows_amd64.zip",
+      "hash": "863d74a2cb7c016bd89b919e1ee701b611aeef242214dbb3f7897d13b62b311f"
     },
     "arm64": {
-      "url": "https://github.com/sixiang-world/qqmail-cli/releases/download/v0.5.0/qqmail-cli_0.5.0_windows_arm64.zip",
-      "hash": "f28d3ce6acdf7180abdbf5311def8dbfa40708a755ba07fc6fb17b16a4f35ff0"
+      "url": "https://github.com/sixiang-world/qqmail-cli/releases/download/v0.6.0/qqmail-cli_0.6.0_windows_arm64.zip",
+      "hash": "e4f66b1040e40b51e70996de7914cbd506b47b379f55db2fa54f5bcc4aa1057c"
     }
   },
   "bin": [

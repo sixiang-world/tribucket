@@ -1,12 +1,12 @@
 {
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "AI video translation and dubbing tool powered by LLMs",
   "homepage": "https://github.com/KrillinAI/KrillinAI",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/krillinai/OpenCreator/releases/download/v3.3.3/KrillinAI-CLI-3.3.3-win-x64.zip",
-      "hash": "e0f7b47b7ae2eb4bff3d234332de3eb0df51f10251719876056b544a95ce09e0"
+      "url": "https://github.com/krillinai/OpenCreator/releases/download/v3.3.4/KrillinAI-CLI-3.3.4-win-x64.zip",
+      "hash": "3f8cb8a92074c784b7736f1531c2bc5807abb966daa98f9ff9d375dacea97e53"
     }
   },
   "bin": [
